@@ -14,7 +14,7 @@ RUN chmod 755 /entrypoint.sh && \
     apt-get upgrade -y && \
     apt-get install -y wget python-six && \
     cd /root && \
-    wget "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" && \
+    wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" && \
     tar xfz "/root/zulip-server-$ZULIP_VERSION.tar.gz" -C /root && \
     mv "/root/zulip-server-$ZULIP_VERSION" "$ZULIP_DIR" && \
     cd "ZULIP_DIR" && \
