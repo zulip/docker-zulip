@@ -18,6 +18,8 @@ RUN chmod 755 /entrypoint.sh && \
     tar xfz "/root/zulip-server-$ZULIP_VERSION.tar.gz" -C /root && \
     mv "/root/zulip-server-$ZULIP_VERSION" "$ZULIP_DIR" && \
     cd "$ZULIP_DIR" && \
-    ./scripts/setup/install
+    ./scripts/setup/install && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENTRYPOINT /entrypoint.sh
