@@ -10,11 +10,15 @@ RUN chmod 755 /entrypoint.sh && \
     mkdir -p "$ZULIP_DIR" && \
     groupadd -g 3000 -r "$ZULIP_GROUP" && \
     useradd -u 3000 -r -g "$ZULIP_GROUP" -d "$ZULIP_DIR" "$ZULIP_USER" && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install wget && \
     cd /tmp && \
     wget "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" && \
     if [ "$(sha1sum -c {file}.sha1)" != "$ZULIP_CHECKSUM" ]; then exit 1; fi && \
     tar xfz "zulip-server-$ZULIP_VERSION.tar.gz" -C /opt && \
     mv "/opt/zulip-server-$ZULIP_VERSION" "$ZULIP_DIR" && \
     cd "ZULIP_DIR" && \
-    ./scripts/setup/install && \
+    ./scripts/setup/install
+    
 ENTRYPOINT /entrypoint.sh
