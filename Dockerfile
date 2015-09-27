@@ -7,9 +7,6 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/root/zulip" \
 
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && \
-    mkdir -p "$ZULIP_DIR" && \
-    groupadd -g 3000 -r "$ZULIP_GROUP" && \
-    useradd -u 3000 -r -g "$ZULIP_GROUP" -d "$ZULIP_DIR" "$ZULIP_USER" && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget python-six && \
