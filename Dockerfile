@@ -10,7 +10,7 @@ RUN chmod 755 /entrypoint.sh && \
     mkdir -p "$ZULIP_DIR" && \
     apt-get update -q && \
     apt-get upgrade -y && \
-    apt-get install -y wget python-dev python-six python-pbs && \
+    apt-get install -y git wget python-dev python-six python-pbs && \
     git clone https://github.com/zulip/zulip.git /srv/zulip && \
     git checkout "tags/$ZULIP_VERSION" && \
     python "$ZULIP_DIR/provision.py" && \
