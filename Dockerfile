@@ -12,6 +12,7 @@ RUN chmod 755 /entrypoint.sh && \
     apt-get upgrade -y && \
     apt-get install -y git wget python-dev python-six python-pbs && \
     git clone https://github.com/zulip/zulip.git "$ZULIP_DIR" && \
+    cd "$ZULIP_DIR" && \
     git checkout tags/"$ZULIP_VERSION" && \
     python "$ZULIP_DIR/provision.py" && \
     apt-get --purge -y -q remove memcached rabbitmq-server redis-server postgresql-9.3 && \
