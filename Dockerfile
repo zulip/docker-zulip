@@ -2,21 +2,19 @@ FROM ubuntu:trusty
 
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/root/zulip" \
-    ZULIP_VERSION="1.3.3" ZULIP_CHECKSUM="60943383289101b0eb84f0ff638c20fcc355511b"
+ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/srv/zulip" \
+    ZULIP_VERSION="1.3.5"
 
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && \
-    apt-get update && \
+    mkdir -p "$ZULIP_DIR" && \
+    apt-get update -q && \
     apt-get upgrade -y && \
-    apt-get install -y wget python-six && \
-    wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -P "/root" && \
-    tar xfz "/root/zulip-server-$ZULIP_VERSION.tar.gz" -C "/root" && \
-    ls -ahl "/root" && \
-    mv "/root/zulip-server-$ZULIP_VERSION" "$ZULIP_DIR" && \
-    cd "$ZULIP_DIR" && \
-    ls -ahl "/root" "$ZULIP_DIR" && \
-    "$ZULIP_DIR/scripts/setup/install" && \
+    apt-get install -y wget python-dev python-six python-pbs && \
+    git clone https://github.com/zulip/zulip.git /srv/zulip && \
+    git checkout tags/1.3.5 && \
+    python "$ZULIP_DIR/provision.py" && \
+    apt-get --purge -y -q remove memcached rabbitmq-server redis-server postgresql-9.3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
