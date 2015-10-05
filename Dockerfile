@@ -9,7 +9,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && \
     groupadd -r "zulip" && \
-    useradd -r -g "zulip" -d "/home/zulip" "zulip"
+    useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     apt-get -qq install -y git wget python-{dev,six,pbs} supervisor && \
