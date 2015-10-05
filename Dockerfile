@@ -8,14 +8,18 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
 
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && \
+    groupadd -r "zulip" && \
+    useradd -r -g "zulip" -d "/home/zulip" "zulip"
+    apt-get -qq update -q && \
+    apt-get -qq dist-upgrade -y && \
+    apt-get -qq install -y git wget python-{dev,six,pbs} supervisor && \
     wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
-    mkdir -p "$DATA_DIR" "$ZULIP_DIR" && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
-    apt-get -qq install -y git wget python-{dev,six,pbs} supervisor && \
+    mkdir -p "$DATA_DIR" "$ZULIP_DIR" && \
     git clone https://github.com/galexrt/zulip.git "$ZULIP_DIR" && \ # TODO: Change this to the docker build repo including all the needed files
     cd "$ZULIP_DIR" && \
     git checkout tags/"$ZULIP_VERSION" && \
