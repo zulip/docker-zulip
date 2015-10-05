@@ -7,7 +7,7 @@ class zulip::camo {
   package { $camo_packages: ensure => "installed" }
   # The configuration file is generated at install time
   file { "/etc/supervisor/conf.d/camo.conf":
-    require => Package[camo],
+    require => [ Package[supervisor], Package[camo] ],
     ensure => file,
     owner => "root",
     group => "root",

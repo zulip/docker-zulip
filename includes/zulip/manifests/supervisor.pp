@@ -11,4 +11,9 @@ class zulip::supervisor {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/supervisord.conf",
   }
+  file { '/etc/supervisor/conf.d':
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'root',
+  }
 }
