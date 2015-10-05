@@ -35,7 +35,8 @@ RUN chmod 755 /entrypoint.sh && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH/zproject/local_settings.py" && \
-    ls -ahl "$ZULIP_DEPLOY_PATH" "$ZULIP_DEPLOY_PATH/prod-static" && \
+    "$ZULIP_DIR/deployments/current/tools/update-prod-static" && \
+    ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static" && \
     cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static" && \
     chown -R zulip:zulip /root/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
