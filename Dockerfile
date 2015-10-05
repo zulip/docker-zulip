@@ -7,6 +7,8 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
 
 ADD entrypoint.sh /entrypoint.sh
+RUN mkdir -p /root/zulip-puppet
+ADD includes/ /root/zulip-puppet
 # TODO: Change this to the docker build repo including all required files
 # zulip.conf file is also located in includes folder
 RUN chmod 755 /entrypoint.sh && \
@@ -27,8 +29,9 @@ RUN chmod 755 /entrypoint.sh && \
     git checkout tags/"$ZULIP_VERSION" && \
     mkdir -p /etc/zulip && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
-    cat /etc/zulip/zulip.conf && \
-    /root/zulip/scripts/zulip-puppet-apply -f -m  "/root/zulip/puppet/docker" && \
+    sed -i 's/--modulepath=/root/zulip/puppet/--modulepath=/root/zulip-puppet/g' /root/zulip/scripts/zulip-puppet-apply && \
+    /root/zulip/scripts/zulip-puppet-apply -f && \
+    rm -rf /root/zulip-puppet && \
     /root/zulip/scripts/setup/generate_secrets.py && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
