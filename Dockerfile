@@ -26,7 +26,7 @@ RUN chmod 755 /entrypoint.sh && \
     cd "/root/zulip" && \
     git checkout tags/"$ZULIP_VERSION" && \
     mkdir -p /etc/zulip && \
-    echo -e "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
+    echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     cat /etc/zulip/zulip.conf && \
     /root/zulip/scripts/zulip-puppet-apply -f -m  "/root/zulip/puppet/docker" && \
     /root/zulip/scripts/setup/generate_secrets.py && \
