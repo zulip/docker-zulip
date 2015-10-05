@@ -1,0 +1,45 @@
+#!/usr/bin/python
+
+import sys
+import subprocess
+import ConfigParser
+import re
+
+force = False
+extra_args = sys.argv[1:]
+
+if len(extra_args) and extra_args[0] in ('-f', '--force'):
+    force = True
+    extra_args = extra_args[1:]
+
+config = ConfigParser.RawConfigParser()
+config.read("/etc/zulip/zulip.conf")
+
+puppet_config = """
+Exec { path => "/usr/sbin:/usr/bin:/sbin:/bin" }
+include apt
+"""
+
+for pclass in re.split(r'\s*,\s*', config.get('machine', 'puppet_classes')):
+    puppet_config += "include %s\n" % (pclass,)
+
+print puppet_config
+
+puppet_cmd = ["puppet", "apply", "--modulepath=/root/zulip/puppet", "-e", puppet_config]
+puppet_cmd += extra_args
+
+if force:
+    subprocess.check_call(puppet_cmd)
+    sys.exit(0)
+
+subprocess.check_call(puppet_cmd + ['--noop', '--show_diff'])
+
+do_apply = None
+while not (do_apply == 'y' or do_apply == 'n'):
+    sys.stdout.write("Apply changes? [y/N] ")
+    do_apply = sys.stdin.readline().strip().lower()
+    if do_apply == '':
+        do_apply = 'n'
+
+if do_apply == 'y':
+    subprocess.check_call(puppet_cmd)
