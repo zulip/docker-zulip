@@ -20,11 +20,10 @@ RUN chmod 755 /entrypoint.sh && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -qq dist-upgrade -y && \
-    mkdir -p "/root/zulip" && \
+    mkdir -p "/root/zulip" "$ZULIP_DIR" "/etc/zulip" && \
     git clone https://github.com/zulip/zulip.git "/root/zulip" && \
     cd "/root/zulip" && \
     git checkout tags/"$ZULIP_VERSION" > /dev/null 2>&1 && \
-    mkdir -p /etc/zulip && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
     mv -f /root/zulip-puppet /root/zulip/puppet/zulip && \
