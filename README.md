@@ -5,6 +5,8 @@ Zulip Server as a Docker Image
 
 #### Don't use the master branch (I'm not really testing when commiting to master!!), use a version branch when available!!
 
-See https://zulip.org/ for details about the Zulip Server
-
 Docker Hub https://hub.docker.com/r/galexrt/zulip/
+
+___
+
+See https://zulip.org/ for details about the Zulip Server
