@@ -23,7 +23,7 @@ RUN chmod 755 /entrypoint.sh && \
     mkdir -p "/root/zulip" && \
     git clone https://github.com/zulip/zulip.git "/root/zulip" && \
     cd "/root/zulip" && \
-    git checkout tags/"$ZULIP_VERSION" && \
+    git checkout tags/"$ZULIP_VERSION" > /dev/null 2>&1 && \
     mkdir -p /etc/zulip && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
