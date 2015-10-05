@@ -8,7 +8,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
 
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && \
-    wget -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
+    wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
@@ -33,7 +33,8 @@ RUN chmod 755 /entrypoint.sh && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH"/zproject/local_settings.py && \
     cp -rT "$ZULIP_DEPLOY_PATH"/prod-static/serve /home/zulip/prod-static && \
     chown -R zulip:zulip /root/zulip /var/log/zulip /etc/zulip/settings.py && \
-    apt-get clean && \
+    apt-get -qq autoremove --purge -y && \
+    apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENTRYPOINT /entrypoint.sh
