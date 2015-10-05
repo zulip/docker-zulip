@@ -143,4 +143,12 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/cron.d/check-apns-tokens",
   }
+  file { "/etc/supervisor/conf.d/cron.conf":
+    require => Package[supervisor],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/cron.conf",
+  }
 }
