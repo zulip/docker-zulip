@@ -1,0 +1,5 @@
+# This is the string generated in the zulip-puppet-apply script
+# It is here for documentation purpose, it isn't used in the Dockerfile
+Exec { path => "/usr/sbin:/usr/bin:/sbin:/bin" }
+include apt
+include zulip::voyager

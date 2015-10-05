@@ -8,11 +8,9 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
 
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip /root/zulip-puppet
-ADD includes/zulip-puppet-apply /root/zulip-puppet-apply
 # TODO: Change this to the docker build repo including all required files
 # zulip.conf file is also located in includes folder
-# Orig zulip-puppet-apply path /root/zulip/scripts/zulip-puppet-apply
-RUN chmod 755 /entrypoint.sh /root/zulip-puppet-apply && \
+RUN chmod 755 /entrypoint.sh && \
     groupadd -r "zulip" && \
     useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
     apt-get -qq update -q && \
@@ -33,8 +31,7 @@ RUN chmod 755 /entrypoint.sh /root/zulip-puppet-apply && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
     mv -f /root/zulip-puppet /root/zulip/puppet/zulip && \
     ls -ahl /root/zulip/puppet /root/zulip/puppet/zulip /root && \
-    /root/zulip-puppet-apply -f && \
-    /root/zulip/scripts/setup/generate_secrets.py && \
+    puppet apply --modulepath=/root/zulip/puppet -e "Exec { path => \"/usr/sbin:/usr/bin:/sbin:/bin\" }\ninclude apt\ninclude zulip::voyager" && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
     ZULIP_DEPLOY_PATH=$(/root/zulip/zulip_tools.py make_deploy_path) && \

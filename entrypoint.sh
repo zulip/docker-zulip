@@ -39,6 +39,7 @@ function initialize-database(){
 
 if [ ! -f "$ZULIP_DIR/.initiated" ]; then
   echo "Initiating Zulip ..."
+  /root/zulip/scripts/setup/generate_secrets.py
   # Init Postgres database server
   postgres-init-db
 
