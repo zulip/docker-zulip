@@ -8,9 +8,9 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip /root/zulip-puppet
 # Self made puppet command: puppet apply --modulepath=/root/zulip/puppet -e "Exec { path => \"/usr/sbin:/usr/bin:/sbin:/bin\" }\ninclude apt\ninclude zulip::voyager"
+# groupadd -r "zulip" && \
+# useradd -r -g "zulip" -d "$ZULIP_DIR" "zulip" && \
 RUN chmod 755 /entrypoint.sh && \
-    groupadd -r "zulip" && \
-    useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     apt-get -qq install -y puppet git wget python-dev python-six python-pbs && \
@@ -20,7 +20,7 @@ RUN chmod 755 /entrypoint.sh && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -qq dist-upgrade -y && \
-    mkdir -p "/root/zulip" "$ZULIP_DIR" "/etc/zulip" && \
+    mkdir -p "/root/zulip" "/etc/zulip" && \
     git clone https://github.com/zulip/zulip.git "/root/zulip" && \
     cd "/root/zulip" && \
     git checkout tags/"$ZULIP_VERSION" > /dev/null 2>&1 && \
@@ -31,14 +31,14 @@ RUN chmod 755 /entrypoint.sh && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
     ZULIP_DEPLOY_PATH=$(/root/zulip/zulip_tools.py make_deploy_path) && \
-    ls -ahl "/home/zulip/deployments" "$ZULIP_DEPLOY_PATH" && \
+    ls -ahl "$ZULIP_DIR/deployments" "$ZULIP_DEPLOY_PATH" && \
     mkdir -p "$ZULIP_DEPLOY_PATH" && \
     mv /root/zulip "$ZULIP_DEPLOY_PATH" && \
-    ln -nsf /home/zulip/deployments/next /root/zulip && \
-    ln -nsf "$ZULIP_DEPLOY_PATH" /home/zulip/deployments/next && \
-    ln -nsf "$ZULIP_DEPLOY_PATH" /home/zulip/deployments/current && \
+    ln -nsf "$ZULIP_DIR/deployments/next /root/zulip && \
+    ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
+    ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH"/zproject/local_settings.py && \
-    cp -rT "$ZULIP_DEPLOY_PATH"/prod-static/serve /home/zulip/prod-static && \
+    cp -rT "$ZULIP_DEPLOY_PATH"/prod-static/serve "$ZULIP_DIR/prod-static" && \
     chown -R zulip:zulip /root/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
