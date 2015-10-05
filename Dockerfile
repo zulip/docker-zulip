@@ -7,6 +7,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
 
 ADD entrypoint.sh /entrypoint.sh
+# TODO: Change this to the docker build repo including all the needed files
 RUN chmod 755 /entrypoint.sh && \
     groupadd -r "zulip" && \
     useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
@@ -20,7 +21,7 @@ RUN chmod 755 /entrypoint.sh && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     mkdir -p "$ZULIP_DIR" && \
-    git clone https://github.com/galexrt/zulip.git "$ZULIP_DIR" && \ # TODO: Change this to the docker build repo including all the needed files
+    git clone https://github.com/galexrt/zulip.git "$ZULIP_DIR" && \
     cd "$ZULIP_DIR" && \
     git checkout tags/"$ZULIP_VERSION" && \
     mkdir -p /etc/zulip && \
