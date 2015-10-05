@@ -20,8 +20,9 @@ RUN chmod 755 /entrypoint.sh && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
-    cd "/root" && \
-    git clone https://github.com/galexrt/zulip.git && \
+    mkdir -p "/root/zulip" && \
+    git clone https://github.com/galexrt/zulip.git "/root/zulip" && \
+    ls -ahl "/root/zulip" && \
     cd "$ZULIP_DIR" && \
     git checkout tags/"$ZULIP_VERSION" && \
     mkdir -p /etc/zulip && \
