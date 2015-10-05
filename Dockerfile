@@ -19,7 +19,7 @@ RUN chmod 755 /entrypoint.sh && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
-    mkdir -p "$DATA_DIR" "$ZULIP_DIR" && \
+    mkdir -p "$ZULIP_DIR" && \
     git clone https://github.com/galexrt/zulip.git "$ZULIP_DIR" && \ # TODO: Change this to the docker build repo including all the needed files
     cd "$ZULIP_DIR" && \
     git checkout tags/"$ZULIP_VERSION" && \
