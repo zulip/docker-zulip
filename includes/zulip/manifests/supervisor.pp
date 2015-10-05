@@ -12,6 +12,7 @@ class zulip::supervisor {
     source => "puppet:///modules/zulip/supervisor/supervisord.conf",
   }
   file { '/etc/supervisor/conf.d':
+    require => Package[supervisor],
     ensure => 'directory',
     owner  => 'root',
     group  => 'root',
