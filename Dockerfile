@@ -7,7 +7,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
 
 ADD entrypoint.sh /entrypoint.sh
-# TODO: Change this to the docker build repo including all the needed files
+# TODO: Change this to the docker build repo including all required files
 RUN chmod 755 /entrypoint.sh && \
     groupadd -r "zulip" && \
     useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
