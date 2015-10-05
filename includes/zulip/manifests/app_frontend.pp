@@ -127,35 +127,27 @@ class zulip::app_frontend {
     owner      => "zulip",
     group      => "zulip",
     mode       => 644,
-    source     => 'puppet:///modules/zulip_internal/log2zulip.conf',
+    source     => 'puppet:///modules/zulip/log2zulip.conf',
   }
-  file { '/etc/cron.d/log2zulip':
+  file { '/etc/zulip':
     ensure     => file,
     owner      => "root",
     group      => "root",
     mode       => 644,
-    source     => 'puppet:///modules/zulip_internal/cron.d/log2zulip',
+    source     => 'puppet:///modules/zulip/zulip',
   }
   file { '/etc/log2zulip.zuliprc':
     ensure     => file,
     owner      => "zulip",
     group      => "zulip",
     mode       => 600,
-    source     => 'puppet:///modules/zulip_internal/log2zulip.zuliprc',
+    source     => 'puppet:///modules/zulip/log2zulip.zuliprc',
   }
   file { "/etc/cron.d/check-apns-tokens":
     ensure => file,
     owner  => "root",
     group  => "root",
     mode => 644,
-    source => "puppet:///modules/zulip_internal/cron.d/check-apns-tokens",
-  }
-  file { "/etc/supervisor/conf.d/cron.conf":
-    require => Package[supervisor],
-    ensure => file,
-    owner => "root",
-    group => "root",
-    mode => 644,
-    source => "puppet:///modules/zulip/supervisor/conf.d/cron.conf",
+    source => "puppet:///modules/zulip/cron.d/check-apns-tokens",
   }
 }

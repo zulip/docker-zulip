@@ -4,6 +4,5 @@ class zulip::camo {
                     "camo",
                     ]
   package { $camo_packages: ensure => "installed" }
-
   # The configuration file is generated at install time
 }

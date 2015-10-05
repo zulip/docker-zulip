@@ -1,7 +1,6 @@
 class zulip::postgres_appdb {
   include zulip::postgres_common
   include zulip::supervisor
-
   $appdb_packages = [# Needed to run process_fts_updates
                      "python-psycopg2",
                      # Needed for our full text search system
@@ -13,7 +12,6 @@ class zulip::postgres_appdb {
     }
   }
   safepackage { $appdb_packages: ensure => "installed" }
-
   file { "/usr/local/bin/process_fts_updates":
     ensure => file,
     owner => "root",
@@ -21,7 +19,6 @@ class zulip::postgres_appdb {
     mode => 755,
     source => "puppet:///modules/zulip/postgresql/process_fts_updates",
   }
-
   file { "/etc/supervisor/conf.d/zulip_db.conf":
     require => Package[supervisor],
     ensure => file,

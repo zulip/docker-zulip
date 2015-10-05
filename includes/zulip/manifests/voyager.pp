@@ -2,7 +2,6 @@ class zulip::voyager {
   include zulip::base
   include zulip::app_frontend
   include zulip::postgres_appdb
-
   apt::source {'zulip':
     location    => 'http://ppa.launchpad.net/tabbott/zulip/ubuntu',
     release     => 'trusty',
@@ -12,7 +11,6 @@ class zulip::voyager {
     pin         => '995',
     include_src => true,
   }
-
   file { "/etc/nginx/sites-available/zulip-enterprise":
     require => Package["nginx-full"],
     ensure => file,
@@ -26,13 +24,11 @@ class zulip::voyager {
     ensure => 'link',
     target => '/etc/nginx/sites-available/zulip-enterprise',
   }
-
   file { '/home/zulip/prod-static':
     ensure => 'directory',
     owner  => 'zulip',
     group  => 'zulip',
   }
-
   file { "/etc/cron.d/restart-zulip":
     ensure => file,
     owner  => "root",

@@ -4,7 +4,6 @@ class zulip::rabbit {
                       "rabbitmq-server",
                       ]
   package { $rabbit_packages: ensure => "installed" }
-
   file { "/etc/cron.d/rabbitmq-queuesize":
     require => Package[rabbitmq-server],
     ensure => file,
@@ -21,7 +20,6 @@ class zulip::rabbit {
     mode => 644,
     source => "puppet:///modules/zulip/cron.d/rabbitmq-numconsumers",
   }
-
   file { "/etc/default/rabbitmq-server":
     require => Package[rabbitmq-server],
     ensure => file,

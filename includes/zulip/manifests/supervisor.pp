@@ -11,4 +11,20 @@ class zulip::supervisor {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/supervisord.conf",
   }
+  file { "/etc/supervisor/conf.d/cron.conf":
+    require => Package[supervisor],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/cron.conf",
+  }
+  file { "/etc/supervisor/conf.d/camo.conf":
+    require => Package[camo],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/camo.conf",
+  }
 }
