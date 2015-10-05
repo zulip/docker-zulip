@@ -4,7 +4,7 @@ set -x
 MANAGE_PY="$ZULIP_DIR/deployments/current/manage.py"
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 
-# TODO Is this really needed? Find out where images are saved.
+# TODO (See Issue #2): Is this really needed? Find out where images are saved.
 # Create assets link to the DATA_DIR
 #ln -sf "$DATA_DIR" "$ZULIP_CURRENT_DEPLOY/assets"
 

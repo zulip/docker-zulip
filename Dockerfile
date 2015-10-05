@@ -7,8 +7,6 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION
 
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip /root/zulip-puppet
-# TODO: Change this to the docker build repo including all required files
-# zulip.conf file is also located in includes folder
 # Self made puppet command: puppet apply --modulepath=/root/zulip/puppet -e "Exec { path => \"/usr/sbin:/usr/bin:/sbin:/bin\" }\ninclude apt\ninclude zulip::voyager"
 RUN chmod 755 /entrypoint.sh && \
     groupadd -r "zulip" && \
