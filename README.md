@@ -9,4 +9,7 @@ Docker Hub https://hub.docker.com/r/galexrt/zulip/
 
 ___
 
+In the folder includes/zulip are modified zulip manifestss for puppet.
+The manifests are modified to "just" install zulip not more, not less.
+
 See https://zulip.org/ for details about the Zulip Server

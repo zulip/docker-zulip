@@ -1,4 +1,5 @@
 class zulip::nginx {
+  include zulip::camo
   $web_packages = [# Needed to run nginx with the modules we use
                    "nginx-full",
                    ]
@@ -33,5 +34,14 @@ class zulip::nginx {
 
   file { "/etc/nginx/sites-enabled/default":
     ensure => absent,
+  }
+
+  file { "/etc/supervisor/conf.d/camo.conf":
+    require => Package[camo],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/camo.conf",
   }
 }

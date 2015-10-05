@@ -7,21 +7,6 @@ class zulip::base {
                      # Dependencies of our API
                      "python-requests",
                      "python-simplejson",
-                     # For development/debugging convenience
-                     "ipython",
-                     "screen",
-                     "strace",
-                     "vim",
-                     "moreutils",
-                     "emacs23-nox",
-                     "git",
-                     "puppet-el",
-                     "host",
-                     # Taken from postgres_common
-                     # Python modules used in our monitoring/worker threads
-                     "python-gevent",
-                     "python-tz",
-                     "python-dateutil",
                      ]
   package { $base_packages: ensure => "installed" }
 
@@ -51,13 +36,6 @@ class zulip::base {
     owner      => "root",
     group      => "root",
     source     => 'puppet:///modules/zulip/limits.conf',
-  }
-
-  # This directory is written to by cron jobs for reading by Nagios
-  file { '/var/lib/nagios_state/':
-    ensure     => directory,
-    group      => 'zulip',
-    mode       => 774,
   }
 
   file { '/var/log/zulip':
