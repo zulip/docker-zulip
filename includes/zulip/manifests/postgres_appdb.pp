@@ -29,6 +29,5 @@ class zulip::postgres_appdb {
     group => "root",
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip_db.conf",
-    notify => Service[supervisor],
   }
 }
