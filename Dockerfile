@@ -30,7 +30,7 @@ RUN chmod 755 /entrypoint.sh && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
     mv -f /root/zulip-puppet /root/zulip/puppet/zulip && \
-    ls -ahl /root/zulip/puppet && \
+    ls -ahl /root/zulip/puppet /root/zulip/puppet/zulip /root && \
     /root/zulip/scripts/zulip-puppet-apply -f && \
     /root/zulip/scripts/setup/generate_secrets.py && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
