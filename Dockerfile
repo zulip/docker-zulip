@@ -34,7 +34,7 @@ RUN chmod 755 /entrypoint.sh && \
     ls -ahl "$ZULIP_DIR/deployments" "$ZULIP_DEPLOY_PATH" && \
     mkdir -p "$ZULIP_DEPLOY_PATH" && \
     mv /root/zulip "$ZULIP_DEPLOY_PATH" && \
-    ln -nsf "$ZULIP_DIR/deployments/next /root/zulip && \
+    ln -nsf "$ZULIP_DIR/deployments/next" /root/zulip && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH"/zproject/local_settings.py && \
