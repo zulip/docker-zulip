@@ -22,8 +22,7 @@ RUN chmod 755 /entrypoint.sh && \
     apt-get -qq dist-upgrade -y && \
     mkdir -p "/root/zulip" && \
     git clone https://github.com/galexrt/zulip.git "/root/zulip" && \
-    ls -ahl "/root/zulip" && \
-    cd "$ZULIP_DIR" && \
+    cd "/root/zulip" && \
     git checkout tags/"$ZULIP_VERSION" && \
     mkdir -p /etc/zulip && \
     echo -e "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
