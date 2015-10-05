@@ -8,6 +8,14 @@ ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 # Create assets link to the DATA_DIR
 #ln -sf "$DATA_DIR" "$ZULIP_CURRENT_DEPLOY/assets"
 
+function configure-rabbitmq(){
+  rabbitmqctl delete_user zulip || :
+  rabbitmqctl delete_user guest || :
+  rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
+  rabbitmqctl set_user_tags zulip administrator
+  rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*'
+}
+
 # Taken from /home/zulip/deployments/current/scripts/setup/postgres-init-db
 # A little modification was needed to work with this setup
 function postgres-init-db(){
@@ -35,7 +43,7 @@ function initialize-database(){
 }
 
 # Configure rabbitmq server everytime because it could be a new one ;)
-"$ZULIP_CURRENT_DEPLOY/scripts/setup/configure-rabbitmq"
+configure-rabbitmq
 
 if [ ! -f "$ZULIP_DIR/.initiated" ]; then
   echo "Initiating Zulip ..."

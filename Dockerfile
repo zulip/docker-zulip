@@ -2,8 +2,7 @@ FROM ubuntu:trusty
 
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
-    ZULIP_VERSION="1.3.6" \
+ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
 
 ADD entrypoint.sh /entrypoint.sh
