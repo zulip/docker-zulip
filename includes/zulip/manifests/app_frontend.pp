@@ -129,13 +129,6 @@ class zulip::app_frontend {
     mode       => 644,
     source     => 'puppet:///modules/zulip/log2zulip.conf',
   }
-  file { '/etc/zulip':
-    ensure     => file,
-    owner      => "root",
-    group      => "root",
-    mode       => 644,
-    source     => 'puppet:///modules/zulip/zulip',
-  }
   file { '/etc/log2zulip.zuliprc':
     ensure     => file,
     owner      => "zulip",
