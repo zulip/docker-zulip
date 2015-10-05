@@ -7,7 +7,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
 
 ADD entrypoint.sh /entrypoint.sh
-ADD includes/ /root/zulip-puppet
+ADD includes/zulip /root/zulip-puppet
 # TODO: Change this to the docker build repo including all required files
 # zulip.conf file is also located in includes folder
 RUN chmod 755 /entrypoint.sh && \
