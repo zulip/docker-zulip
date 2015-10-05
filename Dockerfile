@@ -12,7 +12,7 @@ RUN chmod 755 /entrypoint.sh && \
     useradd -r -g "zulip" -d "/home/zulip" "zulip" && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
-    apt-get -qq install -y git wget python-{dev,six,pbs} supervisor && \
+    apt-get -qq install -y git wget python-dev python-six python-pbs supervisor && \
     wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
