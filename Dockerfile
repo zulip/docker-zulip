@@ -8,8 +8,7 @@ ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip /root/zulip-puppet
 # Self made puppet command: puppet apply --modulepath=/root/zulip/puppet -e "Exec { path => \"/usr/sbin:/usr/bin:/sbin:/bin\" }\ninclude apt\ninclude zulip::voyager"
-# groupadd -r "zulip" && \
-# useradd -r -g "zulip" -d "$ZULIP_DIR" "zulip" && \
+# mkdir -p "$ZULIP_DEPLOY_PATH" && \
 RUN chmod 755 /entrypoint.sh && \
     apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
@@ -31,8 +30,6 @@ RUN chmod 755 /entrypoint.sh && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
     ZULIP_DEPLOY_PATH=$(/root/zulip/zulip_tools.py make_deploy_path) && \
-    ls -ahl "$ZULIP_DIR/deployments" "$ZULIP_DEPLOY_PATH" && \
-    mkdir -p "$ZULIP_DEPLOY_PATH" && \
     mv /root/zulip "$ZULIP_DEPLOY_PATH" && \
     ln -nsf "$ZULIP_DIR/deployments/next" /root/zulip && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \

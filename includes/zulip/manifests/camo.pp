@@ -1,4 +1,5 @@
 class zulip::camo {
+  include zulip::supervisor
   $camo_packages = [# Needed for camo
                     "nodejs",
                     "camo",
