@@ -36,7 +36,7 @@ RUN apt-get -qq update -q && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH/zproject/local_settings.py" && \
-    cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static"
+    cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static" && \
     chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
