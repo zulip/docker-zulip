@@ -112,7 +112,7 @@ function zulip-create-user(){
 # Create assets link to the DATA_DIR
 if [ ! -d "$DATA_DIR/assets" ]; then
    mkdir -p "$DATA_DIR/assets"
-   mv -rf "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
+   mv -fT "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 
