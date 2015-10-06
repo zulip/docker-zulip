@@ -64,6 +64,7 @@ function zulip-add-custom-secrets(){
   done
 }
 function zulip-setup-external-services(){
+  # Also see ZULIP/zproject/local_settings.py for "example"
   # TODO MEMCACHE See ZULIP/zproject/settings.py Line: ~328+
   # ...'LOCATION': '127.0.0.1:11211',...
   # TODO RABBITMQ See ZULIP/zproject/settings.py Line: ~318
