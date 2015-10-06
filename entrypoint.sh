@@ -108,10 +108,9 @@ function zulip-create-user(){
 
 # TODO (See Issue #2): Is this really needed? Find out where images are saved.
 # Create assets link to the DATA_DIR
-if [ ! -d "$DATA_DIR/.assets-linked" ]; then
+if [ ! -d "$DATA_DIR/assets" ]; then
    mkdir -p "$DATA_DIR/assets"
-   mv -rf "$ZULIP_CURRENT_DEPLOY/assets/*" "$DATA_DIR/assets"
-   touch "$DATA_DIR/.assets-linked"
+   mv -rf "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 
