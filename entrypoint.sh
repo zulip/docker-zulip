@@ -114,13 +114,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   /root/zulip/scripts/setup/generate_secrets.py
   add-custom-zulip-secrets
   echo "Secrets generated and set."
-  echo "Creating/updating statics ..."
-  # Without the secrets we can't update the prod-static files :(
-  # Is update-prod-static really needed? #QuestionsOverQuestions
-  "$ZULIP_DIR/deployments/current/tools/update-prod-static"
   ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static"
-  cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static"
-  echo "Statics created/updated."
   echo "Setup database server ..."
   # Init Postgres database server
   postgres-init-db
@@ -130,7 +124,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   setup-zulip-settings
   echo "Zulip settings setup done."
   echo "Initiating  Database ..."
-  # Init database with something (data? :D)
+  # Init database with something called data :D
   if ! initialize-database; then
     echo "Database initiation failed."
     exit 1
@@ -142,13 +136,14 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Created zulip user account"
   echo "==="
   echo "Zulip initiation done."
+  touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
 fi
 
 # Configure rabbitmq server everytime because it could be a new one ;)
 configure-rabbitmq
 
-# If update is set do
-if [ ! -f "$ZULIP_DIR/.zulip-$ZULIP_VERSION" ]; then
+# If there's an "update" available, then JUST DO IT!
+if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
   echo "Starting zulip migration ..."
   # as root do $MANAGE_PY(./manage.py) migrate
   if ! "$MANAGE_PY" migrate; then

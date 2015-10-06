@@ -24,9 +24,8 @@ RUN chmod 755 /entrypoint.sh && \
     apt-get -qq update && \
     apt-get -qq dist-upgrade -y && \
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
-    git clone https://github.com/zulip/zulip.git "/root/zulip" && \
-    cd "/root/zulip" && \
-    git checkout tags/"$ZULIP_VERSION" > /dev/null 2>&1 && \
+    wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -P "/tmp" && \
+    tar xfz "/tmp/zulip-server-$ZULIP_VERSION.tar.gz" -C "/root/zulip" --remove-files --strip-components=1 && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
     mv -f /root/zulip-puppet /root/zulip/puppet/zulip && \
@@ -39,6 +38,7 @@ RUN chmod 755 /entrypoint.sh && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH/zproject/local_settings.py" && \
+    cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static"
     chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
