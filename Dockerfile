@@ -4,6 +4,7 @@ MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
 ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" \
+    RABBIT_HOST="localhost" \
     ZULIP_USER_FULLNAME="Zulip Docker" ZULIP_USER_EMAIL="" ZULIP_USER_PASSWORD="foobar" \
     ZULIP_SAVE_SETTINGS_PY="" ZULIP_USE_EXTERNAL_SETTINGS="false" \
     ZULIP_SETTINGS_EXTERNAL_HOST="localhost" \

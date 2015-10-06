@@ -1,33 +1,34 @@
 #!/bin/bash
-set -x
+
+if [ "$DEBUG" == "true"]; then
+  set -x
+fi
 set -e
 
 MANAGE_PY="$ZULIP_DIR/deployments/current/manage.py"
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 
 function configure-rabbitmq(){
-  rabbitmqctl delete_user zulip || :
-  rabbitmqctl delete_user guest || :
-  rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
-  rabbitmqctl set_user_tags zulip administrator
-  rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*'
+  # TODO do something about the RABBIT_HOST var
+  rabbitmqctl -n "$RABBIT_HOST" delete_user zulip || :
+  rabbitmqctl -n "$RABBIT_HOST" delete_user guest || :
+  rabbitmqctl -n "$RABBIT_HOST" add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
+  rabbitmqctl -n "$RABBIT_HOST" set_user_tags zulip administrator
+  rabbitmqctl -n "$RABBIT_HOST" set_permissions -p / zulip '.*' '.*' '.*'
 }
 
 function add-custom-zulip-secrets(){
   ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
   POSSIBLE_SECRETS=("google_oauth2_client_secret" "email_password" "twitter_consumer_key" "s3_key" "s3_secret_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret")
   for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
-    SECRET_VAR="${!ZULIP_SECRETS_$SECRET_KEY}"
+    KEY="ZULIP_SECRETS_$SECRET_KEY"
+    SECRET_VAR="${!KEY}"
     if [ -z "$SECRET_VAR" ]; then
-      set +x
       echo "No settings env var found for key \"$SECRET_KEY\". Continuing."
-      set -x
       continue
     fi
-    set +x
     echo "Setting secret \"$SECRET_KEY\"."
     echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
-    set -x
   done
 }
 
@@ -35,11 +36,9 @@ function add-custom-zulip-secrets(){
 # A little modification was needed to work with this setup
 function postgres-init-db(){
   # Don't "leak" the password out
-  set +x
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
   fi
-  set -x
   psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" "CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     DROP DATABASE IF EXISTS zulip;
@@ -67,16 +66,13 @@ function setup-zulip-settings(){
   # ^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$ and ^#?[ ]?([a-zA-Z0-9_]*)
   POSSIBLE_SETTINGS=($(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)") "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET")
   for SETTING_KEY in "${POSSIBLE_SETTINGS[@]}"; do
-    SETTING_VAR="${!ZULIP_SETTINGS_$SETTING_KEY}"
+    KEY="ZULIP_SETTINGS_$SETTING_KEY"
+    SETTING_VAR="${!KEY}"
     if [ -z "$SETTING_VAR" ]; then
-      set +x
       echo "No settings env var found for key \"$SETTING_KEY\". Continuing."
-      set -x
       continue
     fi
-    set +x
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
-    set -x
     sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
   if [ -z "$ZULIP_SAVE_SETTINGS_PY" ]; then
@@ -87,21 +83,15 @@ function setup-zulip-settings(){
 
 function zulip-create-user(){
   if [ -z "$ZULIP_USER_EMAIL" ]; then
-    set +x
     echo "No zulip user email given."
-    set -x
     return 1
   fi
     if [ -z "$ZULIP_USER_PASSWORD" ]; then
-      set +x
       echo "No zulip user password given."
-      set -x
       return 1
     fi
   if [ -z "$ZULIP_USER_FULLNAME" ]; then
-    set +x
     echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
-    set -x
     ZULIP_USER_FULLNAME="Zulip Docker"
   fi
   su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
@@ -112,86 +102,63 @@ function zulip-create-user(){
 # Create assets link to the DATA_DIR
 if [ ! -d "$DATA_DIR/assets" ]; then
    mkdir -p "$DATA_DIR/assets"
-   mv -fT "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
+   mv -f "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 
-# Configure rabbitmq server everytime because it could be a new one ;)
-configure-rabbitmq
-
 if [ ! -f "$DATA_DIR/.initiated" ]; then
-  set +x
-  echo "Initiating Zulip Installation ..."
+  echo "Initiating Zulip initiation ..."
   echo "==="
   echo "Generating and setting secrets ..."
-  set -x
   # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
   add-custom-zulip-secrets
-  set +x
   echo "Secrets generated and set."
+fi
+# Configure rabbitmq server everytime because it could be a new one ;)
+configure-rabbitmq
+if [ -d "$DATA_DIR/.initiated" ]; then
   echo "Creating/updating statics ..."
-  set -x
   # Without the secrets we can't update the prod-static files :(
   # Is update-prod-static really needed? #QuestionsOverQuestions
   "$ZULIP_DIR/deployments/current/tools/update-prod-static"
   ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static"
   cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static"
-  set +x
   echo "Statics created/updated."
   echo "Setup database server ..."
-  set -x
   # Init Postgres database server
   postgres-init-db
-  set +x
   echo "Database setup done."
   echo "Setting Zulip settings ..."
-  set -x
   # Setup zulip settings
   setup-zulip-settings
-  set +x
   echo "Zulip settings setup done."
   echo "Initiating  Database ..."
-  set -x
   # Init database with something (data? :D)
   if ! initialize-database; then
-    set +x
     echo "Database initiation failed."
-    set -x
     exit 1
   fi
   touch "$DATA_DIR/.initiated"
-  set +x
   echo "Database initiated."
   echo "Creating zulip user account ..."
-  set -x
   zulip-create-user
-  set +x
   echo "Created zulip user account"
   echo "==="
   echo "Zulip initiation done."
-  set -x
 fi
 
 # If update is set do
 if [ ! -f "$ZULIP_DIR/.zulip-$ZULIP_VERSION" ]; then
-  set +x
   echo "Starting zulip migration ..."
-  set -x
   # as root do $MANAGE_PY(./manage.py) migrate
   if ! "$MANAGE_PY" migrate; then
-    set +x
     echo "Zulip migration error."
-    set -x
     exit 1
   fi
-  set +x
   echo "Zulip migration done."
-  set -x
 fi
 
-set +x
 echo "Starting zulip ..."
-set -x
 # Start supervisord
 exec supervisord
