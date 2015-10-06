@@ -13,7 +13,7 @@ rabbitmq:
   image: "rabbitmq:3.5.5"
   hostname: zulip-rabbit
 camo:
-  image: "docker.io/galexrt/docker-camo:latest"
+  image: "docker.io/galexrt/camo:latest"
 redis:
   image: "sameersbn/redis:latest"
   volumes:

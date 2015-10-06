@@ -72,6 +72,7 @@ function zulip-setup-external-services(){
   # TODO REDIS See ZULIP/zproject/settings.py Line: ~352
   # REDIS_HOST = '127.0.0.1'
   # REDIS_PORT = 6379
+  # TODO CAMO Search the file ^
 }
 function zulip-setup-zulip-settings(){
   if [ "$ZULIP_USE_EXTERNAL_SETTINGS" == "true" ] && [ -f "$DATA_DIR/settings.py" ]; then
