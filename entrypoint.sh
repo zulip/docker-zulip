@@ -15,7 +15,8 @@ function configure-rabbitmq(){
 
 function add-custom-zulip-secrets(){
   ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
-  for SECRET_KEY in ("google_oauth2_client_secret" "email_password" "twitter_consumer_key" "s3_key" "s3_secret_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"); do
+  POSSIBLE_SECRETS=("google_oauth2_client_secret" "email_password" "twitter_consumer_key" "s3_key" "s3_secret_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret")
+  for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
     SECRET_VAR="${!ZULIP_SECRETS_$SECRET_KEY}"
     if [ -z "$SECRET_VAR" ]; then
       set +x
@@ -64,7 +65,8 @@ function setup-zulip-settings(){
     return 0
   fi
   # ^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$ and ^#?[ ]?([a-zA-Z0-9_]*)
-  for SETTING_KEY in $(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)") "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET"; do
+  POSSIBLE_SETTINGS=($(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)") "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET")
+  for SETTING_KEY in "${POSSIBLE_SETTINGS[@]}"; do
     SETTING_VAR="${!ZULIP_SETTINGS_$SETTING_KEY}"
     if [ -z "$SETTING_VAR" ]; then
       set +x
