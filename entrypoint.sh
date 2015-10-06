@@ -94,11 +94,11 @@ function zulip-create-user(){
 }
 
 # TODO (See Issue #2): Is this really needed? Find out where images are saved and saved them!
-if [ ! -d "$DATA_DIR/assets" ]; then
-   mkdir -p "$DATA_DIR/assets"
-   mv -f "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
-else
+if [ -d "$DATA_DIR/assets" ]; then
   rm -rf "$ZULIP_CURRENT_DEPLOY/assets"
+else
+  mkdir -p "$DATA_DIR/assets"
+  mv -f "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 if [ ! -f "$DATA_DIR/.initiated" ]; then
