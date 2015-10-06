@@ -5,15 +5,6 @@ set -e
 MANAGE_PY="$ZULIP_DIR/deployments/current/manage.py"
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 
-# TODO (See Issue #2): Is this really needed? Find out where images are saved.
-# Create assets link to the DATA_DIR
-if [ ! -d "$DATA_DIR/assets" ]; then
-   mkdir -p "$DATA_DIR/assets"
-   cp -rf "$ZULIP_DIR/assets/*" "$DATA_DIR/assets"
-   touch "$DATA_DIR/assets/.linked"
-fi
-ln -sf "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
-
 function configure-rabbitmq(){
   rabbitmqctl delete_user zulip || :
   rabbitmqctl delete_user guest || :
@@ -114,6 +105,15 @@ function zulip-create-user(){
   su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
 }
+
+# TODO (See Issue #2): Is this really needed? Find out where images are saved.
+# Create assets link to the DATA_DIR
+if [ ! -d "$DATA_DIR/.assets-linked" ]; then
+   mkdir -p "$DATA_DIR/assets"
+   mv -rf "$ZULIP_CURRENT_DEPLOY/assets/*" "$DATA_DIR/assets"
+   touch "$DATA_DIR/.assets-linked"
+fi
+ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 
 # Configure rabbitmq server everytime because it could be a new one ;)
 configure-rabbitmq
