@@ -24,3 +24,8 @@ zulip:
     - memcache
     - rabbitmq
     - camo
+    - redis
+redis:
+  image: "sameersbn/redis:latest"
+  volumes:
+    - "/opt/docker/redis:/var/lib/redis:rw"
