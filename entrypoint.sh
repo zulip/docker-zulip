@@ -6,7 +6,12 @@ ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 
 # TODO (See Issue #2): Is this really needed? Find out where images are saved.
 # Create assets link to the DATA_DIR
-#ln -sf "$DATA_DIR" "$ZULIP_CURRENT_DEPLOY/assets"
+if [ ! -d "$DATA_DIR/assets" ]; then
+   mkdir -p "$DATA_DIR/assets"
+   cp -rf "$ZULIP_DIR/assets/*" "$DATA_DIR/assets"
+   touch "$DATA_DIR/assets/.linked"
+fi
+ln -sf "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 
 function configure-rabbitmq(){
   rabbitmqctl delete_user zulip || :
@@ -45,9 +50,17 @@ function initialize-database(){
 # Configure rabbitmq server everytime because it could be a new one ;)
 configure-rabbitmq
 
-if [ ! -f "$ZULIP_DIR/.initiated" ]; then
+if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Initiating Zulip ..."
+  # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
+
+  # Without the secrets we can't update the prod-static files :(
+  # Is update-prod-static really needed? #QuestionsOverQuestions
+  "$ZULIP_DIR/deployments/current/tools/update-prod-static"
+  ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static"
+  cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static"
+
   # Init Postgres database server
   postgres-init-db
 
@@ -59,7 +72,7 @@ if [ ! -f "$ZULIP_DIR/.initiated" ]; then
     echo "initialize-database failed"
     exit 1
   fi
-  touch "$ZULIP_DIR/.initiated"
+  touch "$DATA_DIR/.initiated"
   echo "Initiated Zulip"
 fi
 

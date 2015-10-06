@@ -3,7 +3,8 @@ FROM ubuntu:trusty
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
 ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" \
-    DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip"
+    DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" \
+    DATA_DIR="/data"
 
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip /root/zulip-puppet
@@ -19,7 +20,7 @@ RUN chmod 755 /entrypoint.sh && \
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -qq dist-upgrade -y && \
-    mkdir -p "/root/zulip" "/etc/zulip" && \
+    mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
     git clone https://github.com/zulip/zulip.git "/root/zulip" && \
     cd "/root/zulip" && \
     git checkout tags/"$ZULIP_VERSION" > /dev/null 2>&1 && \
@@ -35,12 +36,11 @@ RUN chmod 755 /entrypoint.sh && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "$ZULIP_DIR/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH/zproject/local_settings.py" && \
-    "$ZULIP_DIR/deployments/current/tools/update-prod-static" && \
-    ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static" && \
-    cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "$ZULIP_DIR/prod-static" && \
-    chown -R zulip:zulip /root/zulip /var/log/zulip /etc/zulip/settings.py && \
+    chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+VOLUME ["$DATA_DIR"]
 
 ENTRYPOINT ["/entrypoint.sh"]
