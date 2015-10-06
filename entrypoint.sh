@@ -5,8 +5,8 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
-MANAGE_PY="$ZULIP_DIR/deployments/current/manage.py"
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
+MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # I modified them to fit the "docker way" of installation ;)
@@ -97,6 +97,8 @@ function zulip-create-user(){
 if [ ! -d "$DATA_DIR/assets" ]; then
    mkdir -p "$DATA_DIR/assets"
    mv -f "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
+else
+  rm -rf "$ZULIP_CURRENT_DEPLOY/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
 if [ ! -f "$DATA_DIR/.initiated" ]; then
@@ -107,7 +109,6 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   /root/zulip/scripts/setup/generate_secrets.py
   add-custom-zulip-secrets
   echo "Secrets generated and set."
-  ls -ahl "$ZULIP_DIR" "$ZULIP_DIR/deployments/current" "$ZULIP_DIR/deployments/current/prod-static"
   echo "Setup database server ..."
   # Init Postgres database server
   postgres-init-db
