@@ -61,6 +61,8 @@ class zulip::app_frontend {
                     "python-googleapi",
                     # Needed for JWT-based auth
                     "python-pyjwt",
+                    # Needed for update prod-static
+                    "closure-compiler",
                     ]
   define safepackage ( $ensure = present ) {
     if !defined(Package[$title]) {
