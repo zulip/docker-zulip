@@ -12,9 +12,7 @@ ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
 
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip-puppet /root/zulip-puppet
-# mkdir -p "$ZULIP_DEPLOY_PATH" && \
-RUN chmod 755 /entrypoint.sh && \
-    apt-get -qq update -q && \
+RUN apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     apt-get -qq install -y puppet git wget python-dev python-six python-pbs && \
     wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
