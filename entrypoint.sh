@@ -114,10 +114,6 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   /root/zulip/scripts/setup/generate_secrets.py
   add-custom-zulip-secrets
   echo "Secrets generated and set."
-fi
-# Configure rabbitmq server everytime because it could be a new one ;)
-configure-rabbitmq
-if [ -d "$DATA_DIR/.initiated" ]; then
   echo "Creating/updating statics ..."
   # Without the secrets we can't update the prod-static files :(
   # Is update-prod-static really needed? #QuestionsOverQuestions
@@ -147,6 +143,8 @@ if [ -d "$DATA_DIR/.initiated" ]; then
   echo "==="
   echo "Zulip initiation done."
 fi
+# Configure rabbitmq server everytime because it could be a new one ;)
+configure-rabbitmq
 
 # If update is set do
 if [ ! -f "$ZULIP_DIR/.zulip-$ZULIP_VERSION" ]; then
