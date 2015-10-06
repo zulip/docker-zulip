@@ -143,6 +143,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "==="
   echo "Zulip initiation done."
 fi
+
 # Configure rabbitmq server everytime because it could be a new one ;)
 configure-rabbitmq
 
