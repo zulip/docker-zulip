@@ -8,6 +8,8 @@ set -e
 MANAGE_PY="$ZULIP_DIR/deployments/current/manage.py"
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 
+# Some functions were originally taken from the zulip/zulip repo folder scripts
+# I modified them to fit the "docker way" of installation ;)
 function configure-rabbitmq(){
   # TODO do something about the RABBIT_HOST var
   rabbitmqctl -n "$RABBIT_HOST" delete_user zulip || :
@@ -16,7 +18,6 @@ function configure-rabbitmq(){
   rabbitmqctl -n "$RABBIT_HOST" set_user_tags zulip administrator
   rabbitmqctl -n "$RABBIT_HOST" set_permissions -p / zulip '.*' '.*' '.*'
 }
-
 function add-custom-zulip-secrets(){
   ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
   POSSIBLE_SECRETS=("google_oauth2_client_secret" "email_password" "twitter_consumer_key" "s3_key" "s3_secret_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret")
@@ -31,9 +32,6 @@ function add-custom-zulip-secrets(){
     echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
   done
 }
-
-# Taken from the zulip/zulip but modified it a bit
-# A little modification was needed to work with this setup
 function postgres-init-db(){
   # Don't "leak" the password out
   if [ -z "$PGPASSWORD" ]; then
@@ -46,7 +44,6 @@ function postgres-init-db(){
   psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" zulip "CREATE SCHEMA zulip AUTHORIZATION zulip;
     CREATE EXTENSION tsearch_extras SCHEMA zulip;" || :
 }
-
 function initialize-database(){
   cd "$ZULIP_CURRENT_DEPLOY"
   su zulip -c "$MANAGE_PY checkconfig"
@@ -54,7 +51,6 @@ function initialize-database(){
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
   su zulip -c "$MANAGE_PY initialize_voyager_db"
 }
-
 function setup-zulip-settings(){
   ZULIP_SETTINGS="/etc/zulip/settings.py"
   if [ "$ZULIP_USE_EXTERNAL_SETTINGS" == "true" ] && [ -f "$DATA_DIR/settings.py" ]; then
@@ -80,7 +76,6 @@ function setup-zulip-settings(){
     cp -f "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
   fi
 }
-
 function zulip-create-user(){
   if [ -z "$ZULIP_USER_EMAIL" ]; then
     echo "No zulip user email given."
@@ -98,14 +93,12 @@ function zulip-create-user(){
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
 }
 
-# TODO (See Issue #2): Is this really needed? Find out where images are saved.
-# Create assets link to the DATA_DIR
+# TODO (See Issue #2): Is this really needed? Find out where images are saved and saved them!
 if [ ! -d "$DATA_DIR/assets" ]; then
    mkdir -p "$DATA_DIR/assets"
    mv -f "$ZULIP_CURRENT_DEPLOY/assets" "$DATA_DIR/assets"
 fi
 ln -sfT "$DATA_DIR/assets" "$ZULIP_CURRENT_DEPLOY/assets"
-
 if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Initiating Zulip initiation ..."
   echo "==="
@@ -138,10 +131,8 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Zulip initiation done."
   touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
 fi
-
 # Configure rabbitmq server everytime because it could be a new one ;)
 configure-rabbitmq
-
 # If there's an "update" available, then JUST DO IT!
 if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
   echo "Starting zulip migration ..."
@@ -152,7 +143,6 @@ if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
   fi
   echo "Zulip migration done."
 fi
-
 echo "Starting zulip ..."
 # Start supervisord
 exec supervisord
