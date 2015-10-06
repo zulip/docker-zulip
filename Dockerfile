@@ -2,13 +2,16 @@ FROM ubuntu:trusty
 
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_GROUP="zulip" ZULIP_USER="zulip" ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" \
+ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" \
     DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" \
-    DATA_DIR="/data"
+    DATA_DIR="/data" \
+    ZULIP_USER_FULLNAME="Zulip Docker" ZULIP_USER_EMAIL="" ZULIP_USER_PASSWORD="foobar" \
+    ZULIP_SAVE_SETTINGS_PY="" ZULIP_USE_EXTERNAL_SETTINGS="false" \
+    ZULIP_SETTINGS_EXTERNAL_HOST="localhost" \
+    ZULIP_SECRETS_email_password=""
 
 ADD entrypoint.sh /entrypoint.sh
-ADD includes/zulip /root/zulip-puppet
-# Self made puppet command: puppet apply --modulepath=/root/zulip/puppet -e "Exec { path => \"/usr/sbin:/usr/bin:/sbin:/bin\" }\ninclude apt\ninclude zulip::voyager"
+ADD includes/zulip-puppet /root/zulip-puppet
 # mkdir -p "$ZULIP_DEPLOY_PATH" && \
 RUN chmod 755 /entrypoint.sh && \
     apt-get -qq update -q && \
