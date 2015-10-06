@@ -111,8 +111,8 @@ function zulip-create-user(){
     set -x
     ZULIP_USER_FULLNAME="Zulip Docker"
   fi
-  su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\""
-  su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_FULLNAME\" -f"
+  su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
+  su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
 }
 
 # Configure rabbitmq server everytime because it could be a new one ;)
