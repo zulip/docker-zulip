@@ -65,8 +65,6 @@ function zulip-add-custom-secrets(){
   done
 }
 function zulip-setup-external-services(){
-  # Also see ZULIP/zproject/local_settings.py for "example"
-  # TODO MEMCACHE See ZULIP/zproject/settings.py Line: ~328+
   cat <<EOF >> "$ZULIP_SETTINGS"
 CACHES = {
     'default': {
@@ -87,20 +85,22 @@ CACHES = {
     },
 }
 EOF
-  # Do we need to change the rabbitmq secret in the secret file?
-  # It shouldn't be required to also change it in the secret file.
+  # Rabbitmq settings
   cat <<EOF >> "$ZULIP_SETTINGS"
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
 EOF
-  # TODO REDIS See ZULIP/zproject/settings.py Line: ~352
+  # Redis settings
   cat <<EOF >> "$ZULIP_SETTINGS"
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
 EOF
-  if [ -z "$CAMO_URI" ]; then
-    return 1
+  # Camo settings
+  if [ ! -z "$CAMO_KEY" ]; then
+    cat <<EOF >> "$ZULIP_SETTINGS"
+  CAMO_KEY = '$CAMO_KEY'
+EOF
   fi
   cat <<EOF >> "$ZULIP_SETTINGS"
 CAMO_URI = '$CAMO_URI'
