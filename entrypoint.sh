@@ -12,34 +12,35 @@ ZULIP_SETTINGS="/etc/zulip/settings.py"
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # I modified them to fit the "docker way" of installation ;)
 function database-settings-setup(){
-  # TODO See ZULIP/zproject/settings.py Line: ~284
-#  cat << > /EOFDATABASES = {"default": {
-#    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#    'NAME': 'zulip',
-#    'USER': 'zulip',
-#    'PASSWORD': '', # Authentication done via certificates
-#    'HOST': '',  # Host = '' => connect through a local socket
-#    'SCHEMA': 'zulip',
-#    'CONN_MAX_AGE': 600,
-#    'OPTIONS': {
-#        'connection_factory': TimeTrackingConnection
-#        },
-#    },
-#  }
+  cat <<EOF >> "$ZULIP_SETTINGS"
+DATABASES = {"default": {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': '$DB_NAME',
+    'USER': '$DB_USER',
+    'PASSWORD': '$DB_PASSWORD', # Authentication done via certificates
+    'HOST': '$DB_HOST',
+    'SCHEMA': 'zulip',
+    'CONN_MAX_AGE': 600,
+    'OPTIONS': {
+        'connection_factory': TimeTrackingConnection
+        },
+    },
+}
+EOF
 }
 function database-setup(){
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
   fi
+  # TODO Shall we change that and really create the database here or are we expecting a ready zulip database?
   psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" "CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     DROP DATABASE IF EXISTS zulip;
-    CREATE DATABASE zulip OWNER=zulip;"
-  psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" zulip "CREATE SCHEMA zulip AUTHORIZATION zulip;
+    CREATE DATABASE zulip OWNER=zulip;" || :
+  psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" "zulip" "CREATE SCHEMA zulip AUTHORIZATION zulip;
     CREATE EXTENSION tsearch_extras SCHEMA zulip;" || :
 }
 function database-initiation(){
-  cd "$ZULIP_CURRENT_DEPLOY"
   su zulip -c "$MANAGE_PY checkconfig"
   su zulip -c "$MANAGE_PY migrate --noinput"
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
