@@ -3,12 +3,14 @@ FROM ubuntu:trusty
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
 ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
-    DB_HOST="localhost" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" \
-    RABBIT_HOST="localhost" \
+    DB_HOST="127.0.0.1" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" \
+    RABBITMQ_USERNAME="zulip" RABBITMQ_PASSWORD="zulip"\
+    REDIS_RATE_LIMITING="True" REDIS_HOST="127.0.0.1" REDIS_PORT="6379" \
+    MEMCACHED_HOST="127.0.0.1" MEMCACHED_PORT="11211" MEMCACHED_TIMEOUT="3600" \
     ZULIP_USER_FULLNAME="Zulip Docker" ZULIP_USER_EMAIL="" ZULIP_USER_PASSWORD="foobar" \
-    ZULIP_SAVE_SETTINGS_PY="" ZULIP_USE_EXTERNAL_SETTINGS="false" \
-    ZULIP_SETTINGS_EXTERNAL_HOST="localhost" \
-    ZULIP_SECRETS_email_password=""
+    ZULIP_SAVE_SETTINGS_PY="true" ZULIP_USE_EXTERNAL_SETTINGS="false" \
+    ZULIP_SETTINGS_EXTERNAL_HOST="127.0.0.1" \
+    ZULIP_SECRETS_email_password="test_password"
 
 ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip-puppet /root/zulip-puppet

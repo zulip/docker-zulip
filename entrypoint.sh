@@ -66,16 +66,46 @@ function zulip-add-custom-secrets(){
 function zulip-setup-external-services(){
   # Also see ZULIP/zproject/local_settings.py for "example"
   # TODO MEMCACHE See ZULIP/zproject/settings.py Line: ~328+
-  # ...'LOCATION': '127.0.0.1:11211',...
-  # TODO RABBITMQ See ZULIP/zproject/settings.py Line: ~318
-  # RABBITMQ_USERNAME = 'zulip'
-  # RABBITMQ_PASSWORD = get_secret("rabbitmq_password")
-  # TODO REDIS See ZULIP/zproject/settings.py Line: ~352
-  # REDIS_HOST = '127.0.0.1'
-  # REDIS_PORT = 6379
-  # TODO CAMO Search the file ^
+  cat <<EOF >> "$ZULIP_SETTINGS"
+CACHES = {
+    'default': {
+        'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
+        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_PORT',
+        'TIMEOUT':  $MEMCACHED_TIMEOUT
+    },
+    'database': {
+        'BACKEND':  'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION':  'third_party_api_results',
+        # Basically never timeout.  Setting to 0 isn't guaranteed
+        # to work, see https://code.djangoproject.com/ticket/9595
+        'TIMEOUT': 2000000000,
+        'OPTIONS': {
+            'MAX_ENTRIES': 100000000,
+            'CULL_FREQUENCY': 10,
+        }
+    },
 }
-function zulip-setup-zulip-settings(){
+EOF
+  # Do we need to change the rabbitmq secret in the secret file?
+  # It shouldn't be required to also change it in the secret file.
+  cat <<EOF >> "$ZULIP_SETTINGS"
+RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
+RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
+EOF
+  # TODO REDIS See ZULIP/zproject/settings.py Line: ~352
+  cat <<EOF >> "$ZULIP_SETTINGS"
+RATE_LIMITING = $REDIS_RATE_LIMITING
+REDIS_HOST = '$REDIS_HOST'
+REDIS_PORT = $REDIS_PORT
+EOF
+  if [ -z "$CAMO_URI" ]; then
+    return 1
+  fi
+  cat <<EOF >> "$ZULIP_SETTINGS"
+CAMO_URI = '$CAMO_URI'
+EOF
+}
+function zulip-setupulip-settings(){
   if [ "$ZULIP_USE_EXTERNAL_SETTINGS" == "true" ] && [ -f "$DATA_DIR/settings.py" ]; then
     rm -f "$ZULIP_SETTINGS"
     cp -rf "$DATA_DIR/settings.py" "$ZULIP_SETTINGS"
@@ -94,7 +124,7 @@ function zulip-setup-zulip-settings(){
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
     sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
-  if [ ! -z "$ZULIP_SAVE_SETTINGS_PY" ]; then
+  if [ "$ZULIP_SAVE_SETTINGS_PY" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
     cp -f "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
   fi
@@ -116,12 +146,11 @@ function zulip-create-user(){
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
 }
 function rabbitmq-setup(){
-  # TODO do something about the RABBIT_HOST var
-  rabbitmqctl -n "$RABBIT_HOST" delete_user zulip || :
-  rabbitmqctl -n "$RABBIT_HOST" delete_user guest || :
-  rabbitmqctl -n "$RABBIT_HOST" add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
-  rabbitmqctl -n "$RABBIT_HOST" set_user_tags zulip administrator
-  rabbitmqctl -n "$RABBIT_HOST" set_permissions -p / zulip '.*' '.*' '.*'
+  rabbitmqctl delete_user zulip || :
+  rabbitmqctl delete_user guest || :
+  rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
+  rabbitmqctl set_user_tags zulip administrator
+  rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*'
 }
 
 if [ -d "$DATA_DIR/uploads" ]; then
