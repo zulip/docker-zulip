@@ -35,13 +35,16 @@ function database-data-setup(){
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
   fi
-  # TODO Shall we change that and really create the database here or are we expecting a ready zulip database?
-  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "CREATE USER zulip;
-    ALTER ROLE zulip SET search_path TO zulip,public;
-    DROP DATABASE IF EXISTS zulip;
-    CREATE DATABASE zulip OWNER=zulip;" || :
-  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" "CREATE SCHEMA zulip AUTHORIZATION zulip;
-    CREATE EXTENSION tsearch_extras SCHEMA zulip;" || :
+  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" <<EOF
+CREATE USER zulip;
+ALTER ROLE zulip SET search_path TO zulip,public;
+DROP DATABASE IF EXISTS zulip;
+CREATE DATABASE zulip OWNER=zulip;
+EOF || :
+  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" <<EOF
+CREATE SCHEMA zulip AUTHORIZATION zulip;
+CREATE EXTENSION tsearch_extras SCHEMA zulip;
+EOF|| :
 }
 function database-initiation(){
   su zulip -c "$MANAGE_PY checkconfig"
@@ -107,7 +110,7 @@ EOF
     if [ -z "$REDIS_PORT" ]; then
       REDIS_PORT="6379"
     fi
-    case "REDIS_RATE_LIMITING" in
+    case "$REDIS_RATE_LIMITING" in
       [Tt][Rr][Uu][Ee])
       REDIS_RATE_LIMITING="True"
       ;;
