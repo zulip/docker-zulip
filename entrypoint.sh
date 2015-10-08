@@ -91,24 +91,37 @@ CACHES = {
 EOF
   # Rabbitmq settings
   if [ ! -z "$RABBITMQ_USERNAME" ]; then
-  cat <<EOF >> "$ZULIP_SETTINGS"
+    cat <<EOF >> "$ZULIP_SETTINGS"
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 
 EOF
   fi
   if [ ! -z "$RABBITMQ_PASSWORD" ]; then
-  cat <<EOF >> "$ZULIP_SETTINGS"
+    cat <<EOF >> "$ZULIP_SETTINGS"
 RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
 
 EOF
   fi
   # Redis settings
-  cat <<EOF >> "$ZULIP_SETTINGS"
+  if [ ! -z "$REDIS_RATE_LIMITING" ] && [ ! -z "$REDIS_HOST" ]; then
+    if [ -z "$REDIS_PORT" ]; then
+      REDIS_PORT="6379"
+    fi
+    case "REDIS_RATE_LIMITING":
+      [Tt][Rr][Uu][Ee])
+      REDIS_RATE_LIMITING="True"
+      ;;
+      [Ff][Aa][Ll][Ss][Ee])
+      REDIS_RATE_LIMITING="False"
+      ;;
+    esac
+    cat <<EOF >> "$ZULIP_SETTINGS"
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
 
 EOF
+  fi
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
     cat <<EOF >> "$ZULIP_SETTINGS"

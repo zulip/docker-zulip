@@ -31,6 +31,6 @@ zulip:
     - redis
   environment:
     ZULIP_USER_EMAIL: "example@example.com"
-    ZULIP_SECRETS_email_password: ""
+    ZULIP_SECRETS_email_password: "12345"
   volumes:
     - "/opt/docker/zulip:/data:rw"
