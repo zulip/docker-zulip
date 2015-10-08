@@ -13,6 +13,8 @@ ZULIP_SETTINGS="/etc/zulip/settings.py"
 # I modified them to fit the "docker way" of installation ;)
 function database-settings-setup(){
   cat <<EOF >> "$ZULIP_SETTINGS"
+from zerver.lib.db import TimeTrackingConnection
+
 DATABASES = {"default": {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
@@ -26,6 +28,7 @@ DATABASES = {"default": {
         },
     },
 }
+
 EOF
 }
 function database-data-setup(){
@@ -57,7 +60,7 @@ function zulip-add-custom-secrets(){
     KEY="ZULIP_SECRETS_$SECRET_KEY"
     SECRET_VAR="${!KEY}"
     if [ -z "$SECRET_VAR" ]; then
-      echo "No settings env var found for key \"$SECRET_KEY\". Continuing."
+      echo "No settings env var for key \"$SECRET_KEY\". Continuing."
       continue
     fi
     echo "Setting secret \"$SECRET_KEY\"."
@@ -84,6 +87,7 @@ CACHES = {
         }
     },
 }
+
 EOF
   # Rabbitmq settings
   cat <<EOF >> "$ZULIP_SETTINGS"
@@ -95,15 +99,18 @@ EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
+
 EOF
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
     cat <<EOF >> "$ZULIP_SETTINGS"
   CAMO_KEY = '$CAMO_KEY'
+
 EOF
   fi
   cat <<EOF >> "$ZULIP_SETTINGS"
 CAMO_URI = '$CAMO_URI'
+
 EOF
   if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
     echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
@@ -116,7 +123,7 @@ function zulip-setup-zulip-settings(){
     KEY="ZULIP_SETTINGS_$SETTING_KEY"
     SETTING_VAR="${!KEY}"
     if [ -z "$SETTING_VAR" ]; then
-      echo "No settings env var found for key \"$SETTING_KEY\". Continuing."
+      echo "No settings env var for key \"$SETTING_KEY\". Continuing."
       continue
     fi
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
