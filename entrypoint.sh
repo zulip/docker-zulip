@@ -15,7 +15,8 @@ function database-settings-setup(){
   cat <<EOF >> "$ZULIP_SETTINGS"
 from zerver.lib.db import TimeTrackingConnection
 
-DATABASES = {"default": {
+DATABASES = {
+  "default": {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
     'USER': '$DB_USER',
@@ -25,11 +26,14 @@ DATABASES = {"default": {
     'CONN_MAX_AGE': 600,
     'OPTIONS': {
         'connection_factory': TimeTrackingConnection
-        },
     },
+  },
 }
 
 EOF
+  echo -e "ZULIP_SETTINGS\n==="
+  cat "$ZULIP_SETTINGS"
+  echo "==="
 }
 function database-data-setup(){
   if [ -z "$PGPASSWORD" ]; then
