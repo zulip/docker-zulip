@@ -54,7 +54,7 @@ function zulip-add-custom-secrets(){
   POSSIBLE_SECRETS=(
     "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
     "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
-    "twitter_access_token_key" "twitter_access_token_secret" "email_password"
+    "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
   )
   for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
     KEY="ZULIP_SECRETS_$SECRET_KEY"
@@ -90,10 +90,18 @@ CACHES = {
 
 EOF
   # Rabbitmq settings
+  if [ ! -z "$RABBITMQ_USERNAME" ]; then
   cat <<EOF >> "$ZULIP_SETTINGS"
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
-RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
+
 EOF
+  fi
+  if [ ! -z "$RABBITMQ_PASSWORD" ]; then
+  cat <<EOF >> "$ZULIP_SETTINGS"
+RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
+
+EOF
+  fi
   # Redis settings
   cat <<EOF >> "$ZULIP_SETTINGS"
 RATE_LIMITING = $REDIS_RATE_LIMITING
@@ -104,14 +112,16 @@ EOF
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
     cat <<EOF >> "$ZULIP_SETTINGS"
-  CAMO_KEY = '$CAMO_KEY'
+CAMO_KEY = '$CAMO_KEY'
 
 EOF
   fi
-  cat <<EOF >> "$ZULIP_SETTINGS"
+  if [ ! -z "$CAMO_URI" ]; then
+    cat <<EOF >> "$ZULIP_SETTINGS"
 CAMO_URI = '$CAMO_URI'
 
 EOF
+  fi
   if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
     echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
   fi

@@ -5,7 +5,7 @@ database:
     DB_PASS: zulip
     DB_NAME: zulip
   volumes:
-    - "/opt/postgresql/data:/var/lib/postgresql:rw"
+    - "/opt/docker/postgresql/data:/var/lib/postgresql:rw"
 memcache:
   image: "docker.io/sameersbn/memcached:latest"
   restart: always
@@ -31,3 +31,6 @@ zulip:
     - redis
   environment:
     ZULIP_USER_EMAIL: "example@example.com"
+    ZULIP_SECRETS_email_password: ""
+  volumes:
+    - "/opt/docker/zulip:/data:rw"
