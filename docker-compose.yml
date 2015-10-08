@@ -7,15 +7,15 @@ database:
   volumes:
     - "/opt/postgresql/data:/var/lib/postgresql:rw"
 memcache:
-  image: "sameersbn/memcached:latest"
+  image: "docker.io/sameersbn/memcached:latest"
   restart: always
 rabbitmq:
-  image: "rabbitmq:3.5.5"
+  image: "docker.io/rabbitmq:3.5.5"
   hostname: zulip-rabbit
 camo:
   image: "docker.io/galexrt/camo:latest"
 redis:
-  image: "sameersbn/redis:latest"
+  image: "docker.io/sameersbn/redis:latest"
   volumes:
     - "/opt/docker/redis:/var/lib/redis:rw"
 zulip:
@@ -29,3 +29,5 @@ zulip:
     - rabbitmq
     - camo
     - redis
+  environment:
+    ZULIP_USER_EMAIL: "example@example.com"

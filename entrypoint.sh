@@ -153,6 +153,9 @@ function rabbitmq-setup(){
   rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*'
 }
 
+if [ ! -d "$ZULIP_DIR/uploads" ]; then
+  mkdir -p "$ZULIP_DIR/uploads"
+fi
 if [ -d "$DATA_DIR/uploads" ]; then
   rm -rf "$ZULIP_DIR/uploads"
 else
