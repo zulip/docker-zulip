@@ -28,7 +28,7 @@ DATABASES = {"default": {
 }
 EOF
 }
-function database-setup(){
+function database-data-setup(){
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
   fi
@@ -110,12 +110,6 @@ EOF
   fi
 }
 function zulip-setup-zulip-settings(){
-  if [ "$ZULIP_USE_EXTERNAL_SETTINGS" == "true" ] && [ -f "$DATA_DIR/settings.py" ]; then
-    rm -f "$ZULIP_SETTINGS"
-    cp -rf "$DATA_DIR/settings.py" "$ZULIP_SETTINGS"
-    chown zulip:zulip "$ZULIP_SETTINGS"
-    return 0
-  fi
   # ^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$ and ^#?[ ]?([a-zA-Z0-9_]*)
   POSSIBLE_SETTINGS=($(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)") "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET")
   for SETTING_KEY in "${POSSIBLE_SETTINGS[@]}"; do
@@ -128,11 +122,16 @@ function zulip-setup-zulip-settings(){
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
     sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
-  if [ "$ZULIP_SAVE_SETTINGS_PY" == "true" ]; then
+  if [ "$ZULIP_COPY_SETTINGS_PY" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
     cp -f "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
   fi
   zulip-setup-external-services
+  if [ "$ZULIP_COPY_SETTINGS_PY" == "true" ] && [ -f "$ZULIP_SETTINGS" ]; then
+    rm -f "$DATA_DIR/settings.py"
+    cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
+    return 0
+  fi
 }
 function zulip-create-user(){
   if [ -z "$ZULIP_USER_EMAIL" ]; then
@@ -177,7 +176,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   # Set database settings
   database-settings-setup
   # Init Postgres database server
-  database-setup
+  database-data-setup
   echo "Database settings and server setup done."
   echo "Setting Zulip settings ..."
   # Setup zulip settings
