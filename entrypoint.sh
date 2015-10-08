@@ -122,12 +122,8 @@ function zulip-setup-zulip-settings(){
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
     sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
-  if [ "$ZULIP_COPY_SETTINGS_PY" == "true" ]; then
-    rm -f "$DATA_DIR/settings.py"
-    cp -f "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
-  fi
   zulip-setup-external-services
-  if [ "$ZULIP_COPY_SETTINGS_PY" == "true" ] && [ -f "$ZULIP_SETTINGS" ]; then
+  if [ "$ZULIP_COPY_SETTINGS" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
     cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
     return 0
