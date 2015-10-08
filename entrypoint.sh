@@ -107,12 +107,16 @@ EOF
     if [ -z "$REDIS_PORT" ]; then
       REDIS_PORT="6379"
     fi
-    case "REDIS_RATE_LIMITING":
+    case "REDIS_RATE_LIMITING" in
       [Tt][Rr][Uu][Ee])
       REDIS_RATE_LIMITING="True"
       ;;
       [Ff][Aa][Ll][Ss][Ee])
       REDIS_RATE_LIMITING="False"
+      ;;
+      *)
+      echo "Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
+      REDIS_RATE_LIMITING="True"
       ;;
     esac
     cat <<EOF >> "$ZULIP_SETTINGS"
