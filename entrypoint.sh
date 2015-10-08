@@ -105,8 +105,11 @@ EOF
   cat <<EOF >> "$ZULIP_SETTINGS"
 CAMO_URI = '$CAMO_URI'
 EOF
+  if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
+    echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
+  fi
 }
-function zulip-setupulip-settings(){
+function zulip-setup-zulip-settings(){
   if [ "$ZULIP_USE_EXTERNAL_SETTINGS" == "true" ] && [ -f "$DATA_DIR/settings.py" ]; then
     rm -f "$ZULIP_SETTINGS"
     cp -rf "$DATA_DIR/settings.py" "$ZULIP_SETTINGS"
@@ -129,6 +132,7 @@ function zulip-setupulip-settings(){
     rm -f "$DATA_DIR/settings.py"
     cp -f "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
   fi
+  zulip-setup-external-services
 }
 function zulip-create-user(){
   if [ -z "$ZULIP_USER_EMAIL" ]; then
