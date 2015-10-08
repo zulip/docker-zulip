@@ -10,7 +10,7 @@ MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
-# I modified them to fit the "docker way" of installation ;)
+# But modified to fit the docker image :)
 function database-settings-setup(){
   cat <<EOF >> "$ZULIP_SETTINGS"
 from zerver.lib.db import TimeTrackingConnection
