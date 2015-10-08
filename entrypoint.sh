@@ -33,11 +33,11 @@ function database-data-setup(){
     export PGPASSWORD="$DB_PASSWORD"
   fi
   # TODO Shall we change that and really create the database here or are we expecting a ready zulip database?
-  psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" "CREATE USER zulip;
+  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     DROP DATABASE IF EXISTS zulip;
     CREATE DATABASE zulip OWNER=zulip;" || :
-  psql -h "$DB_HOST" -p "$DB_PORT" -u "$DB_USER" "zulip" "CREATE SCHEMA zulip AUTHORIZATION zulip;
+  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" "CREATE SCHEMA zulip AUTHORIZATION zulip;
     CREATE EXTENSION tsearch_extras SCHEMA zulip;" || :
 }
 function database-initiation(){
