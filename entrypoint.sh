@@ -152,7 +152,10 @@ EOF
 }
 function zulip-setup-zulip-settings(){
   # ^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$ and ^#?[ ]?([a-zA-Z0-9_]*)
-  POSSIBLE_SETTINGS=($(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)") "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET")
+  POSSIBLE_SETTINGS=(
+    "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET"
+    $(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)")
+  )
   for SETTING_KEY in "${POSSIBLE_SETTINGS[@]}"; do
     KEY="ZULIP_SETTINGS_$SETTING_KEY"
     SETTING_VAR="${!KEY}"
