@@ -142,7 +142,7 @@ EOF
       continue
     fi
     echo "Setting secret \"$SECRET_KEY\"."
-    if $(grep "$SECRET_KEY" "$ZULIP_SECRETS"); then
+    if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
       sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
       continue
     fi
