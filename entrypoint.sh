@@ -56,7 +56,7 @@ function database-initiation(){
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
   su zulip -c "$MANAGE_PY initialize_voyager_db"
 }
-function zulip-add-custom-secrets(){
+function zulip-add-secrets(){
   ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
   POSSIBLE_SECRETS=(
     "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
@@ -71,6 +71,10 @@ function zulip-add-custom-secrets(){
       continue
     fi
     echo "Setting secret \"$SECRET_KEY\"."
+    if $(grep "$SECRET_KEY" "$ZULIP_SECRETS"); then
+      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+      continue
+    fi
     echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
   done
 }
@@ -212,7 +216,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Generating and setting secrets ..."
   # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
-  zulip-add-custom-secrets
+  zulip-add-secrets
   echo "Secrets generated and set."
   echo "Setting up database settings and server ..."
   # Set database settings
@@ -237,6 +241,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Created zulip user account"
   echo "==="
   echo "Zulip initiation done."
+  touch "$DATA_DIR/.initiated"
 fi
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmq-setup
