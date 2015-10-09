@@ -151,7 +151,6 @@ EOF
   fi
 }
 function zulip-setup-zulip-settings(){
-  # ^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$ and ^#?[ ]?([a-zA-Z0-9_]*)
   POSSIBLE_SETTINGS=(
     "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET"
     $(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)")
