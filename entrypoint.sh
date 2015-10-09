@@ -2,6 +2,7 @@
 
 if [ "$DEBUG" == "true" ]; then
   set -x
+  set -o functrace
 fi
 set -e
 
@@ -11,7 +12,7 @@ ZULIP_SETTINGS="/etc/zulip/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
-function database-settings-setup(){
+function databaseSetup {
   cat <<EOF >> "$ZULIP_SETTINGS"
 from zerver.lib.db import TimeTrackingConnection
 
@@ -31,13 +32,11 @@ DATABASES = {
 }
 
 EOF
-  echo -e "ZULIP_SETTINGS\n==="
-  cat "$ZULIP_SETTINGS"
-  echo "==="
-}
-function database-data-setup(){
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
+  fi
+  if [ -z "$DB_PORT" ]; then
+    DB_PORT="5432"
   fi
   psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" <<EOF
 CREATE USER zulip;
@@ -48,37 +47,13 @@ EOF || :
   psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" <<EOF
 CREATE SCHEMA zulip AUTHORIZATION zulip;
 CREATE EXTENSION tsearch_extras SCHEMA zulip;
-EOF|| :
-}
-function database-initiation(){
+EOF || :
   su zulip -c "$MANAGE_PY checkconfig"
   su zulip -c "$MANAGE_PY migrate --noinput"
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
   su zulip -c "$MANAGE_PY initialize_voyager_db"
 }
-function zulip-add-secrets(){
-  ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
-  POSSIBLE_SECRETS=(
-    "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
-    "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
-    "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
-  )
-  for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
-    KEY="ZULIP_SECRETS_$SECRET_KEY"
-    SECRET_VAR="${!KEY}"
-    if [ -z "$SECRET_VAR" ]; then
-      echo "No settings env var for key \"$SECRET_KEY\". Continuing."
-      continue
-    fi
-    echo "Setting secret \"$SECRET_KEY\"."
-    if $(grep "$SECRET_KEY" "$ZULIP_SECRETS"); then
-      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
-      continue
-    fi
-    echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
-  done
-}
-function zulip-setup-external-services(){
+function zulipSetup {
   cat <<EOF >> "$ZULIP_SETTINGS"
 CACHES = {
     'default': {
@@ -153,8 +128,26 @@ EOF
   if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
     echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
   fi
-}
-function zulip-setup-zulip-settings(){
+  ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
+  POSSIBLE_SECRETS=(
+    "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
+    "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
+    "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
+  )
+  for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
+    KEY="ZULIP_SECRETS_$SECRET_KEY"
+    SECRET_VAR="${!KEY}"
+    if [ -z "$SECRET_VAR" ]; then
+      echo "No settings env var for key \"$SECRET_KEY\"."
+      continue
+    fi
+    echo "Setting secret \"$SECRET_KEY\"."
+    if $(grep "$SECRET_KEY" "$ZULIP_SECRETS"); then
+      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+      continue
+    fi
+    echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
+  done
   POSSIBLE_SETTINGS=(
     "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET"
     $(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)")
@@ -163,20 +156,19 @@ function zulip-setup-zulip-settings(){
     KEY="ZULIP_SETTINGS_$SETTING_KEY"
     SETTING_VAR="${!KEY}"
     if [ -z "$SETTING_VAR" ]; then
-      echo "No settings env var for key \"$SETTING_KEY\". Continuing."
+      echo "No settings env var for key \"$SETTING_KEY\"."
       continue
     fi
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
     sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
-  zulip-setup-external-services
   if [ "$ZULIP_COPY_SETTINGS" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
     cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
     return 0
   fi
 }
-function zulip-create-user(){
+function zulipCreateUser {
   if [ -z "$ZULIP_USER_EMAIL" ]; then
     echo "No zulip user email given."
     return 1
@@ -192,7 +184,7 @@ function zulip-create-user(){
   su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
 }
-function rabbitmq-setup(){
+function rabbitmqSetup {
   rabbitmqctl delete_user zulip || :
   rabbitmqctl delete_user guest || :
   rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
@@ -216,17 +208,14 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Generating and setting secrets ..."
   # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
-  zulip-add-secrets
   echo "Secrets generated and set."
   echo "Setting up database settings and server ..."
-  # Set database settings
-  database-settings-setup
-  # Init Postgres database server
-  database-data-setup
-  echo "Database settings and server setup done."
+  # setup database
+  databaseSetup
+  echo "Database setup done."
   echo "Setting Zulip settings ..."
   # Setup zulip settings
-  zulip-setup-zulip-settings
+  zulipSetup
   echo "Zulip settings setup done."
   echo "Initiating  Database ..."
   # Init database with something called data :D
@@ -234,17 +223,16 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
     echo "Database initiation failed."
     exit 1
   fi
-  touch "$DATA_DIR/.initiated"
   echo "Database initiated."
   echo "Creating zulip user account ..."
-  zulip-create-user
+  zulipCreateUser
   echo "Created zulip user account"
   echo "==="
   echo "Zulip initiation done."
   touch "$DATA_DIR/.initiated"
 fi
 # Configure rabbitmq server everytime because it could be a new one ;)
-rabbitmq-setup
+rabbitmqSetup
 # If there's an "update" available, then JUST DO IT!
 if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
   echo "Starting zulip migration ..."
