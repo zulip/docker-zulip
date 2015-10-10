@@ -30,6 +30,7 @@ zulip:
     - camo
     - redis
   environment:
+    DB_HOST: "database"
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_SECRETS_email_password: "12345"
   volumes:
