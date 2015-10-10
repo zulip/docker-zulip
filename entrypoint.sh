@@ -71,7 +71,7 @@ secretsSetup(){
     fi
     echo "Setting secret \"$SECRET_KEY\"."
     if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
-      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+      sed -ir "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
       continue
     fi
     echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
@@ -159,7 +159,7 @@ EOF
       continue
     fi
     echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
-    sed -i "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
+    sed -ri "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
   done
   if [ "$ZULIP_COPY_SETTINGS" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
