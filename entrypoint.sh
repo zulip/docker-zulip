@@ -12,8 +12,8 @@ ZULIP_SETTINGS="/etc/zulip/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
-function databaseSetup {
-  cat <<EOF >> "$ZULIP_SETTINGS"
+databaseSetup(){
+  cat >> "$ZULIP_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
 DATABASES = {
@@ -36,27 +36,50 @@ EOF
     export PGPASSWORD="$DB_PASSWORD"
   fi
   if [ -z "$DB_PORT" ]; then
-    DB_PORT="5432"
+    export DB_PORT="5432"
   fi
-  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" <<EOF
-CREATE USER zulip;
-ALTER ROLE zulip SET search_path TO zulip,public;
-DROP DATABASE IF EXISTS zulip;
-CREATE DATABASE zulip OWNER=zulip;
-EOF || :
-  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" <<EOF
-CREATE SCHEMA zulip AUTHORIZATION zulip;
-CREATE EXTENSION tsearch_extras SCHEMA zulip;
-EOF || :
+  echo """
+  CREATE USER zulip;
+  ALTER ROLE zulip SET search_path TO zulip,public;
+  DROP DATABASE IF EXISTS zulip;
+  CREATE DATABASE zulip OWNER=zulip;
+  """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
+  echo """
+  CREATE SCHEMA zulip AUTHORIZATION zulip;
+  CREATE EXTENSION tsearch_extras SCHEMA zulip;
+  """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
 }
-function databaseInitiation {
+databaseInitiation(){
   su zulip -c "$MANAGE_PY checkconfig"
   su zulip -c "$MANAGE_PY migrate --noinput"
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
   su zulip -c "$MANAGE_PY initialize_voyager_db"
 }
-function zulipSetup {
-  cat <<EOF >> "$ZULIP_SETTINGS"
+secretsSetup(){
+  local ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
+  local POSSIBLE_SECRETS=(
+    "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
+    "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
+    "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
+  )
+  for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
+    local KEY="ZULIP_SECRETS_$SECRET_KEY"
+    local SECRET_VAR="${!KEY}"
+    if [ -z "$SECRET_VAR" ]; then
+      echo "No settings env var for key \"$SECRET_KEY\"."
+      continue
+    fi
+    echo "Setting secret \"$SECRET_KEY\"."
+    if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
+      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+      continue
+    fi
+    echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
+  done
+  unset SECRET_KEY
+}
+zulipSetup(){
+  cat >> "$ZULIP_SETTINGS" <<EOF
 CACHES = {
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
@@ -75,88 +98,62 @@ CACHES = {
         }
     },
 }
-
 EOF
   # Rabbitmq settings
   if [ ! -z "$RABBITMQ_USERNAME" ]; then
-    cat <<EOF >> "$ZULIP_SETTINGS"
+    cat >> "$ZULIP_SETTINGS" <<EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
-
 EOF
   fi
   if [ ! -z "$RABBITMQ_PASSWORD" ]; then
-    cat <<EOF >> "$ZULIP_SETTINGS"
+    cat >> "$ZULIP_SETTINGS" <<EOF
 RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
-
 EOF
   fi
   # Redis settings
-  if [ ! -z "$REDIS_RATE_LIMITING" ] && [ ! -z "$REDIS_HOST" ]; then
+  if [ ! -z "$REDIS_RATE_LIMITING" ]; then
+    if [ -z "$REDIS_HOST" ]; then
+      export REDIS_HOST="localhost"
+    fi
     if [ -z "$REDIS_PORT" ]; then
-      REDIS_PORT="6379"
+      export REDIS_PORT="6379"
     fi
     case "$REDIS_RATE_LIMITING" in
       [Tt][Rr][Uu][Ee])
-      REDIS_RATE_LIMITING="True"
+      export REDIS_RATE_LIMITING="True"
       ;;
       [Ff][Aa][Ll][Ss][Ee])
-      REDIS_RATE_LIMITING="False"
+      export REDIS_RATE_LIMITING="False"
       ;;
       *)
       echo "Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
-      REDIS_RATE_LIMITING="True"
+      export REDIS_RATE_LIMITING="True"
       ;;
     esac
-    cat <<EOF >> "$ZULIP_SETTINGS"
+    cat >> "$ZULIP_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
-
 EOF
   fi
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
-    cat <<EOF >> "$ZULIP_SETTINGS"
+    cat >> "$ZULIP_SETTINGS" <<EOF
 CAMO_KEY = '$CAMO_KEY'
-
 EOF
   fi
   if [ ! -z "$CAMO_URI" ]; then
-    cat <<EOF >> "$ZULIP_SETTINGS"
+    cat >> "$ZULIP_SETTINGS" <<EOF
 CAMO_URI = '$CAMO_URI'
-
 EOF
   fi
   if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
     echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
   fi
-  ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
-  POSSIBLE_SECRETS=(
-    "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
-    "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
-    "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
-  )
-  for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
-    KEY="ZULIP_SECRETS_$SECRET_KEY"
-    SECRET_VAR="${!KEY}"
-    if [ -z "$SECRET_VAR" ]; then
-      echo "No settings env var for key \"$SECRET_KEY\"."
-      continue
-    fi
-    echo "Setting secret \"$SECRET_KEY\"."
-    if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
-      sed -i "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
-      continue
-    fi
-    echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
-  done
-  POSSIBLE_SETTINGS=(
-    "S3_AUTH_UPLOADS_BUCKET" "S3_AVATAR_BUCKET"
-    $(grep -E "^#?([a-zA-Z0-9_]*)[ ]*=[ ]*([\"'].*[\"']+|[\(\{]+(\n[^)]*)+.*[\)\}])$" "$ZULIP_SETTINGS" | grep -oE "^#?[ ]?([a-zA-Z0-9_]*)")
-  )
-  for SETTING_KEY in "${POSSIBLE_SETTINGS[@]}"; do
-    KEY="ZULIP_SETTINGS_$SETTING_KEY"
-    SETTING_VAR="${!KEY}"
+  local SET_SETTINGS=($(env | sed -nr "s/ZULIP_SETTINGS_([A-Z_]*).*/\1/p"))
+  for SETTING_KEY in "${SET_SETTINGS[@]}"; do
+    local KEY="ZULIP_SETTINGS_$SETTING_KEY"
+    local SETTING_VAR="${!KEY}"
     if [ -z "$SETTING_VAR" ]; then
       echo "No settings env var for key \"$SETTING_KEY\"."
       continue
@@ -167,26 +164,27 @@ EOF
   if [ "$ZULIP_COPY_SETTINGS" == "true" ]; then
     rm -f "$DATA_DIR/settings.py"
     cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
-    return 0
   fi
+  unset SETTING_KEY
 }
-function zulipCreateUser {
+zulipCreateUser(){
   if [ -z "$ZULIP_USER_EMAIL" ]; then
     echo "No zulip user email given."
     return 1
   fi
-    if [ -z "$ZULIP_USER_PASSWORD" ]; then
-      echo "No zulip user password given."
-      return 1
-    fi
+  if [ -z "$ZULIP_USER_PASSWORD" ]; then
+    echo "No zulip user password given."
+    return 1
+  fi
   if [ -z "$ZULIP_USER_FULLNAME" ]; then
     echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
-    ZULIP_USER_FULLNAME="Zulip Docker"
+    export ZULIP_USER_FULLNAME="Zulip Docker"
   fi
-  su zulip -c " $MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
+  su zulip -c "$MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
+  return 0
 }
-function rabbitmqSetup {
+rabbitmqSetup(){
   rabbitmqctl delete_user zulip || :
   rabbitmqctl delete_user guest || :
   rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
@@ -210,6 +208,7 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Generating and setting secrets ..."
   # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
+  secretsSetup
   echo "Secrets generated and set."
   echo "Setting Zulip settings ..."
   # Setup zulip settings
