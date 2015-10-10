@@ -48,6 +48,8 @@ EOF || :
 CREATE SCHEMA zulip AUTHORIZATION zulip;
 CREATE EXTENSION tsearch_extras SCHEMA zulip;
 EOF || :
+}
+function databaseInitiation {
   su zulip -c "$MANAGE_PY checkconfig"
   su zulip -c "$MANAGE_PY migrate --noinput"
   su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
@@ -209,17 +211,17 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   # Generate the secrets
   /root/zulip/scripts/setup/generate_secrets.py
   echo "Secrets generated and set."
-  echo "Setting up database settings and server ..."
-  # setup database
-  databaseSetup
-  echo "Database setup done."
   echo "Setting Zulip settings ..."
   # Setup zulip settings
   zulipSetup
   echo "Zulip settings setup done."
+  echo "Setting up database settings and server ..."
+  # setup database
+  databaseSetup
+  echo "Database setup done."
   echo "Initiating  Database ..."
   # Init database with something called data :D
-  if ! database-initiation; then
+  if ! databaseInitiation; then
     echo "Database initiation failed."
     exit 1
   fi
