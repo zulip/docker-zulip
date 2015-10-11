@@ -28,11 +28,11 @@ DATABASES = {
     'SCHEMA': 'zulip',
     'CONN_MAX_AGE': 600,
     'OPTIONS': {
-        'connection_factory': TimeTrackingConnection
+        'connection_factory': TimeTrackingConnection,
+        'sslmode': 'prefer',
     },
   },
 }
-
 EOF
   if [ -z "$PGPASSWORD" ]; then
     export PGPASSWORD="$DB_PASSWORD"
@@ -113,31 +113,29 @@ RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
 EOF
   fi
   # Redis settings
-  if [ ! -z "$REDIS_RATE_LIMITING" ]; then
-    if [ -z "$REDIS_HOST" ]; then
-      export REDIS_HOST="localhost"
-    fi
-    if [ -z "$REDIS_PORT" ]; then
-      export REDIS_PORT="6379"
-    fi
-    case "$REDIS_RATE_LIMITING" in
-      [Tt][Rr][Uu][Ee])
-      export REDIS_RATE_LIMITING="True"
-      ;;
-      [Ff][Aa][Ll][Ss][Ee])
-      export REDIS_RATE_LIMITING="False"
-      ;;
-      *)
-      echo "Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
-      export REDIS_RATE_LIMITING="True"
-      ;;
-    esac
-    cat >> "$ZULIP_SETTINGS" <<EOF
+  if [ -z "$REDIS_HOST" ]; then
+    export REDIS_HOST="localhost"
+  fi
+  if [ -z "$REDIS_PORT" ]; then
+    export REDIS_PORT="6379"
+  fi
+  case "$REDIS_RATE_LIMITING" in
+    [Tt][Rr][Uu][Ee])
+    export REDIS_RATE_LIMITING="True"
+    ;;
+    [Ff][Aa][Ll][Ss][Ee])
+    export REDIS_RATE_LIMITING="False"
+    ;;
+    *)
+    echo "Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
+    export REDIS_RATE_LIMITING="True"
+    ;;
+  esac
+  cat >> "$ZULIP_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
 EOF
-  fi
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
     cat >> "$ZULIP_SETTINGS" <<EOF

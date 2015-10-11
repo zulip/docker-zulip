@@ -27,4 +27,20 @@ class zulip::postgres_appdb {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip_db.conf",
   }
+  file { '/usr/share/postgresql/9.3/tsearch_data/en_us.dict':
+    ensure => 'link',
+    target => '/var/cache/postgresql/dicts/en_us.dict',
+  }
+  file { '/usr/share/postgresql/9.3/tsearch_data/en_us.affix':
+    ensure => 'link',
+    target => '/var/cache/postgresql/dicts/en_us.affix',
+  }
+  file { "/usr/share/postgresql/9.3/tsearch_data/zulip_english.stop":
+    require => Package["postgresql-9.3"],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/postgresql/zulip_english.stop",
+  }
 }
