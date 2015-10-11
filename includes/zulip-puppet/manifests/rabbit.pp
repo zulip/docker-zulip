@@ -36,4 +36,12 @@ class zulip::rabbit {
     mode => 644,
     source => "puppet:///modules/zulip/rabbitmq/rabbitmq.config",
   }
+  file { "/etc/supervisor/conf.d/rabbitmq-server.conf":
+    require => Package[supervisor],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/rabbitmq-server.conf",
+  }
 }

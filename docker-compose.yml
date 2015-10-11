@@ -12,9 +12,9 @@ database:
 memcache:
   image: "docker.io/sameersbn/memcached:latest"
   restart: always
-rabbitmq:
-  image: "docker.io/rabbitmq:3.5.5"
-  hostname: zulip-rabbit
+#rabbitmq:
+#  image: "docker.io/rabbitmq:3.5.5"
+#  hostname: zulip-rabbit
 camo:
   image: "docker.io/galexrt/camo:latest"
 redis:
@@ -29,11 +29,14 @@ zulip:
   links:
     - database
     - memcache
-    - rabbitmq
+#    - rabbitmq
     - camo
     - redis
   environment:
     DB_HOST: "database"
+    MEMCACHED_HOST: "memcache"
+    REDIS_HOST: "redis"
+#    RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_SECRETS_email_password: "12345"
     ZULIP_SETTINGS_ZULIP_ADMINISTRATOR: "admin@example.com"
@@ -42,7 +45,5 @@ zulip:
     ZULIP_SETTINGS_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
     ZULIP_SETTINGS_EMAIL_HOST: "smtp.example.com"
     ZULIP_SETTINGS_EMAIL_HOST_USER: "noreply@example.com"
-    ZULIP_SETTINGS_MEMCACHED_HOST: "memcache"
-    ZULIP_SETTINGS_REDIS_HOST: "redis"
   volumes:
     - "/opt/docker/zulip:/data:rw"
