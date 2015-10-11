@@ -41,6 +41,18 @@ EOF
   if [ -z "$DB_PORT" ]; then
     export DB_PORT="5432"
   fi
+  local timeout=60
+  printf "Waiting for database server to accept connections"
+  while ! psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+  do
+    timeout=$(expr $timeout - 1)
+    if [[ $timeout -eq 0 ]]; then
+      printf "\nCould not connect to database server. Aborting...\n"
+      exit 1
+    fi
+    printf "."
+    sleep 1
+  done
   echo """
   CREATE USER zulip;
   ALTER ROLE zulip SET search_path TO zulip,public;

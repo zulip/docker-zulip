@@ -1,10 +1,13 @@
 database:
-  image: "docker.io/postgresql:9.3"
+  image: "docker.io/sameersbn/postgresql:9.4-5"
   environment:
     POSTGRES_USER: zulip
     POSTGRES_PASSWORD: zulip
   volumes:
-    - "/opt/docker/postgresql:/var/lib/postgresql/data:rw"
+    - "/opt/docker/postgresql/data:/var/lib/postgresql:rw"
+    - "/opt/docker/postgresql/dicts/en_us.dict:/usr/share/postgresql/9.4/tsearch_data/en_us.dict"
+    - "/opt/docker/postgresql/dicts/en_us.affix:/usr/share/postgresql/9.4/tsearch_data/en_us.affix"
+    - "/opt/docker/postgresql/dicts/zulip_english.stop:/usr/share/postgresql/9.4/tsearch_data/zulip_english.stop"
 memcache:
   image: "docker.io/sameersbn/memcached:latest"
   restart: always
@@ -38,5 +41,7 @@ zulip:
     ZULIP_SETTINGS_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
     ZULIP_SETTINGS_EMAIL_HOST: "smtp.example.com"
     ZULIP_SETTINGS_EMAIL_HOST_USER: "noreply@example.com"
+    ZULIP_SETTINGS_MEMCACHED_HOST: "memcache"
+    ZULIP_SETTINGS_REDIS_HOST: "redis"
   volumes:
     - "/opt/docker/zulip:/data:rw"
