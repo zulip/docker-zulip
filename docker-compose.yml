@@ -4,7 +4,7 @@ database:
     POSTGRES_USER: zulip
     POSTGRES_PASSWORD: zulip
   volumes:
-    - "/opt/docker/postgresql/data:/var/lib/postgresql:rw"
+    - "/opt/docker/postgresql:/var/lib/postgresql/data:rw"
 memcache:
   image: "docker.io/sameersbn/memcached:latest"
   restart: always
