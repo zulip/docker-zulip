@@ -29,7 +29,7 @@ RUN apt-get -qq update -q && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \
     mv -f /root/zulip-puppet /root/zulip/puppet/zulip && \
-    /root/zulip/scripts/zulip-puppet-apply -f || : && \
+    /root/zulip/scripts/zulip-puppet-apply -f && \
     cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
     ZULIP_DEPLOY_PATH=$(/root/zulip/zulip_tools.py make_deploy_path) && \

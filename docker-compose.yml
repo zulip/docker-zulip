@@ -1,9 +1,8 @@
 database:
-  image: "docker.io/sameersbn/postgresql:9.4-4"
+  image: "docker.io/postgresql:9.3"
   environment:
-    DB_USER: zulip
-    DB_PASS: zulip
-    DB_NAME: zulip
+    POSTGRES_USER: zulip
+    POSTGRES_PASSWORD: zulip
   volumes:
     - "/opt/docker/postgresql/data:/var/lib/postgresql:rw"
 memcache:
