@@ -9,11 +9,12 @@ set -e
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
+ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
 databaseSetup(){
-  cat >> "$ZULIP_SETTINGS" <<EOF
+  cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
 REMOTE_POSTGRES_HOST = '$DB_HOST'
@@ -81,7 +82,7 @@ secretsSetup(){
   unset SECRET_KEY
 }
 zulipSetup(){
-  cat >> "$ZULIP_SETTINGS" <<EOF
+  cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
@@ -103,12 +104,12 @@ CACHES = {
 EOF
   # Rabbitmq settings
   if [ ! -z "$RABBITMQ_USERNAME" ]; then
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 EOF
   fi
   if [ ! -z "$RABBITMQ_PASSWORD" ]; then
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
 EOF
   fi
@@ -131,24 +132,24 @@ EOF
     export REDIS_RATE_LIMITING="True"
     ;;
   esac
-  cat >> "$ZULIP_SETTINGS" <<EOF
+  cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_PORT
 EOF
   # Camo settings
   if [ ! -z "$CAMO_KEY" ]; then
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CAMO_KEY = '$CAMO_KEY'
 EOF
   fi
   if [ ! -z "$CAMO_URI" ]; then
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CAMO_URI = '$CAMO_URI'
 EOF
   fi
   if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
-    echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
+    echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_ZPROJECT_SETTINGS"
   fi
   local SET_SETTINGS=($(env | sed -nr "s/ZULIP_SETTINGS_([A-Z_]*).*/\1/p"))
   for SETTING_KEY in "${SET_SETTINGS[@]}"; do
