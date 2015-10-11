@@ -16,12 +16,14 @@ databaseSetup(){
   cat >> "$ZULIP_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
+REMOTE_POSTGRES_HOST = '$DB_HOST'
+
 DATABASES = {
   "default": {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
     'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASSWORD', # Authentication done via certificates
+    'PASSWORD': '$DB_PASSWORD',
     'HOST': '$DB_HOST',
     'SCHEMA': 'zulip',
     'CONN_MAX_AGE': 600,
