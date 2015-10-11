@@ -1,8 +1,9 @@
 database:
-  image: "docker.io/sameersbn/postgresql:9.4-5"
+  image: "quay.io/sameersbn/postgresql:9.4-5"
   environment:
-    POSTGRES_USER: zulip
-    POSTGRES_PASSWORD: zulip
+    DB_NAME: zulip
+    DB_USER: zulip
+    DB_PASS: zulip
   volumes:
     - "/opt/docker/postgresql/data:/var/lib/postgresql:rw"
     - "/opt/docker/postgresql/dicts/en_us.dict:/usr/share/postgresql/9.4/tsearch_data/en_us.dict"
