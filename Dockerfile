@@ -16,7 +16,7 @@ ADD entrypoint.sh /entrypoint.sh
 ADD includes/zulip-puppet /root/zulip-puppet
 RUN apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
-    apt-get -qq install -y puppet git wget python-dev python-six python-pbs && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y puppet git wget python-dev python-six python-pbs && \
     wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
