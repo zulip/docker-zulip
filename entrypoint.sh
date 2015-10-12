@@ -115,7 +115,10 @@ CACHES = {
 }
 EOF
   # Rabbitmq settings
-  sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters('$RABBITMQ_HOST',~g"
+  sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
+  cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
+RABBITMQ_HOST = '$RABBITMQ_HOST'
+EOF
   if [ ! -z "$RABBITMQ_USERNAME" ]; then
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
