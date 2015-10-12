@@ -39,6 +39,7 @@ zulip:
     RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_SECRETS_email_password: "12345"
+    ZULIP_SETTINGS_EXTERNAL_HOST: "localhost"
     ZULIP_SETTINGS_ZULIP_ADMINISTRATOR: "admin@example.com"
     ZULIP_SETTINGS_ADMIN_DOMAIN: "zerbytes.net"
     ZULIP_SETTINGS_NOREPLY_EMAIL_ADDRESS: "noreply@example.com"

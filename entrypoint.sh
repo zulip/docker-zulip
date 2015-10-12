@@ -115,6 +115,7 @@ CACHES = {
 }
 EOF
   # Rabbitmq settings
+  sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters('$RABBITMQ_HOST',~g"
   if [ ! -z "$RABBITMQ_USERNAME" ]; then
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
