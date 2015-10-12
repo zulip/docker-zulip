@@ -36,7 +36,7 @@ zulip:
     DB_HOST: "database"
     MEMCACHED_HOST: "memcache"
     REDIS_HOST: "redis"
-#    RABBITMQ_HOST: "rabbitmq"
+    RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_SECRETS_email_password: "12345"
     ZULIP_SETTINGS_ZULIP_ADMINISTRATOR: "admin@example.com"

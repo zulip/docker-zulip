@@ -1,16 +1,18 @@
 # docker-zulip
 Zulip Server as a Docker Image
 
-#### Please, don't use the master branch (I'm not really testing when commiting to master!!), use a version branch when available!!
+#### Please, don't use the master branch (I'm not really testing when commiting to master!!), use a version branch if available!!
 
-*Docker Hub* https://hub.docker.com/r/galexrt/zulip/
+*Docker Hub* https://hub.docker.com/r/galexrt/zulip
+*Quay.io* https://quay.io/repository/galexrt/zulip
 
 ___
 
-##### WARNING! This is currently work in progress. It's not fully "working" yet, but it should work sometime soon.
+##### WARNING! This is currently work in progress. It's not fully "working" yet.
+
 
 In the folder [includes/zulip](includes/zulip) are modified zulip manifestss for puppet.
-The manifests are modified to "just" install zulip not more, not less and work good in docker.
+The manifests are modified to "just" install zulip (+ rabbitmq-server, because of zulip not allowing configuration of an external rabbitmq-server) not more, not less.
 
 > Powerful open source group chat - From zulip.org
 
