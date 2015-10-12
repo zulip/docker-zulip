@@ -1,5 +1,4 @@
-FROM ubuntu:trusty
-
+FROM quay.io/sameersbn/ubuntu:14.04.20151011
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
 ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
