@@ -13,7 +13,7 @@ memcache:
   image: "quay.io/sameersbn/memcached:latest"
   restart: always
 #rabbitmq:
-#  image: "quay.io/rabbitmq:3.5.5"
+#  image: "docker.io/rabbitmq:3.5.5"
 #  hostname: zulip-rabbit
 camo:
   image: "quay.io/galexrt/camo:latest"
