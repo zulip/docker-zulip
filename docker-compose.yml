@@ -10,19 +10,19 @@ database:
     - "/opt/docker/postgresql/dicts/en_us.affix:/usr/share/postgresql/9.4/tsearch_data/en_us.affix"
     - "/opt/docker/postgresql/dicts/zulip_english.stop:/usr/share/postgresql/9.4/tsearch_data/zulip_english.stop"
 memcache:
-  image: "docker.io/sameersbn/memcached:latest"
+  image: "quay.io/sameersbn/memcached:latest"
   restart: always
 #rabbitmq:
-#  image: "docker.io/rabbitmq:3.5.5"
+#  image: "quay.io/rabbitmq:3.5.5"
 #  hostname: zulip-rabbit
 camo:
-  image: "docker.io/galexrt/camo:latest"
+  image: "quay.io/galexrt/camo:latest"
 redis:
-  image: "docker.io/sameersbn/redis:latest"
+  image: "quay.io/sameersbn/redis:latest"
   volumes:
     - "/opt/docker/redis:/var/lib/redis:rw"
 zulip:
-  image: "docker.io/galexrt/zulip:latest"
+  image: "quay.io/galexrt/zulip:latest"
   ports:
     - "80:80"
     - "443:443"
