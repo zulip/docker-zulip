@@ -30,4 +30,12 @@ class zulip::nginx {
   file { "/etc/nginx/sites-enabled/default":
     ensure => absent,
   }
+  file { "/etc/supervisor/conf.d/nginx.conf":
+    require => Package[supervisor],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/nginx.conf",
+  }
 }

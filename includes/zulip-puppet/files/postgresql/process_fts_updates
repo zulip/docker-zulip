@@ -51,4 +51,3 @@ while True:
         while conn.notifies:
             conn.notifies.pop()
             update_fts_columns(cursor)
-

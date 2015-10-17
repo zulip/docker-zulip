@@ -20,6 +20,22 @@ rabbitmqSetup(){
   rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' || :
 }
 databaseSetup(){
+  if [ -z "$DB_HOST" ]; then
+      echo "No DB_HOST given."
+      exit 2
+  fi
+    if [ -z "$DB_NAME" ]; then
+        echo "No DB_NAME given."
+        exit 2
+    fi
+    if [ -z "$DB_USER" ]; then
+        echo "No DB_USER given."
+        exit 2
+    fi
+    if [ -z "$DB_PASSWORD" ]; then
+        echo "No DB_PASSWORD given."
+        exit 2
+    fi
   cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
@@ -59,6 +75,7 @@ EOF
     echo -n "."
     sleep 1
   done
+  sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD\")~g" "/usr/local/bin/process_fts_updates"
   echo """
   CREATE USER zulip;
   ALTER ROLE zulip SET search_path TO zulip,public;
