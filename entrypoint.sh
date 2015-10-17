@@ -13,6 +13,12 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
+rabbitmqSetup(){
+  rabbitmqctl delete_user guest || :
+  rabbitmqctl add_user zulip "$RABBITMQ_PASSWORD" || :
+  rabbitmqctl set_user_tags zulip administrator || :
+  rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' || :
+}
 databaseSetup(){
   cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
@@ -42,7 +48,7 @@ EOF
     export DB_PORT="5432"
   fi
   local timeout=60
-  printf "Waiting for database server to allow connections"
+  echo -n "Waiting for database server to allow connections"
   while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
   do
     timeout=$(expr $timeout - 1)
@@ -50,7 +56,7 @@ EOF
       echo "Could not connect to database server. Aborting..."
       exit 1
     fi
-    printf "."
+    echo -n "."
     sleep 1
   done
   echo """
@@ -66,9 +72,12 @@ EOF
 }
 databaseInitiation(){
   su zulip -c "$MANAGE_PY checkconfig"
+  echo "Migrating database ..."
   su zulip -c "$MANAGE_PY migrate --noinput"
-  su zulip -c "$MANAGE_PY createcachetable third_party_api_results"
-  su zulip -c "$MANAGE_PY initialize_voyager_db"
+  echo "Creating cache and third_party_api_results table ..."
+  su zulip -c "$MANAGE_PY createcachetable third_party_api_results" || :
+  echo "Initializing Voyager database ..."
+  su zulip -c "$MANAGE_PY initialize_voyager_db" || :
 }
 secretsSetup(){
   local ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
@@ -201,13 +210,6 @@ zulipCreateUser(){
   su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
   return 0
 }
-rabbitmqSetup(){
-  rabbitmqctl delete_user zulip || :
-  rabbitmqctl delete_user guest || :
-  rabbitmqctl add_user zulip "$("$ZULIP_CURRENT_DEPLOY/bin/get-django-setting" RABBITMQ_PASSWORD)" || :
-  rabbitmqctl set_user_tags zulip administrator
-  rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*'
-}
 
 if [ ! -d "$ZULIP_DIR/uploads" ]; then
   mkdir -p "$ZULIP_DIR/uploads"
@@ -219,6 +221,8 @@ else
   mv -f "$ZULIP_DIR/uploads" "$DATA_DIR/uploads"
 fi
 ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
+# Configure rabbitmq server everytime because it could be a new one ;)
+rabbitmqSetup
 if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Initiating Zulip initiation ..."
   echo "==="
@@ -249,8 +253,6 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
   echo "Zulip initiation done."
   touch "$DATA_DIR/.initiated"
 fi
-# Configure rabbitmq server everytime because it could be a new one ;)
-rabbitmqSetup
 # If there's an "update" available, then JUST DO IT!
 if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
   echo "Starting zulip migration ..."

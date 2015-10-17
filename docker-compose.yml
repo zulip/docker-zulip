@@ -15,6 +15,9 @@ memcache:
 rabbitmq:
   image: "docker.io/rabbitmq:3.5.5"
   hostname: zulip-rabbit
+  environment:
+      RABBITMQ_DEFAULT_USER: "zulip"
+      RABBITMQ_DEFAULT_PASS: "zulip"
 camo:
   image: "quay.io/galexrt/camo:latest"
 redis:
@@ -39,6 +42,7 @@ zulip:
     RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_SECRETS_email_password: "12345"
+    ZULIP_SECRETS_rabbitmq_password: "zulip"
     ZULIP_SETTINGS_EXTERNAL_HOST: "localhost"
     ZULIP_SETTINGS_ZULIP_ADMINISTRATOR: "admin@example.com"
     ZULIP_SETTINGS_ADMIN_DOMAIN: "zerbytes.net"
