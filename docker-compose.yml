@@ -12,9 +12,9 @@ database:
 memcache:
   image: "quay.io/sameersbn/memcached:latest"
   restart: always
-#rabbitmq:
-#  image: "docker.io/rabbitmq:3.5.5"
-#  hostname: zulip-rabbit
+rabbitmq:
+  image: "docker.io/rabbitmq:3.5.5"
+  hostname: zulip-rabbit
 camo:
   image: "quay.io/galexrt/camo:latest"
 redis:
@@ -29,7 +29,7 @@ zulip:
   links:
     - database
     - memcache
-#    - rabbitmq
+    - rabbitmq
     - camo
     - redis
   environment:
