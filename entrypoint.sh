@@ -268,6 +268,7 @@ else
     mv -f "$ZULIP_DIR/uploads" "$DATA_DIR/uploads"
 fi
 ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
+chown zulip:zulip -R "$DATA_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
 if [ ! -e "$DATA_DIR/.initiated" ]; then
