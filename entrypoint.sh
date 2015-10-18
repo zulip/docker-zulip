@@ -7,7 +7,6 @@ fi
 set -e
 
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
-export MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
@@ -88,13 +87,13 @@ EOF
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
 }
 databaseInitiation(){
-    su zulip -c "$MANAGE_PY checkconfig"
+    su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
     echo "Migrating database ..."
-    su zulip -c "$MANAGE_PY migrate --noinput"
+    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
     echo "Creating cache and third_party_api_results table ..."
-    su zulip -c "$MANAGE_PY createcachetable third_party_api_results" || :
+    su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results" || :
     echo "Initializing Voyager database ..."
-    su zulip -c "$MANAGE_PY initialize_voyager_db" || :
+    su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db" || :
 }
 secretsSetup(){
     local ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
@@ -304,7 +303,7 @@ fi
 # If there's an "update" available, then JUST DO IT!
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
-    if ! "$MANAGE_PY" migrate; then
+    if ! "/home/zulip/deployments/current/manage.py" migrate; then
         echo "Zulip migration error."
         exit 1
     fi

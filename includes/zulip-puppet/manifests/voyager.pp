@@ -36,19 +36,19 @@ class zulip::voyager {
     mode => 644,
     source => "puppet:///modules/zulip/cron.d/restart-zulip",
   }
-  file { "/etc/supervisor/conf.d/zulip_postsetup.conf":
+  file { "/etc/supervisor/conf.d/zulip-postsetup.conf":
     require => Package[supervisor],
     ensure => file,
     owner => "root",
     group => "root",
     mode => 644,
-    source => "puppet:///modules/zulip/supervisor/conf.d/zulip_postsetup.conf",
+    source => "puppet:///modules/zulip/supervisor/conf.d/zulip-postsetup.conf",
   }
-  file { "/usr/local/bin/createZulipUser.sh":
+  file { "/usr/local/bin/zulipPostSetup.sh":
     ensure => file,
     owner  => "root",
     group  => "root",
     mode => 755,
-    source => "puppet:///modules/zulip/createZulipUser.sh",
+    source => "puppet:///modules/zulip/zulipPostSetup.sh",
   }
 }
