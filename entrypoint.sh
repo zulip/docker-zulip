@@ -121,6 +121,7 @@ secretsSetup(){
 }
 zulipSetup(){
     if [ ! -d "$DATA_DIR/certs" ]; then
+        mkdir -p "$DATA_DIR/certs"
         echo "No certs given."
         return 1
     fi
