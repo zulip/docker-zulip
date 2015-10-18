@@ -9,3 +9,4 @@ TODO.md
 includes/postgresql-9.3-tsearch-extras
 includes/zulip-puppet-config
 docker-compose.yml
+scripts/
