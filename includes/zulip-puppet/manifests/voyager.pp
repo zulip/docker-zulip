@@ -48,7 +48,7 @@ class zulip::voyager {
     ensure => file,
     owner  => "root",
     group  => "root",
-    mode => 644,
+    mode => 755,
     source => "puppet:///modules/zulip/createZulipUser.sh",
   }
 }
