@@ -157,7 +157,7 @@ CACHES = {
     },
 }
 EOF
-    echo "AUTHENTICATION_BACKENDS = (" >> "$ZULIP_ZPROJECT_SETTINGS"
+    # Authentication Backends
     local POSSIBLE_AUTH_BACKENDS=(
         "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
     )
@@ -169,9 +169,9 @@ EOF
             continue
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
-        echo "'zproject.backends.$AUTH_BACKEND_VAR'," >> "$ZULIP_ZPROJECT_SETTINGS"
+        AUTH_BACKENDS="$AUTH_BACKENDS'zproject.backends.$AUTH_BACKEND_VAR',"
     done
-    echo ")" >> "$ZULIP_ZPROJECT_SETTINGS"
+    sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" local_settings_template.py
     # Rabbitmq settings
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
