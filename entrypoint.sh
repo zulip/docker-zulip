@@ -7,7 +7,7 @@ fi
 set -e
 
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
-MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
+export MANAGE_PY="$ZULIP_CURRENT_DEPLOY/manage.py"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
@@ -259,16 +259,6 @@ zulipCreateUser(){
         echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
-    su zulip -c "$MANAGE_PY create_user --this-user-has-accepted-the-tos \"$ZULIP_USER_EMAIL\" \"$ZULIP_USER_FULLNAME\" --domain \"$ZULIP_USER_DOMAIN\"" || :
-    su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
-    cat | expect <<EOF
-#!/usr/bin/expect
-spawn su zulip -c "$MANAGE_PY changepassword $ZULIP_USER_EMAIL"
-expect "Password:"
-send_user "$ZULIP_USER_PASSWORD\n"
-expect "Password (again):"
-send_user "$ZULIP_USER_PASSWORD\n"
-EOF
     return 0
 }
 
