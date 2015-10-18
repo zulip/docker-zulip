@@ -259,7 +259,7 @@ zulipCreateUser(){
         echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
-    su zulip -c "$MANAGE_PY create_user --this-user-has-accepted-the-tos \"$ZULIP_USER_EMAIL\" \"$ZULIP_USER_FULLNAME\" --domain \"$ZULIP_USER_DOMAIN\""
+    su zulip -c "$MANAGE_PY create_user --this-user-has-accepted-the-tos \"$ZULIP_USER_EMAIL\" \"$ZULIP_USER_FULLNAME\" --domain \"$ZULIP_USER_DOMAIN\"" || :
     su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
     cat | expect <<EOF
 #!/usr/bin/expect
