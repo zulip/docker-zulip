@@ -157,6 +157,22 @@ CACHES = {
     },
 }
 EOF
+    # Remove the part from the auth backends settings
+    echo "AUTHENTICATION_BACKENDS = (" >> "$ZULIP_ZPROJECT_SETTINGS"
+    local POSSIBLE_AUTH_BACKENDS=(
+        "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
+    )
+    for AUTH_BACKEND_KEY in "${POSSIBLE_AUTH_BACKENDS[@]}"; do
+        local KEY="ZULIP_AUTHENTICATION_BACKENDS_$AUTH_BACKEND_KEY"
+        local AUTH_BACKEND_VAR="${!KEY}"
+        if [ -z "$AUTH_BACKEND_VAR" ]; then
+            echo "No authentication backend for key \"$AUTH_BACKEND_KEY\"."
+            continue
+        fi
+        echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
+        echo "'zproject.backends.$AUTH_BACKEND_VAR'," >> "$ZULIP_ZPROJECT_SETTINGS"
+    done
+    echo ")" >> "$ZULIP_ZPROJECT_SETTINGS"
     # Rabbitmq settings
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
@@ -257,7 +273,7 @@ fi
 ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
-if [ ! -f "$DATA_DIR/.initiated" ]; then
+if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo "Initiating Zulip initiation ..."
     echo "==="
     echo "Generating and setting secrets ..."
@@ -288,10 +304,10 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
     echo "Created zulip user account"
     echo "==="
     echo "Zulip initiation done."
-    touch "$DATA_DIR/.initiated"
+    touch "$DATA_DIR/. "
 fi
 # If there's an "update" available, then JUST DO IT!
-if [ ! -f "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
+if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
     if ! "$MANAGE_PY" migrate; then
         echo "Zulip migration error."

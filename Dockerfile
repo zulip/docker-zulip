@@ -42,5 +42,6 @@ RUN apt-get -qq update -q && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 VOLUME ["$DATA_DIR"]
+EXPOSE 80 443
 
 ENTRYPOINT ["/entrypoint.sh"]
