@@ -112,7 +112,7 @@ secretsSetup(){
         fi
         echo "Setting secret \"$SECRET_KEY\"."
         if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
-            sed -ir "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
             continue
         fi
         echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
@@ -171,7 +171,7 @@ EOF
         echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
         AUTH_BACKENDS="$AUTH_BACKENDS'zproject.backends.$AUTH_BACKEND_VAR',"
     done
-    sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" local_settings_template.py
+    sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" "$ZULIP_SETTINGS"
     # Rabbitmq settings
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
