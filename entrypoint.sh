@@ -157,7 +157,6 @@ CACHES = {
     },
 }
 EOF
-    # Remove the part from the auth backends settings
     echo "AUTHENTICATION_BACKENDS = (" >> "$ZULIP_ZPROJECT_SETTINGS"
     local POSSIBLE_AUTH_BACKENDS=(
         "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
