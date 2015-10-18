@@ -9,7 +9,7 @@ database:
     - "/opt/docker/postgresql/dicts/en_us.dict:/usr/share/postgresql/9.4/tsearch_data/en_us.dict"
     - "/opt/docker/postgresql/dicts/en_us.affix:/usr/share/postgresql/9.4/tsearch_data/en_us.affix"
     - "/opt/docker/postgresql/dicts/zulip_english.stop:/usr/share/postgresql/9.4/tsearch_data/zulip_english.stop"
-memcache:
+memcached:
   image: "quay.io/sameersbn/memcached:latest"
   restart: always
 rabbitmq:
@@ -31,13 +31,13 @@ zulip:
     - "443:443"
   links:
     - database
-    - memcache
+    - memcached
     - rabbitmq
     - camo
     - redis
   environment:
     DB_HOST: "database"
-    MEMCACHED_HOST: "memcache"
+    MEMCACHED_HOST: "memcached"
     REDIS_HOST: "redis"
     RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"

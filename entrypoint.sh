@@ -120,6 +120,24 @@ secretsSetup(){
     unset SECRET_KEY
 }
 zulipSetup(){
+    if [ ! -d "$DATA_DIR/certs" ]; then
+        echo "No certs given."
+        return 1
+    fi
+    if [ ! -e "/etc/ssl/private/zulip.key" ]; then
+        if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
+            echo "No zulip.key given in $DATA_DIR."
+            return 1
+        fi
+        ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
+    fi
+    if [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
+        if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+            echo "No zulip.combined-chain.crt given in $DATA_DIR."
+            return 1
+        fi
+        ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
+    fi
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
@@ -250,7 +268,10 @@ if [ ! -f "$DATA_DIR/.initiated" ]; then
     echo "Secrets generated and set."
     echo "Setting Zulip settings ..."
     # Setup zulip settings
-    zulipSetup
+    if ! zulipSetup; then
+        echo "Zulip setup failed."
+        exit 1
+    fi
     echo "Zulip settings setup done."
     echo "Setting up database settings and server ..."
     # setup database
