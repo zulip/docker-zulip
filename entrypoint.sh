@@ -87,7 +87,6 @@ EOF
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
 }
 databaseInitiation(){
-    su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
     echo "Migrating database ..."
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
     echo "Creating cache and third_party_api_results table ..."
@@ -235,10 +234,6 @@ EOF
         echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
         sed -ri "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
     done
-    if [ "$ZULIP_COPY_SETTINGS" == "true" ]; then
-        rm -f "$DATA_DIR/settings.py"
-        cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
-    fi
     unset SETTING_KEY
     if [ -z "$ZULIP_USER_EMAIL" ]; then
         echo "No zulip user email given."
@@ -271,25 +266,25 @@ ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
 chown zulip:zulip -R "$DATA_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
+echo "Generating and setting secrets ..."
+# Generate the secrets
+/root/zulip/scripts/setup/generate_secrets.py
+secretsSetup
+echo "Secrets generated and set."
+echo "Setting Zulip settings ..."
+# Setup zulip settings
+if ! zulipSetup; then
+    echo "Zulip setup failed."
+    exit 1
+fi
+echo "Zulip settings setup done."
+echo "Setting up database settings and server ..."
+# setup database
+databaseSetup
+echo "Database setup done."
+echo "Checking zulip config ..."
+su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
 if [ ! -e "$DATA_DIR/.initiated" ]; then
-    echo "Initiating Zulip initiation ..."
-    echo "==="
-    echo "Generating and setting secrets ..."
-    # Generate the secrets
-    /root/zulip/scripts/setup/generate_secrets.py
-    secretsSetup
-    echo "Secrets generated and set."
-    echo "Setting Zulip settings ..."
-    # Setup zulip settings
-    if ! zulipSetup; then
-        echo "Zulip setup failed."
-        exit 1
-    fi
-    echo "Zulip settings setup done."
-    echo "Setting up database settings and server ..."
-    # setup database
-    databaseSetup
-    echo "Database setup done."
     echo "Initiating  Database ..."
     # Init database with something called data :D
     if ! databaseInitiation; then
@@ -297,14 +292,15 @@ if [ ! -e "$DATA_DIR/.initiated" ]; then
         exit 1
     fi
     echo "Database initiated."
-    echo "==="
-    echo "Zulip initiation done."
+    echo ""
     touch "$DATA_DIR/.initiated"
+else
+    rm -rf /etc/supervisor/conf.d/zulip_postsetup.conf
 fi
-# If there's an "update" available, then JUST DO IT!
+# If there's an "update" available, then "JUST DO IT!" - Shia Labeouf
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
-    if ! "/home/zulip/deployments/current/manage.py" migrate; then
+    if ! /home/zulip/deployments/current/manage.py migrate; then
         echo "Zulip migration error."
         exit 1
     fi
