@@ -122,8 +122,6 @@ secretsSetup(){
 zulipSetup(){
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
-        echo "No certs given."
-        return 1
     fi
     if [ ! -e "/etc/ssl/private/zulip.key" ]; then
         if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
@@ -242,8 +240,8 @@ zulipCreateUser(){
         echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
-    su zulip -c "$MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
-    su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
+    #su zulip -c "$MANAGE_PY create_user --new-email \"$ZULIP_USER_EMAIL\" --new-password \"$ZULIP_USER_PASSWORD\" --new-full-name \"$ZULIP_USER_FULLNAME\""
+    #su zulip -c "$MANAGE_PY knight \"$ZULIP_USER_EMAIL\" -f"
     return 0
 }
 
