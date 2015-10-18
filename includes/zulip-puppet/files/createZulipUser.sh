@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sleep 3
 "$MANAGE_PY" create_user --this-user-has-accepted-the-tos "$ZULIP_USER_EMAIL" "$ZULIP_USER_FULLNAME" --domain "$ZULIP_USER_DOMAIN" || :
 "$MANAGE_PY" knight "$ZULIP_USER_EMAIL" -f
 cat | expect <<EOF
