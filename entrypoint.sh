@@ -241,8 +241,6 @@ EOF
         cp -fT "$ZULIP_SETTINGS" "$DATA_DIR/settings.py"
     fi
     unset SETTING_KEY
-}
-zulipCreateUser(){
     if [ -z "$ZULIP_USER_EMAIL" ]; then
         echo "No zulip user email given."
         return 1
@@ -259,7 +257,6 @@ zulipCreateUser(){
         echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
-    return 0
 }
 
 if [ ! -d "$ZULIP_DIR/uploads" ]; then
@@ -300,12 +297,9 @@ if [ ! -e "$DATA_DIR/.initiated" ]; then
         exit 1
     fi
     echo "Database initiated."
-    echo "Creating zulip user account ..."
-    zulipCreateUser
-    echo "Created zulip user account"
     echo "==="
     echo "Zulip initiation done."
-    touch "$DATA_DIR/. "
+    touch "$DATA_DIR/.initiated"
 fi
 # If there's an "update" available, then JUST DO IT!
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
