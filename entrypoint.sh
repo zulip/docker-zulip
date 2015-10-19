@@ -170,7 +170,6 @@ EOF
     done
     sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" "$ZULIP_SETTINGS"
     # Rabbitmq settings
-    sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_HOST = '$RABBITMQ_HOST'
 EOF
@@ -184,6 +183,7 @@ EOF
 RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
 EOF
     fi
+    sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     # Redis settings
     if [ -z "$REDIS_HOST" ]; then
         export REDIS_HOST="localhost"
@@ -302,7 +302,7 @@ fi
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
     if ! /home/zulip/deployments/current/manage.py migrate; then
-        echo "Zulip migration error."
+        echo "Zulip migration failed."
         exit 1
     fi
     rm -rf "$DATA_DIR/.zulip-*"
