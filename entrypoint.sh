@@ -95,25 +95,24 @@ databaseInitiation(){
     su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db" || :
 }
 secretsSetup(){
-    local ZULIP_SECRETS="/etc/zulip/zulip-secrets.conf"
     local POSSIBLE_SECRETS=(
-        "s3_key" "s3_secret_key" "android_gcm_api_key" "google_oauth2_client_secret"
-        "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key" "twitter_consumer_key" "twitter_consumer_secret"
-        "twitter_access_token_key" "twitter_access_token_secret" "email_password" "rabbitmq_password"
+        "email_password" "rabbitmq_password" "s3_key" "s3_secret_key" "android_gcm_api_key"
+        "google_oauth2_client_secret" "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key"
+        "twitter_consumer_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"
     )
     for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
         local KEY="ZULIP_SECRETS_$SECRET_KEY"
         local SECRET_VAR="${!KEY}"
         if [ -z "$SECRET_VAR" ]; then
-            echo "No settings env var for key \"$SECRET_KEY\"."
+            echo "No secret found for key \"$SECRET_KEY\"."
             continue
         fi
         echo "Setting secret \"$SECRET_KEY\"."
-        if [ -z "$(grep "$SECRET_KEY" "$ZULIP_SECRETS")" ]; then
-            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" "$ZULIP_SECRETS"
+        if [ ! -z "$(grep "$SECRET_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
+            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
             continue
         fi
-        echo "$SECRET_KEY = '$SECRET_VAR'" >> "$ZULIP_SECRETS"
+        echo "$SECRET_KEY = '$SECRET_VAR'" >> /etc/zulip/zulip-secrets.conf
     done
     unset SECRET_KEY
 }
@@ -267,8 +266,10 @@ chown zulip:zulip -R "$DATA_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
 echo "Generating and setting secrets ..."
-# Generate the secrets
-/root/zulip/scripts/setup/generate_secrets.py
+if [ ! -e "$DATA_DIR/.initiated" ]; then
+    # Generate the secrets
+    /root/zulip/scripts/setup/generate_secrets.py
+fi
 secretsSetup
 echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
