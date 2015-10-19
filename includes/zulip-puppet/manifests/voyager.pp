@@ -44,11 +44,11 @@ class zulip::voyager {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip_postsetup.conf",
   }
-  file { "/usr/local/bin/zulipPostSetup.sh":
+  file { "/opt/setupZulipUser.sh":
     ensure => file,
     owner  => "root",
     group  => "root",
     mode => 755,
-    source => "puppet:///modules/zulip/zulipPostSetup.sh",
+    source => "puppet:///modules/zulip/setupZulipUser.sh",
   }
 }
