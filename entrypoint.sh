@@ -304,6 +304,7 @@ if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
         echo "Zulip migration error."
         exit 1
     fi
+    rm -rf "$DATA_DIR/.zulip-*"
     touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "Zulip migration done."
 fi
