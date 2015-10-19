@@ -1,5 +1,5 @@
 database:
-  image: "quay.io/sameersbn/postgresql:9.4-5"
+  image: "quay.io/galexrt/zulip-postgresql-tsearchextras:latest"
   environment:
     DB_NAME: zulip
     DB_USER: zulip
