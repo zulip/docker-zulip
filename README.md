@@ -11,4 +11,5 @@ ___
 See https://zulip.org/server.html for details about the Zulip Server
 
 The folder [includes/zulip](includes/zulip) contains modified puppet manifests for **Zulip server**.
-The manifests just install **Zulip server** not more, not less.
+The puppet manifests just install **Zulip server** not more, not less.
+The original puppet manifests are taken from the https://github.com/zulip/zulip Repo.
