@@ -6,6 +6,8 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
+ZULIP_AUTO_GENERATE_CERTS="true"
+
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
@@ -120,20 +122,44 @@ zulipSetup(){
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
     fi
-    if [ ! -e "/etc/ssl/private/zulip.key" ]; then
-        if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
-            echo "No zulip.key given in $DATA_DIR."
-            return 1
+    case "$ZULIP_AUTO_GENERATE_CERTS" in
+        [Tt][Rr][Uu][Ee])
+        export ZULIP_AUTO_GENERATE_CERTS="True"
+        ;;
+        [Ff][Aa][Ll][Ss][Ee])
+        export ZULIP_AUTO_GENERATE_CERTS="False"
+        ;;
+        *)
+        echo "Can't parse True or Right for ZULIP_AUTO_GENERATE_CERTS. Defaulting to True"
+        export ZULIP_AUTO_GENERATE_CERTS="True"
+        ;;
+    esac
+    if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
+        if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
+            echo "Certificates auto generation is true. Generating certificates ..."
+            if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
+                export ZULIP_CERTIFICATE_SUBJ="/C=US/ST=Denial/L=Springfield/O=Dis/CN=$ZULIP_SETTINGS_EXTERNAL_HOST"
+            fi
+            openssl genrsa -des3 -passout pass:x -out /tmp/server.pass.key 4096
+            openssl rsa -passin pass:x -in /tmp/server.pass.key -out "$DATA_DIR/certs/zulip.key"
+            openssl req -new -nodes -subj "$ZULIP_CERTIFICATE_SUBJ" -key "$DATA_DIR/certs/zulip.key" -out /tmp/server.csr
+            openssl x509 -req -days 365 -in /tmp/server.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
+            rm -f /tmp/server.csr /tmp/server.pass.key
+            echo "Certificates auto generation done."
+        else
+            echo "Certificates already exist. No need to generate them."
         fi
-        ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
     fi
-    if [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
-        if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-            echo "No zulip.combined-chain.crt given in $DATA_DIR."
-            return 1
-        fi
-        ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
+    if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
+        echo "No zulip.key given in $DATA_DIR."
+        return 1
     fi
+    if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+        echo "No zulip.combined-chain.crt given in $DATA_DIR."
+        return 1
+    fi
+    ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
+    ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
