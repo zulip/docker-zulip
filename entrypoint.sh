@@ -251,6 +251,24 @@ EOF
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
 }
+managepy() {
+    if [ -z "$1" ]; then
+        echo "No command given for manage.py"
+        return 1
+    fi
+    echo "Running manage.py ..."
+    return su zulip -c "/home/zulip/deployments/current/manage.py $*"
+}
+
+case "$1" in
+    manage.py)
+    shift 1
+    exec managepy "$@"
+    exit $?
+    ;;
+    *)
+    ;;
+esac
 
 if [ ! -d "$ZULIP_DIR/uploads" ]; then
     mkdir -p "$ZULIP_DIR/uploads"
