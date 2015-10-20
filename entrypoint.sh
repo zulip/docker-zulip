@@ -136,16 +136,35 @@ zulipSetup(){
     esac
     if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
         if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
-            echo "Certificates auto generation is true. Generating certificates ..."
+            echo "Certificates generation is true. Generating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
-                export ZULIP_CERTIFICATE_SUBJ="/C=US/ST=Denial/L=Springfield/O=Dis/CN=$ZULIP_SETTINGS_EXTERNAL_HOST"
+                if [ -z "$ZULIP_CERTIFICATE_C" ]; then
+                    export ZULIP_CERTIFICATE_C="US"
+                fi
+                if [ -z "$ZULIP_CERTIFICATE_ST" ]; then
+                    export ZULIP_CERTIFICATE_ST="Denial"
+                fi
+                if [ -z "$ZULIP_CERTIFICATE_L" ]; then
+                    export ZULIP_CERTIFICATE_L="Springfield"
+                fi
+                if [ -z "$ZULIP_CERTIFICATE_O" ]; then
+                    export ZULIP_CERTIFICATE_O="Dis"
+                fi
+                if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
+                    if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
+                        echo "Certificates generation failed. Missing ZULIP_CERTIFICATE_CN and as backup ZULIP_SETTINGS_EXTERNAL_HOST not given."
+                        exit 1
+                    fi
+                    export ZULIP_CERTIFICATE_CN="$ZULIP_SETTINGS_EXTERNAL_HOST"
+                fi
+                export ZULIP_CERTIFICATE_SUBJ="/C=$ZULIP_CERTIFICATE_C/ST=$ZULIP_CERTIFICATE_ST/L=$ZULIP_CERTIFICATE_L/O=$ZULIP_CERTIFICATE_O/CN=$ZULIP_CERTIFICATE_CN"
             fi
             openssl genrsa -des3 -passout pass:x -out /tmp/server.pass.key 4096
             openssl rsa -passin pass:x -in /tmp/server.pass.key -out "$DATA_DIR/certs/zulip.key"
             openssl req -new -nodes -subj "$ZULIP_CERTIFICATE_SUBJ" -key "$DATA_DIR/certs/zulip.key" -out /tmp/server.csr
             openssl x509 -req -days 365 -in /tmp/server.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
             rm -f /tmp/server.csr /tmp/server.pass.key
-            echo "Certificates auto generation done."
+            echo "Certificates generation done."
         else
             echo "Certificates already exist. No need to generate them."
         fi
