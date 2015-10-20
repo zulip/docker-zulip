@@ -10,7 +10,7 @@ ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
     ZULIP_CUSTOM_SETTINGS=""
 
 ADD entrypoint.sh /entrypoint.sh
-ADD includes/zulip-puppet /root/zulip-puppet
+ADD zulip-puppet /root/zulip-puppet
 RUN apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq install -y puppet git wget python-dev python-six python-pbs expect && \
