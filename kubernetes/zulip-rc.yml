@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: zulip-v1.3.6
+  namespace: default
+  labels:
+    version: v1.3.6
+    app: zulip
+spec:
+  replicas: 1
+  selector:
+    version: v1.3.6
+    app: gitlab
+  template:
+    metadata:
+      labels:
+        version: v1.3.6
+        app: gitlab
+    spec:
+      containers:
+      - name: redis
+        image: docker.io/sameersbn/redis:latest
+        resources:
+          limits:
+            cpu: 50m
+        volumeMounts:
+          - name: redis-persistent-storage
+            mountPath: /var/lib/redis
+      - name: memcached
+        image: quay.io/sameersbn/memcached:latest
+        resources:
+          limits:
+            cpu: 75m
+            memory: 768Mi
+      - name: postgresql
+        image: quay.io/galexrt/zulip-postgresql-tsearchextras:latest
+        resources:
+          limits:
+            cpu: 50m
+            memory: 768Mi
+        env:
+        - name: DB_NAME
+          value: zulip
+        - name: DB_USER
+          value: zulip
+        - name: DB_PASS
+          value: zulip
+        volumeMounts:
+          - name: postgresql-persistent-storage
+            mountPath: /var/lib/postgresql
+      - name: zulip
+        image: quay.io/galexrt/zulip:3.1.6
+        resources:
+          limits:
+            cpu: 95m
+            memory: 1536Mi
+        env:
+        - name: DB_HOST
+          value: "database"
+        - name: MEMCACHED_HOST
+          value: "memcached"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: ZULIP_USER_EMAIL
+          value: "example@example.com"
+        - name: ZULIP_USER_DOMAIN
+          value: "zerbytes.net"
+        - name: ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend
+          value: "EmailAuthBackend"
+        - name: ZULIP_SECRETS_email_password
+          value: "12345"
+        - name: ZULIP_SECRETS_rabbitmq_password
+          value:"zulip"
+        - name: ZULIP_SETTINGS_EXTERNAL_HOST
+          value: "localhost"
+        - name: ZULIP_SETTINGS_ZULIP_ADMINISTRATOR
+          value: "admin@example.com"
+        - name: ZULIP_SETTINGS_ADMIN_DOMAIN
+          value: "zerbytes.net"
+        - name: ZULIP_SETTINGS_NOREPLY_EMAIL_ADDRESS
+          value: "noreply@example.com"
+        - name: ZULIP_SETTINGS_DEFAULT_FROM_EMAIL
+          value: "Zulip <noreply@example.com>"
+        - name: ZULIP_SETTINGS_EMAIL_HOST
+          value: "smtp.example.com"
+        - name: ZULIP_SETTINGS_EMAIL_HOST_USER
+          value: "noreply@example.com"
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        volumeMounts:
+          - name: zulip-persistent-storage
+            mountPath: /data
+#        livenessProbe:
+#          httpGet:
+#            path: /login
+#            port: 443
+#            scheme: HTTP
+#          initialDelaySeconds: 120
+#          timeoutSeconds: 12
+      volumes:
+      - name: redis-persistent-storage
+        hostPath:
+          path: /opt/docker/zulip/redis
+      - name: postgresql-persistent-storage
+        hostPath:
+          path: /opt/docker/zulip/postgresql
+      - name: zulip-persistent-storage
+        hostPath:
+          path: /opt/docker/zulip/zulip
