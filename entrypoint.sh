@@ -257,7 +257,8 @@ managepy() {
         return 1
     fi
     echo "Running manage.py ..."
-    return su zulip -c "/home/zulip/deployments/current/manage.py $*"
+    su zulip -c "/home/zulip/deployments/current/manage.py $*"
+    return $?
 }
 
 case "$1" in
