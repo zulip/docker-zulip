@@ -32,11 +32,28 @@ spec:
           limits:
             cpu: 75m
             memory: 768Mi
+      - name: rabbitmq
+        image: docker.io/rabbitmq:3.5.5
+        resources:
+          limits:
+            cpu: 75m
+            memory: 768Mi
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "zulip"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "zulip"
+      - name: camo
+        image: quay.io/galexrt/camo:latest
+        resources:
+        limits:
+          cpu: 75m
+          memory: 512Mi
       - name: postgresql
         image: quay.io/galexrt/zulip-postgresql-tsearchextras:latest
         resources:
           limits:
-            cpu: 50m
+            cpu: 80m
             memory: 768Mi
         env:
         - name: DB_NAME
@@ -52,8 +69,8 @@ spec:
         image: quay.io/galexrt/zulip:3.1.6
         resources:
           limits:
-            cpu: 95m
-            memory: 1536Mi
+            cpu: 100m
+            memory: 3584Mi
         env:
         - name: DB_HOST
           value: "database"
@@ -66,7 +83,7 @@ spec:
         - name: ZULIP_USER_EMAIL
           value: "example@example.com"
         - name: ZULIP_USER_DOMAIN
-          value: "zerbytes.net"
+          value: "example.com"
         - name: ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend
           value: "EmailAuthBackend"
         - name: ZULIP_SECRETS_email_password
