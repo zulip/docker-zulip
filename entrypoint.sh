@@ -13,10 +13,10 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
 rabbitmqSetup(){
-    rabbitmqctl delete_user guest || :
-    rabbitmqctl add_user zulip "$RABBITMQ_PASSWORD" || :
-    rabbitmqctl set_user_tags zulip administrator || :
-    rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' || :
+    rabbitmqctl delete_user guest 2> /dev/null || :
+    rabbitmqctl add_user zulip "$RABBITMQ_PASSWORD" 2> /dev/null || :
+    rabbitmqctl set_user_tags zulip administrator 2> /dev/null || :
+    rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' 2> /dev/null || :
 }
 databaseSetup(){
     if [ -z "$DB_HOST" ]; then
