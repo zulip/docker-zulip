@@ -8,6 +8,7 @@ do
 done
 
 docker run \
+    -d \
     --name=zulip_database \
     -e "DB_NAME=user" \
     -e "DB_USER=zulip" \
@@ -15,24 +16,29 @@ docker run \
     -v /opt/docker/zulip/postgresql:/var/lib/postgresql:rw \
     quay.io/galexrt/zulip-postgresql-tsearchextras:latest
 docker run \
+    -d \
     --name=zulip_memcached \
     --restart=always \
     quay.io/sameersbn/memcached:latest
 docker run \
+    -d \
     --name=zulip_rabbitmq \
     --hostname=zulip-rabbitmq \
     -e "RABBITMQ_DEFAULT_USER=zulip" \
     -e "RABBITMQ_DEFAULT_PASS=zulip" \
     docker.io/rabbitmq:3.5.5
 docker run \
+    -d \
     --name=zulip_camo \
     --restart=always \
     quay.io/galexrt/camo:latest
 docker run \
+    -d \
     --name=zulip_redis \
     -v /opt/docker/zulip/redis:/var/lib/redis:rw \
     quay.io/galexrt/camo:latest
 docker run \
+    -d \
     --name=zulip_zulip \
     -v /opt/docker/zulip/zulip:/data:rw \
     --link=zulip_database:database \
