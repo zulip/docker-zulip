@@ -6,17 +6,63 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
-ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
+# Custom env variables
+# DB
+DB_HOST="${DB_HOST:-127.0.0.1}"
+DB_HOST_PORT="${DB_HOST_PORT:-5432}"
+DB_USER="${DB_USER:-zulip}"
+DB_PASSWORD="${DB_PASSWORD:-zulip}"
+DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
+DB_NAME="${DB_NAME:-zulip}"
+# RabbitMQ
+RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
+RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-zulip}"
+RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
+RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
+RABBITMQ_SETUP="${RABBITMQ_SETUP:-True}"
+# Redis
+REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
+REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
+REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
+# Memcached
+MEMCACHED_HOST="${MEMCACHED_HOST:-127.0.0.1}"
+MEMCACHED_HOST_PORT="${MEMCACHED_HOST_PORT:-11211}"
+MEMCACHED_TIMEOUT="${MEMCACHED_TIMEOUT:-3600}"
+# Zulip user setup
+export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
+export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
+export ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
+export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
+# Zulip certifcate parameters
+ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
+ZULIP_CERTIFICATE_C="${ZULIP_CERTIFICATE_C:-US}"
+ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
+ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
+ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
+ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
+
+# entrypoint.sh specific variables
+ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
 rabbitmqSetup(){
-    rabbitmqctl delete_user guest 2> /dev/null || :
-    rabbitmqctl add_user zulip "$RABBITMQ_PASSWORD" 2> /dev/null || :
-    rabbitmqctl set_user_tags zulip administrator 2> /dev/null || :
-    rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' 2> /dev/null || :
+    echo "RabbitMQ deleting user guest"
+    rabbitmqctl -n "$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
+    if [ "$RABBITMQ_SETUP" != "False" ]; then
+        echo "RabbitMQ adding user $RABBITMQ_USERNAME"
+        rabbitmqctl -n "$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$RABBITMQ_PASS" 2> /dev/null || :
+        echo "RabbitMQ setting user tags \"$RABBITMQ_USERNAME\""
+        rabbitmqctl -n "$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
+        echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\""
+        rabbitmqctl -n "$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
+        echo "RabbitMQ set permissions for user"
+    fi
+    sed -ri "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
+    export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
 }
 databaseSetup(){
     if [ -z "$DB_HOST" ]; then
@@ -31,9 +77,12 @@ databaseSetup(){
         echo "No DB_USER given."
         exit 2
     fi
-    if [ -z "$DB_PASSWORD" ]; then
-        echo "No DB_PASSWORD given."
+    if [ -z "$DB_PASS" ]; then
+        echo "No DB_PASS given."
         exit 2
+    fi
+    if [ -z "$DB_HOST_PORT" ]; then
+        export DB_HOST_PORT="5432"
     fi
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
@@ -45,8 +94,9 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
     'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASSWORD',
+    'PASSWORD': '$DB_PASS',
     'HOST': '$DB_HOST',
+    'PORT': '$DB_HOST_PORT',
     'SCHEMA': 'zulip',
     'CONN_MAX_AGE': 600,
     'OPTIONS': {
@@ -56,33 +106,29 @@ DATABASES = {
   },
 }
 EOF
-    if [ -z "$PGPASSWORD" ]; then
-        export PGPASSWORD="$DB_PASSWORD"
-    fi
-    if [ -z "$DB_PORT" ]; then
-        export DB_PORT="5432"
-    fi
-    local timeout=60
+    export PGPASSWORD="$DB_PASS"
+    local TIMEOUT=60
     echo -n "Waiting for database server to allow connections"
-    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
-        timeout=$(expr $timeout - 1)
-        if [[ $timeout -eq 0 ]]; then
+        TIMEOUT=$(expr $TIMEOUT - 1)
+        if [[ $TIMEOUT -eq 0 ]]; then
             echo "Could not connect to database server. Aborting..."
             exit 1
         fi
         echo -n "."
         sleep 1
     done
-    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD\")~g" "/usr/local/bin/process_fts_updates"
+    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     CREATE DATABASE zulip OWNER=zulip;
     CREATE SCHEMA zulip AUTHORIZATION zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
+    """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
     echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
+        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "zulip" || :
+    unset PGPASSWORD
 }
 databaseInitiation(){
     echo "Migrating database ..."
@@ -110,7 +156,7 @@ secretsSetup(){
             sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
             continue
         fi
-        echo "$SECRET_KEY = '$SECRET_VAR'" >> /etc/zulip/zulip-secrets.conf
+        echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
     done
     unset SECRET_KEY
 }
@@ -134,18 +180,6 @@ zulipSetup(){
         if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
             echo "Certificates generation is true. Generating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
-                if [ -z "$ZULIP_CERTIFICATE_C" ]; then
-                    export ZULIP_CERTIFICATE_C="US"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_ST" ]; then
-                    export ZULIP_CERTIFICATE_ST="Denial"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_L" ]; then
-                    export ZULIP_CERTIFICATE_L="Springfield"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_O" ]; then
-                    export ZULIP_CERTIFICATE_O="Dis"
-                fi
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
                     if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
                         echo "Certificates generation failed. Missing ZULIP_CERTIFICATE_CN and as backup ZULIP_SETTINGS_EXTERNAL_HOST not given."
@@ -179,7 +213,7 @@ zulipSetup(){
 CACHES = {
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_PORT',
+        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_HOST_PORT',
         'TIMEOUT':  $MEMCACHED_TIMEOUT
     },
     'database': {
@@ -200,16 +234,15 @@ EOF
         "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
     )
     for AUTH_BACKEND_KEY in "${POSSIBLE_AUTH_BACKENDS[@]}"; do
-        local KEY="ZULIP_AUTHENTICATION_BACKENDS_$AUTH_BACKEND_KEY"
+        local KEY="ZULIP_AUTH_BACKENDS_$AUTH_BACKEND_KEY"
         local AUTH_BACKEND_VAR="${!KEY}"
         if [ -z "$AUTH_BACKEND_VAR" ]; then
             echo "No authentication backend for key \"$AUTH_BACKEND_KEY\"."
             continue
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
-        AUTH_BACKENDS="$AUTH_BACKENDS'zproject.backends.$AUTH_BACKEND_VAR',"
+        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND_KEY',)" >> "$ZULIP_ZPROJECT_SETTINGS"
     done
-    sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" "$ZULIP_SETTINGS"
     # Rabbitmq settings
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_HOST = '$RABBITMQ_HOST'
@@ -219,19 +252,13 @@ EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 EOF
     fi
-    if [ ! -z "$RABBITMQ_PASSWORD" ]; then
+    if [ ! -z "$RABBITMQ_PASS" ]; then
         cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
-RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
+RABBITMQ_PASSWORD = '$RABBITMQ_PASS'
 EOF
     fi
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     # Redis settings
-    if [ -z "$REDIS_HOST" ]; then
-        export REDIS_HOST="localhost"
-    fi
-    if [ -z "$REDIS_PORT" ]; then
-        export REDIS_PORT="6379"
-    fi
     case "$REDIS_RATE_LIMITING" in
         [Tt][Rr][Uu][Ee])
         export REDIS_RATE_LIMITING="True"
@@ -247,7 +274,7 @@ EOF
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
-REDIS_PORT = $REDIS_PORT
+REDIS_PORT = $REDIS_HOST_PORT
 EOF
     # Camo settings
     if [ ! -z "$CAMO_KEY" ]; then
@@ -283,7 +310,7 @@ EOF
         echo "No zulip user domain given."
         return 1
     fi
-    if [ -z "$ZULIP_USER_PASSWORD" ]; then
+    if [ -z "$ZULIP_USER_PASS" ]; then
         echo "No zulip user password given."
         return 1
     fi
@@ -312,24 +339,25 @@ case "$1" in
     ;;
 esac
 
-if [ ! -d "$ZULIP_DIR/uploads" ]; then
-    mkdir -p "$ZULIP_DIR/uploads"
+if [ ! -d "/home/zulip/uploads" ]; then
+    mkdir -p "/home/zulip/uploads"
 fi
 if [ -d "$DATA_DIR/uploads" ]; then
-    rm -rf "$ZULIP_DIR/uploads"
+    rm -rf "/home/zulip/uploads"
 else
     mkdir -p "$DATA_DIR/uploads"
-    mv -f "$ZULIP_DIR/uploads" "$DATA_DIR/uploads"
+    mv -f "/home/zulip/uploads" "$DATA_DIR/uploads"
 fi
-ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
+ln -sfT "$DATA_DIR/uploads" "/home/zulip/uploads"
 chown zulip:zulip -R "$DATA_DIR/uploads"
-# Configure rabbitmq server everytime because it could be a new one ;)
-rabbitmqSetup
+
 echo "Generating and setting secrets ..."
-if [ ! -e "$DATA_DIR/.initiated" ]; then
+if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
     /root/zulip/scripts/setup/generate_secrets.py
+    mv -f "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf"
 fi
+ln -sfT "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
 secretsSetup
 echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
@@ -339,6 +367,10 @@ if ! zulipSetup; then
     exit 1
 fi
 echo "Zulip settings setup done."
+echo "Configuring RabbitMQ ..."
+# Configure rabbitmq server everytime because it could be a new one ;)
+rabbitmqSetup
+echo "RabbitMQ configured."
 echo "Setting up database settings and server ..."
 # setup database
 databaseSetup
@@ -356,12 +388,12 @@ if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo ""
     touch "$DATA_DIR/.initiated"
 else
-    rm -rf /etc/supervisor/conf.d/zulip_postsetup.conf
+    rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
 fi
 # If there's an "update" available, then "JUST DO IT!" - Shia Labeouf
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
-    if ! /home/zulip/deployments/current/manage.py migrate; then
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         echo "Zulip migration failed."
         exit 1
     fi
