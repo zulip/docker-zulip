@@ -19,6 +19,7 @@ RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
 RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-zulip}"
 RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
 RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
+RABBITMQ_SETUP="${RABBITMQ_SETUP:-True}"
 # Redis
 REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
 REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
@@ -42,10 +43,17 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
 rabbitmqSetup(){
+    echo "RabbitMQ deleting user guest"
     rabbitmqctl delete_user guest 2> /dev/null || :
-    rabbitmqctl add_user zulip "$RABBITMQ_PASS" 2> /dev/null || :
-    rabbitmqctl set_user_tags zulip administrator 2> /dev/null || :
-    rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' 2> /dev/null || :
+    if [ ! -z "$RABBITMQ_SETUP" ] && [ "$RABBITMQ_SETUP" != "False" ]; then
+        echo "RabbitMQ adding user $RABBITMQ_USERNAME"
+        rabbitmqctl add_user "$RABBITMQ_USERNAME" "$RABBITMQ_PASS" 2> /dev/null || :
+        echo "RabbitMQ setting user tags \"$RABBITMQ_USERNAME\""
+        rabbitmqctl set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
+        echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\""
+        rabbitmqctl set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
+        echo "RabbitMQ set permissions for user"
+    fi
 }
 databaseSetup(){
     if [ -z "$DB_HOST" ]; then
@@ -353,8 +361,7 @@ else
 fi
 ln -sfT "$DATA_DIR/uploads" "/home/zulip/uploads"
 chown zulip:zulip -R "$DATA_DIR/uploads"
-# Configure rabbitmq server everytime because it could be a new one ;)
-rabbitmqSetup
+
 echo "Generating and setting secrets ..."
 if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
@@ -364,6 +371,10 @@ fi
 ln -sfT "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
 secretsSetup
 echo "Secrets generated and set."
+echo "Configuring RabbitMQ ..."
+# Configure rabbitmq server everytime because it could be a new one ;)
+rabbitmqSetup
+echo "RabbitMQ configured."
 echo "Setting Zulip settings ..."
 # Setup zulip settings
 if ! zulipSetup; then
