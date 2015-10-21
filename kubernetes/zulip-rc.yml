@@ -84,12 +84,10 @@ spec:
           value: "example@example.com"
         - name: ZULIP_USER_DOMAIN
           value: "example.com"
-        - name: ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend
+        - name: ZULIP_AUTH_BACKENDS_EmailAuthBackend
           value: "EmailAuthBackend"
         - name: ZULIP_SECRETS_email_password
           value: "12345"
-        - name: ZULIP_SECRETS_rabbitmq_password
-          value:"zulip"
         - name: ZULIP_SETTINGS_EXTERNAL_HOST
           value: "localhost"
         - name: ZULIP_SETTINGS_ZULIP_ADMINISTRATOR

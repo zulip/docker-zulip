@@ -49,7 +49,7 @@ docker run \
     -e "RABBITMQ_HOST=rabbitmq" \
     -e "ZULIP_USER_EMAIL=example@example.com" \
     -e "ZULIP_USER_DOMAIN=example.com" \
-    -e "ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend=EmailAuthBackend" \
+    -e "ZULIP_AUTH_BACKENDS_EmailAuthBackend=EmailAuthBackend" \
     -e "ZULIP_SECRETS_email_password=12345" \
     -e "ZULIP_SECRETS_rabbitmq_password=zulip" \
     -e "ZULIP_SETTINGS_EXTERNAL_HOST=example.com" \

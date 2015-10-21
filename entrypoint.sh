@@ -6,7 +6,7 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
-ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
+ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
@@ -31,8 +31,8 @@ databaseSetup(){
         echo "No DB_USER given."
         exit 2
     fi
-    if [ -z "$DB_PASSWORD" ]; then
-        echo "No DB_PASSWORD given."
+    if [ -z "$DB_PASS" ]; then
+        echo "No DB_PASS given."
         exit 2
     fi
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
@@ -45,7 +45,7 @@ DATABASES = {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
     'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASSWORD',
+    'PASSWORD': '$DB_PASS',
     'HOST': '$DB_HOST',
     'SCHEMA': 'zulip',
     'CONN_MAX_AGE': 600,
@@ -57,7 +57,7 @@ DATABASES = {
 }
 EOF
     if [ -z "$PGPASSWORD" ]; then
-        export PGPASSWORD="$DB_PASSWORD"
+        export PGPASSWORD="$DB_PASS"
     fi
     if [ -z "$DB_PORT" ]; then
         export DB_PORT="5432"
@@ -74,7 +74,7 @@ EOF
         echo -n "."
         sleep 1
     done
-    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD\")~g" "/usr/local/bin/process_fts_updates"
+    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
@@ -83,6 +83,7 @@ EOF
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
     echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
         psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
+    unset PGPASSWORD
 }
 databaseInitiation(){
     echo "Migrating database ..."
@@ -200,7 +201,7 @@ EOF
         "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
     )
     for AUTH_BACKEND_KEY in "${POSSIBLE_AUTH_BACKENDS[@]}"; do
-        local KEY="ZULIP_AUTHENTICATION_BACKENDS_$AUTH_BACKEND_KEY"
+        local KEY="ZULIP_AUTH_BACKENDS_$AUTH_BACKEND_KEY"
         local AUTH_BACKEND_VAR="${!KEY}"
         if [ -z "$AUTH_BACKEND_VAR" ]; then
             echo "No authentication backend for key \"$AUTH_BACKEND_KEY\"."
@@ -283,7 +284,7 @@ EOF
         echo "No zulip user domain given."
         return 1
     fi
-    if [ -z "$ZULIP_USER_PASSWORD" ]; then
+    if [ -z "$ZULIP_USER_PASS" ]; then
         echo "No zulip user password given."
         return 1
     fi
@@ -312,16 +313,16 @@ case "$1" in
     ;;
 esac
 
-if [ ! -d "$ZULIP_DIR/uploads" ]; then
-    mkdir -p "$ZULIP_DIR/uploads"
+if [ ! -d "/home/zulip/uploads" ]; then
+    mkdir -p "/home/zulip/uploads"
 fi
 if [ -d "$DATA_DIR/uploads" ]; then
-    rm -rf "$ZULIP_DIR/uploads"
+    rm -rf "/home/zulip/uploads"
 else
     mkdir -p "$DATA_DIR/uploads"
-    mv -f "$ZULIP_DIR/uploads" "$DATA_DIR/uploads"
+    mv -f "/home/zulip/uploads" "$DATA_DIR/uploads"
 fi
-ln -sfT "$DATA_DIR/uploads" "$ZULIP_DIR/uploads"
+ln -sfT "$DATA_DIR/uploads" "/home/zulip/uploads"
 chown zulip:zulip -R "$DATA_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
