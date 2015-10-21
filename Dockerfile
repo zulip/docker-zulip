@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:14.04.20151013
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.6" DATA_DIR="/data" \
+ENV ZULIP_DIR="/home/zulip" ZULIP_VERSION="1.3.7" ZULIP_CHECKSUM="88bfa668eb14e07b0b806977db2ae2cd4d7e7ef8" DATA_DIR="/data" \
     DB_HOST="127.0.0.1" DB_PORT="5432" DB_USER="zulip" DB_PASSWORD="zulip" DB_NAME="zulip" \
     RABBITMQ_HOST="127.0.0.1" RABBITMQ_USERNAME="zulip" RABBITMQ_PASSWORD="zulip"\
     REDIS_RATE_LIMITING="True" REDIS_HOST="127.0.0.1" REDIS_PORT="6379" \
@@ -22,6 +22,7 @@ RUN apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
     wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -P "/tmp" && \
+    echo "$ZULIP_CHECKSUM zulip-server-$ZULIP_VERSION.tar.gz" | sha1sum -c && \
     tar xfz "/tmp/zulip-server-$ZULIP_VERSION.tar.gz" -C "/root/zulip" --remove-files --strip-components=1 && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     rm -rf /root/zulip/puppet/zulip_internal /root/zulip/puppet/zulip && \

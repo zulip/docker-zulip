@@ -59,4 +59,4 @@ docker run \
     -e "ZULIP_SETTINGS_DEFAULT_FROM_EMAIL=Zulip <noreply@example.com>" \
     -e "ZULIP_SETTINGS_EMAIL_HOST=smtp.example.com" \
     -e "ZULIP_SETTINGS_EMAIL_HOST_USER=noreply@example.com" \
-    quay.io/galexrt/zulip:1.3.6
+    quay.io/galexrt/zulip:1.3.7
