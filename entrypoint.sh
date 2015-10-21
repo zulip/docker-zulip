@@ -241,9 +241,8 @@ EOF
             continue
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
-        AUTH_BACKENDS="$AUTH_BACKENDS'zproject.backends.$AUTH_BACKEND_VAR',"
+        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND_VAR',)" >> "$ZULIP_ZPROJECT_SETTINGS"
     done
-    sed -i "s~AUTHENTICATION_BACKENDS = (~AUTHENTICATION_BACKENDS = (\n$AUTH_BACKENDS~g" "$ZULIP_SETTINGS"
     # Rabbitmq settings
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_HOST = '$RABBITMQ_HOST'
