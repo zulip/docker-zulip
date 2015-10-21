@@ -74,6 +74,9 @@ databaseSetup(){
         echo "No DB_PASS given."
         exit 2
     fi
+    if [ -z "$DB_HOST_PORT" ]; then
+        export DB_HOST_PORT="5432"
+    fi
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
@@ -86,6 +89,7 @@ DATABASES = {
     'USER': '$DB_USER',
     'PASSWORD': '$DB_PASS',
     'HOST': '$DB_HOST',
+    'PORT': '$DB_HOST_PORT',
     'SCHEMA': 'zulip',
     'CONN_MAX_AGE': 600,
     'OPTIONS': {
@@ -97,9 +101,6 @@ DATABASES = {
 EOF
     if [ -z "$PGPASSWORD" ]; then
         export PGPASSWORD="$DB_PASS"
-    fi
-    if [ -z "$DB_HOST_PORT" ]; then
-        export DB_HOST_PORT="5432"
     fi
     local timeout=60
     echo -n "Waiting for database server to allow connections"
@@ -113,7 +114,7 @@ EOF
         echo -n "."
         sleep 1
     done
-    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
+    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
@@ -287,7 +288,7 @@ EOF
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
-REDIS_HOST_PORT = $REDIS_HOST_PORT
+REDIS_PORT = $REDIS_HOST_PORT
 EOF
     # Camo settings
     if [ ! -z "$CAMO_KEY" ]; then
