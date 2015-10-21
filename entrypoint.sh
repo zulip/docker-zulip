@@ -80,7 +80,7 @@ EOF
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
-    CREATE DATABASE IF NOT EXISTS zulip OWNER=zulip;
+    CREATE DATABASE zulip OWNER=zulip;
     CREATE SCHEMA IF NOT EXISTS zulip AUTHORIZATION zulip;
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" || :
     echo "CREATE EXTENSION IF NOT EXISTS tsearch_extras SCHEMA zulip;" | \
