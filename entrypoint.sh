@@ -44,17 +44,18 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 # But modified to fit the docker image :)
 rabbitmqSetup(){
     echo "RabbitMQ deleting user guest"
-    rabbitmqctl delete_user guest 2> /dev/null || :
+    rabbitmqctl -n "$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
     if [ ! -z "$RABBITMQ_SETUP" ] && [ "$RABBITMQ_SETUP" != "False" ]; then
         echo "RabbitMQ adding user $RABBITMQ_USERNAME"
-        rabbitmqctl add_user "$RABBITMQ_USERNAME" "$RABBITMQ_PASS" 2> /dev/null || :
+        rabbitmqctl -n "$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$RABBITMQ_PASS" 2> /dev/null || :
         echo "RabbitMQ setting user tags \"$RABBITMQ_USERNAME\""
-        rabbitmqctl set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
+        rabbitmqctl -n "$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
         echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\""
-        rabbitmqctl set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
+        rabbitmqctl -n "$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
         echo "RabbitMQ set permissions for user"
     fi
     sed -ri "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
+    export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
 }
 databaseSetup(){
     if [ -z "$DB_HOST" ]; then
@@ -133,7 +134,7 @@ databaseInitiation(){
 }
 secretsSetup(){
     local POSSIBLE_SECRETS=(
-        "email_password" "RABBITMQ_PASS" "s3_key" "s3_secret_key" "android_gcm_api_key"
+        "email_password" "rabbitmq_password" "s3_key" "s3_secret_key" "android_gcm_api_key"
         "google_oauth2_client_secret" "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key"
         "twitter_consumer_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"
     )
