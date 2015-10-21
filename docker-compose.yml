@@ -40,6 +40,7 @@ zulip:
     REDIS_HOST: "redis"
     RABBITMQ_HOST: "rabbitmq"
     ZULIP_USER_EMAIL: "example@example.com"
+    ZULIP_USER_PASSWORD: "zulip"
     ZULIP_USER_DOMAIN: "example.com"
     ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend: "EmailAuthBackend"
     ZULIP_SECRETS_email_password: "12345"

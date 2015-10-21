@@ -107,7 +107,7 @@ secretsSetup(){
             echo "No secret found for key \"$SECRET_KEY\"."
             continue
         fi
-        echo "Setting secret \"$SECRET_KEY\"."
+        echo "Secret found for \"$SECRET_KEY\"."
         if [ ! -z "$(grep "$SECRET_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
             sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
             continue
