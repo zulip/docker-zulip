@@ -140,7 +140,7 @@ secretsSetup(){
             sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
             continue
         fi
-        echo "$SECRET_KEY = '$SECRET_VAR'" >> /etc/zulip/zulip-secrets.conf
+        echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
     done
     unset SECRET_KEY
 }
@@ -359,9 +359,9 @@ echo "Generating and setting secrets ..."
 if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
     /root/zulip/scripts/setup/generate_secrets.py
-    mv -f "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/.zulip-secrets.conf"
+    mv -f "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf"
 fi
-ln -sfT "$DATA_DIR/.zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+ln -sfT "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
 secretsSetup
 echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
@@ -393,7 +393,7 @@ fi
 # If there's an "update" available, then "JUST DO IT!" - Shia Labeouf
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Starting zulip migration ..."
-    if ! /home/zulip/deployments/current/manage.py migrate; then
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         echo "Zulip migration failed."
         exit 1
     fi
