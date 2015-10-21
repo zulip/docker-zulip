@@ -81,9 +81,9 @@ EOF
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     CREATE DATABASE zulip OWNER=zulip;
-    CREATE SCHEMA IF NOT EXISTS zulip AUTHORIZATION zulip;
+    CREATE SCHEMA zulip AUTHORIZATION zulip;
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" || :
-    echo "CREATE EXTENSION IF NOT EXISTS tsearch_extras SCHEMA zulip;" | \
+    echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
         psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" "zulip" || :
 }
 databaseInitiation(){
