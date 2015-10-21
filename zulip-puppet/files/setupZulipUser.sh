@@ -8,5 +8,4 @@ User = get_user_profile_by_email('atrost@zerbytes.net')
 User.set_password('$ZULIP_USER_PASS')
 User.save()
 EOF
-rm -rf /etc/supervisor/conf.d/zulip_postsetup.conf
-exit 0
+exit 200

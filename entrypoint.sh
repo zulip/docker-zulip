@@ -386,7 +386,7 @@ if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo ""
     touch "$DATA_DIR/.initiated"
 else
-    rm -rf /etc/supervisor/conf.d/zulip_postsetup.conf
+    rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
 fi
 # If there's an "update" available, then "JUST DO IT!" - Shia Labeouf
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
