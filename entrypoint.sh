@@ -10,11 +10,13 @@ set -e
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
-DB_PASS="${DB_PASS:-zulip}"
+DB_PASS="${DB_PASSWORD:-zulip}"
+DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
 DB_NAME="${DB_NAME:-zulip}"
 RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
 RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-zulip}"
 RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
+RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
 REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
 REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
 REDIS_PORT="${REDIS_PORT:-6379}"
@@ -22,9 +24,10 @@ MEMCACHED_HOST="${MEMCACHED_HOST:-127.0.0.1}"
 MEMCACHED_PORT="${MEMCACHED_PORT:-11211}"
 MEMCACHED_TIMEOUT="${MEMCACHED_TIMEOUT:-3600}"
 ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-}"
+ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
 ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
-ZULIP_USER_PASS="${ZULIP_USER_PASS:-zulip}"
+ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
+ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
@@ -35,7 +38,7 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 # But modified to fit the docker image :)
 rabbitmqSetup(){
     rabbitmqctl delete_user guest 2> /dev/null || :
-    rabbitmqctl add_user zulip "$RABBITMQ_PASSWORD" 2> /dev/null || :
+    rabbitmqctl add_user zulip "$RABBITMQ_PASS" 2> /dev/null || :
     rabbitmqctl set_user_tags zulip administrator 2> /dev/null || :
     rabbitmqctl set_permissions -p / zulip '.*' '.*' '.*' 2> /dev/null || :
 }
@@ -116,7 +119,7 @@ databaseInitiation(){
 }
 secretsSetup(){
     local POSSIBLE_SECRETS=(
-        "email_password" "rabbitmq_password" "s3_key" "s3_secret_key" "android_gcm_api_key"
+        "email_password" "RABBITMQ_PASS" "s3_key" "s3_secret_key" "android_gcm_api_key"
         "google_oauth2_client_secret" "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key"
         "twitter_consumer_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"
     )
@@ -241,9 +244,9 @@ EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 EOF
     fi
-    if [ ! -z "$RABBITMQ_PASSWORD" ]; then
+    if [ ! -z "$RABBITMQ_PASS" ]; then
         cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
-RABBITMQ_PASSWORD = '$RABBITMQ_PASSWORD'
+RABBITMQ_PASS = '$RABBITMQ_PASS'
 EOF
     fi
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
