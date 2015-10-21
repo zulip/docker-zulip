@@ -4,6 +4,7 @@ database:
     DB_NAME: zulip
     DB_USER: zulip
     DB_PASS: zulip
+    DB_ROOT_PASS: "zulip"
   volumes:
     - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql:rw"
 memcached:

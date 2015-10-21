@@ -80,13 +80,12 @@ EOF
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
-    DROP DATABASE IF EXISTS zulip;
-    CREATE DATABASE zulip OWNER=zulip;
+    CREATE DATABASE IF NOT EXISTS zulip OWNER=zulip;
+    CREATE SCHEMA IF NOT EXISTS zulip AUTHORIZATION zulip;
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
     echo """
-    CREATE SCHEMA zulip AUTHORIZATION zulip;
-    CREATE EXTENSION tsearch_extras SCHEMA zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
+    CREATE EXTENSION IF NOT EXISTS tsearch_extras SCHEMA zulip;
+    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" "zulip" || :
 }
 databaseInitiation(){
     echo "Migrating database ..."
