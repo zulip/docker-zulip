@@ -13,6 +13,7 @@ memcached:
 rabbitmq:
   image: "docker.io/rabbitmq:3.5.5"
   hostname: zulip-rabbit
+  restart: always
   environment:
       RABBITMQ_DEFAULT_USER: "zulip"
       RABBITMQ_DEFAULT_PASS: "zulip"

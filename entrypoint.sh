@@ -6,8 +6,6 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
-ZULIP_AUTO_GENERATE_CERTS="true"
-
 ZULIP_CURRENT_DEPLOY="$ZULIP_DIR/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
