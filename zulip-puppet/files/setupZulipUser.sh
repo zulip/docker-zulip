@@ -4,7 +4,7 @@
 /home/zulip/deployments/current/manage.py knight "$ZULIP_USER_EMAIL" -f || :
 /home/zulip/deployments/current/manage.py shell <<EOF
 from zerver.decorator import get_user_profile_by_email
-User = get_user_profile_by_email('atrost@zerbytes.net')
+User = get_user_profile_by_email('$ZULIP_USER_EMAIL')
 User.set_password('$ZULIP_USER_PASS')
 User.save()
 EOF
