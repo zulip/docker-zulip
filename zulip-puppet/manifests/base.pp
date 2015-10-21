@@ -1,10 +1,6 @@
 class zulip::base {
   include apt
-  $base_packages = [ # Basic requirements for effective operation of a server
-                     "ntp",
-                     # This is just good practice
-                     "molly-guard",
-                     # Dependencies of our API
+  $base_packages = [ # Dependencies of our API
                      "python-requests",
                      "python-simplejson",
                      ]
