@@ -83,9 +83,8 @@ EOF
     CREATE DATABASE IF NOT EXISTS zulip OWNER=zulip;
     CREATE SCHEMA IF NOT EXISTS zulip AUTHORIZATION zulip;
     """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" || :
-    echo """
-    CREATE EXTENSION IF NOT EXISTS tsearch_extras SCHEMA zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" "zulip" || :
+    echo "CREATE EXTENSION IF NOT EXISTS tsearch_extras SCHEMA zulip;" | \
+        psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" "zulip" || :
 }
 databaseInitiation(){
     echo "Migrating database ..."
