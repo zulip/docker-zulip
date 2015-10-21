@@ -356,10 +356,12 @@ chown zulip:zulip -R "$DATA_DIR/uploads"
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
 echo "Generating and setting secrets ..."
-if [ ! -e "$DATA_DIR/.initiated" ]; then
+if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
     /root/zulip/scripts/setup/generate_secrets.py
+    mv -f "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/.zulip-secrets.conf"
 fi
+ln -sfT "$DATA_DIR/.zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
 secretsSetup
 echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
