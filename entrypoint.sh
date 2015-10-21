@@ -8,7 +8,7 @@ set -e
 
 # Custom env variables
 DB_HOST="${DB_HOST:-127.0.0.1}"
-DB_PORT="${DB_PORT:-5432}"
+DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
 DB_PASS="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
@@ -19,9 +19,9 @@ RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
 RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
 REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
 REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
-REDIS_PORT="${REDIS_PORT:-6379}"
+REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
 MEMCACHED_HOST="${MEMCACHED_HOST:-127.0.0.1}"
-MEMCACHED_PORT="${MEMCACHED_PORT:-11211}"
+MEMCACHED_HOST_PORT="${MEMCACHED_HOST_PORT:-11211}"
 MEMCACHED_TIMEOUT="${MEMCACHED_TIMEOUT:-3600}"
 ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
 ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
@@ -83,12 +83,12 @@ EOF
     if [ -z "$PGPASSWORD" ]; then
         export PGPASSWORD="$DB_PASS"
     fi
-    if [ -z "$DB_PORT" ]; then
-        export DB_PORT="5432"
+    if [ -z "$DB_HOST_PORT" ]; then
+        export DB_HOST_PORT="5432"
     fi
     local timeout=60
     echo -n "Waiting for database server to allow connections"
-    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
         timeout=$(expr $timeout - 1)
         if [[ $timeout -eq 0 ]]; then
@@ -98,15 +98,15 @@ EOF
         echo -n "."
         sleep 1
     done
-    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
+    sed -i "s~psycopg2.connect(\"user=zulip\")~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     CREATE DATABASE zulip OWNER=zulip;
     CREATE SCHEMA zulip AUTHORIZATION zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
+    """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
     echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
+        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "zulip" || :
     unset PGPASSWORD
 }
 databaseInitiation(){
@@ -204,7 +204,7 @@ zulipSetup(){
 CACHES = {
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_PORT',
+        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_HOST_PORT',
         'TIMEOUT':  $MEMCACHED_TIMEOUT
     },
     'database': {
@@ -254,8 +254,8 @@ EOF
     if [ -z "$REDIS_HOST" ]; then
         export REDIS_HOST="localhost"
     fi
-    if [ -z "$REDIS_PORT" ]; then
-        export REDIS_PORT="6379"
+    if [ -z "$REDIS_HOST_PORT" ]; then
+        export REDIS_HOST_PORT="6379"
     fi
     case "$REDIS_RATE_LIMITING" in
         [Tt][Rr][Uu][Ee])
@@ -272,7 +272,7 @@ EOF
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
-REDIS_PORT = $REDIS_PORT
+REDIS_HOST_PORT = $REDIS_HOST_PORT
 EOF
     # Camo settings
     if [ ! -z "$CAMO_KEY" ]; then
