@@ -82,9 +82,9 @@ EOF
     ALTER ROLE zulip SET search_path TO zulip,public;
     CREATE DATABASE zulip OWNER=zulip;
     CREATE SCHEMA zulip AUTHORIZATION zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" || :
+    """ | psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" || :
     echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_PORT" -U "postgres" "zulip" || :
+        psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "zulip" || :
 }
 databaseInitiation(){
     echo "Migrating database ..."
