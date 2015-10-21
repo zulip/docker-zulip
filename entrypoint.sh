@@ -11,7 +11,7 @@ set -e
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
-DB_PASS="${DB_PASSWORD:-zulip}"
+DB_PASSWORD="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
 DB_NAME="${DB_NAME:-zulip}"
 # RabbitMQ
@@ -34,6 +34,13 @@ ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
 ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
 ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
 ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
+# Zulip certifcate parameters
+ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
+ZULIP_CERTIFICATE_C="${ZULIP_CERTIFICATE_C:-US}"
+ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
+ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
+ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
+ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
@@ -45,7 +52,7 @@ ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 rabbitmqSetup(){
     echo "RabbitMQ deleting user guest"
     rabbitmqctl -n "$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
-    if [ ! -z "$RABBITMQ_SETUP" ] && [ "$RABBITMQ_SETUP" != "False" ]; then
+    if [ "$RABBITMQ_SETUP" != "False" ]; then
         echo "RabbitMQ adding user $RABBITMQ_USERNAME"
         rabbitmqctl -n "$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$RABBITMQ_PASS" 2> /dev/null || :
         echo "RabbitMQ setting user tags \"$RABBITMQ_USERNAME\""
@@ -99,15 +106,13 @@ DATABASES = {
   },
 }
 EOF
-    if [ -z "$PGPASSWORD" ]; then
-        export PGPASSWORD="$DB_PASS"
-    fi
-    local timeout=60
+    export PGPASSWORD="$DB_PASS"
+    local TIMEOUT=60
     echo -n "Waiting for database server to allow connections"
     while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
-        timeout=$(expr $timeout - 1)
-        if [[ $timeout -eq 0 ]]; then
+        TIMEOUT=$(expr $TIMEOUT - 1)
+        if [[ $TIMEOUT -eq 0 ]]; then
             echo "Could not connect to database server. Aborting..."
             exit 1
         fi
@@ -175,18 +180,6 @@ zulipSetup(){
         if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
             echo "Certificates generation is true. Generating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
-                if [ -z "$ZULIP_CERTIFICATE_C" ]; then
-                    export ZULIP_CERTIFICATE_C="US"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_ST" ]; then
-                    export ZULIP_CERTIFICATE_ST="Denial"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_L" ]; then
-                    export ZULIP_CERTIFICATE_L="Springfield"
-                fi
-                if [ -z "$ZULIP_CERTIFICATE_O" ]; then
-                    export ZULIP_CERTIFICATE_O="Dis"
-                fi
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
                     if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
                         echo "Certificates generation failed. Missing ZULIP_CERTIFICATE_CN and as backup ZULIP_SETTINGS_EXTERNAL_HOST not given."
@@ -267,12 +260,6 @@ EOF
     fi
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
     # Redis settings
-    if [ -z "$REDIS_HOST" ]; then
-        export REDIS_HOST="localhost"
-    fi
-    if [ -z "$REDIS_HOST_PORT" ]; then
-        export REDIS_HOST_PORT="6379"
-    fi
     case "$REDIS_RATE_LIMITING" in
         [Tt][Rr][Uu][Ee])
         export REDIS_RATE_LIMITING="True"
@@ -374,10 +361,6 @@ fi
 ln -sfT "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
 secretsSetup
 echo "Secrets generated and set."
-echo "Configuring RabbitMQ ..."
-# Configure rabbitmq server everytime because it could be a new one ;)
-rabbitmqSetup
-echo "RabbitMQ configured."
 echo "Setting Zulip settings ..."
 # Setup zulip settings
 if ! zulipSetup; then
@@ -385,6 +368,10 @@ if ! zulipSetup; then
     exit 1
 fi
 echo "Zulip settings setup done."
+echo "Configuring RabbitMQ ..."
+# Configure rabbitmq server everytime because it could be a new one ;)
+rabbitmqSetup
+echo "RabbitMQ configured."
 echo "Setting up database settings and server ..."
 # setup database
 databaseSetup
