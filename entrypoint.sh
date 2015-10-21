@@ -54,6 +54,7 @@ rabbitmqSetup(){
         rabbitmqctl set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
         echo "RabbitMQ set permissions for user"
     fi
+    sed -ri "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
 }
 databaseSetup(){
     if [ -z "$DB_HOST" ]; then
@@ -259,7 +260,7 @@ EOF
     fi
     if [ ! -z "$RABBITMQ_PASS" ]; then
         cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
-RABBITMQ_PASS = '$RABBITMQ_PASS'
+RABBITMQ_PASSWORD = '$RABBITMQ_PASS'
 EOF
     fi
     sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
