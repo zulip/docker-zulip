@@ -49,7 +49,7 @@ ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
-#ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
+ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # Some functions were originally taken from the zulip/zulip repo folder scripts
 # But modified to fit the docker image :)
@@ -193,7 +193,7 @@ zulipSetup(){
     if [ -z "$DB_HOST_PORT" ]; then
         export DB_HOST_PORT="5432"
     fi
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
 REMOTE_POSTGRES_HOST = '$DB_HOST'
@@ -215,7 +215,7 @@ DATABASES = {
   },
 }
 EOF
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
@@ -241,16 +241,16 @@ EOF
         echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND',)" >> "$ZULIP_SETTINGS"
     done
     # Rabbitmq settings
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_HOST = '$RABBITMQ_HOST'
 EOF
     if [ ! -z "$RABBITMQ_USERNAME" ]; then
-        cat >> "$ZULIP_SETTINGS" <<EOF
+        cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_USERNAME = '$RABBITMQ_USERNAME'
 EOF
     fi
     if [ ! -z "$RABBITMQ_PASS" ]; then
-        cat >> "$ZULIP_SETTINGS" <<EOF
+        cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RABBITMQ_PASSWORD = '$RABBITMQ_PASS'
 EOF
     fi
@@ -268,24 +268,24 @@ EOF
         export REDIS_RATE_LIMITING="True"
         ;;
     esac
-    cat >> "$ZULIP_SETTINGS" <<EOF
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 RATE_LIMITING = $REDIS_RATE_LIMITING
 REDIS_HOST = '$REDIS_HOST'
 REDIS_PORT = $REDIS_HOST_PORT
 EOF
     # Camo settings
     if [ ! -z "$CAMO_KEY" ]; then
-        cat >> "$ZULIP_SETTINGS" <<EOF
+        cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CAMO_KEY = '$CAMO_KEY'
 EOF
     fi
     if [ ! -z "$CAMO_URI" ]; then
-        cat >> "$ZULIP_SETTINGS" <<EOF
+        cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CAMO_URI = '$CAMO_URI'
 EOF
     fi
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
-        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_SETTINGS"
+        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZULIP_ZPROJECT_SETTINGS"
     fi
     local SET_SETTINGS=($(env | sed -nr "s/ZULIP_SETTINGS_([A-Z_]*).*/\1/p"))
     for SETTING_KEY in "${SET_SETTINGS[@]}"; do
@@ -306,13 +306,13 @@ EOF
             export SETTING_VAR="'$SETTING_VAR'"
             ;;
         esac
-        if [ ! -z "$(grep "$SETTING_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
-            sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = ${SETTING_VAR}~g" "$ZULIP_SETTINGS"
-            echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\". Edited $?."
-            continue
-        else
+        sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]*.*['\"]*$~${SETTING_KEY} = ${SETTING_VAR}~g" "$ZULIP_SETTINGS"
+        SED_CODE=$?
+        if (($SED_CODE > 0)); then
             echo "$SETTING_KEY = $SETTING_VAR" >> "$ZULIP_SETTINGS"
             echo "Key found for \"$SETTING_KEY\". Added."
+        else
+            echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
         fi
     done
     unset SETTING_KEY
