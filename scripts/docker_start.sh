@@ -55,9 +55,9 @@ docker run \
     -e "RABBITMQ_HOST=rabbitmq" \
     -e "ZULIP_USER_EMAIL=example@example.com" \
     -e "ZULIP_USER_DOMAIN=example.com" \
-    -e "ZULIP_AUTHENTICATION_BACKENDS_EmailAuthBackend=EmailAuthBackend" \
+    -e "ZULIP_AUTH_BACKENDS_EmailAuthBackend=EmailAuthBackend" \
     -e "ZULIP_SECRETS_email_password=12345" \
-    -e "ZULIP_SECRETS_rabbitmq_password=zulip" \
+    -e "ZULIP_SECRETS_RABBITMQ_PASS=zulip" \
     -e "ZULIP_SETTINGS_EXTERNAL_HOST=example.com" \
     -e "ZULIP_SETTINGS_ZULIP_ADMINISTRATOR=admin@example.com" \
     -e "ZULIP_SETTINGS_ADMIN_DOMAIN=example.com" \
@@ -65,4 +65,4 @@ docker run \
     -e "ZULIP_SETTINGS_DEFAULT_FROM_EMAIL=Zulip <noreply@example.com>" \
     -e "ZULIP_SETTINGS_EMAIL_HOST=smtp.example.com" \
     -e "ZULIP_SETTINGS_EMAIL_HOST_USER=noreply@example.com" \
-    quay.io/galexrt/zulip:1.3.6
+    quay.io/galexrt/zulip:1.3.7
