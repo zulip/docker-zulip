@@ -295,8 +295,19 @@ EOF
             echo "No settings env var for key \"$SETTING_KEY\"."
             continue
         fi
+        case "$SETTING_VAR" in
+            [Tt][Rr][Uu][Ee])
+            export SETTING_VAR="True"
+            ;;
+            [Ff][Aa][Ll][Ss][Ee])
+            export SETTING_VAR="False"
+            ;;
+            *)
+            export SETTING_VAR="'$SETTING_VAR'"
+            ;;
+        esac
         if [ ! -z "$(grep "$SETTING_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
-            sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = '${SETTING_VAR}'~g" "$ZULIP_SETTINGS"
+            sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SETTING_KEY} = ${SETTING_VAR}~g" "$ZULIP_SETTINGS"
             echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\". Edited $?."
             continue
         else
