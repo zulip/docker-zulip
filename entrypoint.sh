@@ -82,7 +82,8 @@ databaseInit(){
         echo -n "."
         sleep 1
     done
-    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
+    echo "Fixing process_fts_updates script ..."
+    sed -i "s~psycopg2.connect(.*)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" /usr/local/bin/process_fts_updates
     echo "Recreating database structure ..."
     echo """
     CREATE USER zulip;
