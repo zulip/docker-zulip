@@ -44,7 +44,7 @@ zulip:
     ZULIP_USER_EMAIL: "example@example.com"
     ZULIP_USER_PASS: "zulip"
     ZULIP_USER_DOMAIN: "example.com"
-    ZULIP_AUTH_BACKENDS_EmailAuthBackend: "EmailAuthBackend"
+    ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
     ZULIP_SECRETS_email_password: "12345"
     ZULIP_SETTINGS_EXTERNAL_HOST: "example.com"
     ZULIP_SETTINGS_ZULIP_ADMINISTRATOR: "admin@example.com"

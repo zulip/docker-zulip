@@ -84,7 +84,7 @@ spec:
           value: "example@example.com"
         - name: ZULIP_USER_DOMAIN
           value: "example.com"
-        - name: ZULIP_AUTH_BACKENDS_EmailAuthBackend
+        - name: ZULIP_AUTH_BACKENDS
           value: "EmailAuthBackend"
         - name: ZULIP_SECRETS_email_password
           value: "12345"
