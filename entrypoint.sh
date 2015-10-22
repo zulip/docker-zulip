@@ -69,21 +69,6 @@ rabbitmqSetup(){
     export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
 }
 databaseInit(){
-    export PGPASSWORD="$DB_PASS"
-    local TIMEOUT=60
-    echo -n "Waiting for database server to allow connections"
-    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
-    do
-        TIMEOUT=$(expr $TIMEOUT - 1)
-        if [[ $TIMEOUT -eq 0 ]]; then
-            echo "Could not connect to database server. Aborting..."
-            exit 1
-        fi
-        echo -n "."
-        sleep 1
-    done
-    echo "Fixing process_fts_updates script ..."
-    sed -i -r 's~psycopg2.connect\(.*\)~psycopg2.connect("host='"$DB_HOST"' port='"$DB_HOST_PORT"' dbname='"$DB_NAME"' user='"$DB_USER"' password='"$DB_PASS"'")~g' /usr/local/bin/process_fts_updates
     echo "Recreating database structure ..."
     echo """
     CREATE USER zulip;
@@ -142,7 +127,7 @@ zulipSetup(){
         ;;
     esac
     if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
-        if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "/etc/ssl/certs/zulip.combined-chain.crt" ]; then
+        if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
             echo "Certificates generation is true. Generating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
@@ -172,8 +157,8 @@ zulipSetup(){
         echo "No zulip.combined-chain.crt given in $DATA_DIR."
         return 1
     fi
-    ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
-    ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
+    ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
+    ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
     if [ -z "$DB_HOST" ]; then
         echo "No DB_HOST given."
         exit 2
@@ -190,9 +175,7 @@ zulipSetup(){
         echo "No DB_PASS given."
         exit 2
     fi
-    if [ -z "$DB_HOST_PORT" ]; then
-        export DB_HOST_PORT="5432"
-    fi
+    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" /usr/local/bin/process_fts_updates
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 from zerver.lib.db import TimeTrackingConnection
 
@@ -332,50 +315,64 @@ EOF
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
 }
-managepy() {
+waitingForDatabase() {
+    export PGPASSWORD="$DB_PASS"
+    local TIMEOUT=60
+    echo -n "Waiting for database server to allow connections"
+    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    do
+        TIMEOUT=$(expr $TIMEOUT - 1)
+        if [[ $TIMEOUT -eq 0 ]]; then
+            echo "Could not connect to database server. Aborting..."
+            exit 1
+        fi
+        echo -n "."
+        sleep 1
+    done
+}
+managePy() {
     if [ -z "$1" ]; then
         echo "No command given for manage.py"
-        return 1
+        exit 1
     fi
     echo "Running manage.py ..."
     su zulip -c "/home/zulip/deployments/current/manage.py $*"
-    return $?
+    exit $?
 }
 
 case "$1" in
     manage.py)
     shift 1
-    exec managepy "$@"
-    exit $?
+    exec managePy "$@"
     ;;
     *)
     ;;
 esac
 
-if [ ! -d "/home/zulip/uploads" ]; then
-    mkdir -p "/home/zulip/uploads"
+if [ ! -d /home/zulip/uploads ]; then
+    mkdir -p /home/zulip/uploads
 fi
 if [ -d "$DATA_DIR/uploads" ]; then
-    rm -rf "/home/zulip/uploads"
+    rm -rf /home/zulip/uploads
 else
     mkdir -p "$DATA_DIR/uploads"
-    mv -f "/home/zulip/uploads" "$DATA_DIR/uploads"
+    mv -f /home/zulip/uploads "$DATA_DIR/uploads"
 fi
-ln -sfT "$DATA_DIR/uploads" "/home/zulip/uploads"
+ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
 chown zulip:zulip -R "$DATA_DIR/uploads"
 
 echo "Generating and setting secrets ..."
 if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
     /root/zulip/scripts/setup/generate_secrets.py
-    mv -f "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf"
+    mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
 fi
-ln -sfT "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
 secretsSetup
 echo "Secrets generated and set."
 echo "Creating settings.py link ..."
 if [ ! -e "$DATA_DIR/zulip-settings.py" ]; then
-    mv -f "/etc/zulip/settings.py" "$DATA_DIR/zulip-settings.py"
+    mv -f /etc/zulip/settings.py "$DATA_DIR/zulip-settings.py"
 fi
 ln -sfT "$DATA_DIR/zulip-settings.py" /etc/zulip/settings.py
 echo "Setting Zulip settings ..."
@@ -395,6 +392,7 @@ if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
     exit 1
 fi
 echo "Zulip config checked."
+waitingForDatabase
 if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo "Initiating  Database ..."
     # Init database with something called data :D
