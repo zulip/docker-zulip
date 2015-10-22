@@ -11,6 +11,8 @@ set -e
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
+DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
+DB_ROOT_PASS="${DB_ROOT_PASS:-}"
 DB_PASSWORD="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
 DB_NAME="${DB_NAME:-zulip}"
@@ -41,6 +43,8 @@ ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
 ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
 ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
 ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
+# Zulip related settings
+ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
@@ -64,48 +68,7 @@ rabbitmqSetup(){
     sed -ri "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
     export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
 }
-databaseSetup(){
-    if [ -z "$DB_HOST" ]; then
-        echo "No DB_HOST given."
-        exit 2
-    fi
-    if [ -z "$DB_NAME" ]; then
-        echo "No DB_NAME given."
-        exit 2
-    fi
-    if [ -z "$DB_USER" ]; then
-        echo "No DB_USER given."
-        exit 2
-    fi
-    if [ -z "$DB_PASS" ]; then
-        echo "No DB_PASS given."
-        exit 2
-    fi
-    if [ -z "$DB_HOST_PORT" ]; then
-        export DB_HOST_PORT="5432"
-    fi
-    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
-from zerver.lib.db import TimeTrackingConnection
-
-REMOTE_POSTGRES_HOST = '$DB_HOST'
-
-DATABASES = {
-  "default": {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': '$DB_NAME',
-    'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASS',
-    'HOST': '$DB_HOST',
-    'PORT': '$DB_HOST_PORT',
-    'SCHEMA': 'zulip',
-    'CONN_MAX_AGE': 600,
-    'OPTIONS': {
-        'connection_factory': TimeTrackingConnection,
-        'sslmode': 'prefer',
-    },
-  },
-}
-EOF
+databaseInit(){
     export PGPASSWORD="$DB_PASS"
     local TIMEOUT=60
     echo -n "Waiting for database server to allow connections"
@@ -120,17 +83,20 @@ EOF
         sleep 1
     done
     sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
+    echo "Recreating database structure ..."
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
     CREATE DATABASE zulip OWNER=zulip;
     CREATE SCHEMA zulip AUTHORIZATION zulip;
     """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
-    echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "zulip" || :
+    if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
+        echo "DB_ROOT_USER given, creating extension tsearch_extras"
+        export PGPASSWORD="$DB_ROOT_PASS"
+        echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
+        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "zulip" || :
+    fi
     unset PGPASSWORD
-}
-databaseInitiation(){
     echo "Migrating database ..."
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
     echo "Creating cache and third_party_api_results table ..."
@@ -209,6 +175,47 @@ zulipSetup(){
     fi
     ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
     ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
+    if [ -z "$DB_HOST" ]; then
+        echo "No DB_HOST given."
+        exit 2
+    fi
+    if [ -z "$DB_NAME" ]; then
+        echo "No DB_NAME given."
+        exit 2
+    fi
+    if [ -z "$DB_USER" ]; then
+        echo "No DB_USER given."
+        exit 2
+    fi
+    if [ -z "$DB_PASS" ]; then
+        echo "No DB_PASS given."
+        exit 2
+    fi
+    if [ -z "$DB_HOST_PORT" ]; then
+        export DB_HOST_PORT="5432"
+    fi
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
+from zerver.lib.db import TimeTrackingConnection
+
+REMOTE_POSTGRES_HOST = '$DB_HOST'
+
+DATABASES = {
+  "default": {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': '$DB_NAME',
+    'USER': '$DB_USER',
+    'PASSWORD': '$DB_PASS',
+    'HOST': '$DB_HOST',
+    'PORT': '$DB_HOST_PORT',
+    'SCHEMA': 'zulip',
+    'CONN_MAX_AGE': 600,
+    'OPTIONS': {
+        'connection_factory': TimeTrackingConnection,
+        'sslmode': 'prefer',
+    },
+  },
+}
+EOF
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
@@ -230,18 +237,9 @@ CACHES = {
 }
 EOF
     # Authentication Backends
-    local POSSIBLE_AUTH_BACKENDS=(
-        "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
-    )
-    for AUTH_BACKEND_KEY in "${POSSIBLE_AUTH_BACKENDS[@]}"; do
-        local KEY="ZULIP_AUTH_BACKENDS_$AUTH_BACKEND_KEY"
-        local AUTH_BACKEND_VAR="${!KEY}"
-        if [ -z "$AUTH_BACKEND_VAR" ]; then
-            echo "No authentication backend for key \"$AUTH_BACKEND_KEY\"."
-            continue
-        fi
-        echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
-        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND_KEY',)" >> "$ZULIP_ZPROJECT_SETTINGS"
+    echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
+        echo "Adding authentication backend \"$AUTH_BACKEND\"."
+        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND',)" >> "$ZULIP_ZPROJECT_SETTINGS"
     done
     # Rabbitmq settings
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
@@ -363,7 +361,7 @@ echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
 # Setup zulip settings
 if ! zulipSetup; then
-    echo "Zulip setup failed."
+    echo "Zulip settings setup failed."
     exit 1
 fi
 echo "Zulip settings setup done."
@@ -371,21 +369,20 @@ echo "Configuring RabbitMQ ..."
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
 echo "RabbitMQ configured."
-echo "Setting up database settings and server ..."
-# setup database
-databaseSetup
-echo "Database setup done."
 echo "Checking zulip config ..."
-su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
+if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+    echo "Zulip config check failed. Return code: $?"
+    exit 1
+fi
+echo "Zulip config checked."
 if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo "Initiating  Database ..."
     # Init database with something called data :D
-    if ! databaseInitiation; then
+    if ! databaseInit; then
         echo "Database initiation failed."
         exit 1
     fi
     echo "Database initiated."
-    echo ""
     touch "$DATA_DIR/.initiated"
 else
     rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
@@ -402,5 +399,6 @@ if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Zulip migration done."
 fi
 echo "Starting zulip using supervisor ..."
+echo "==="
 # Start supervisord
 exec supervisord

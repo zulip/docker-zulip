@@ -1,15 +1,53 @@
-# docker-zulip
+# Welcome to docker-zulip!
+
 [![Docker Repository on Quay.io](https://quay.io/repository/galexrt/zulip/status "Docker Repository on Quay.io")](https://quay.io/repository/galexrt/zulip)
+* [**Quay.io**](https://quay.io/repository/galexrt/zulip)
+* [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-**Quay.io** https://quay.io/repository/galexrt/zulip
+***
 
-**Docker Hub** https://hub.docker.com/r/galexrt/zulip
-___
-## Zulip Server
-> Powerful open source group chat - From zulip.org
+This is a container image for [Zulip](https://zulip.org) from [Dropbox](https://blogs.dropbox.com/tech/2015/09/open-sourcing-zulip-a-dropbox-hack-week-project/)
 
-See https://zulip.org/server.html for details about the Zulip Server
+**Quote from [Zulip.Org](https://zulip.org)**:
+> Powerful open source group chat
 
-The folder [zulip-puppet](zulip-puppet) contains modified puppet manifests for **Zulip server**.
-The puppet manifests just install **Zulip server** not more, not less.
-The original puppet manifests are taken from the https://github.com/zulip/zulip Repo.
+Thanks to dropbox for Open Sourcing Zulip! - [Zulip's Github](https://github.com/zulip/zulip)
+
+***
+
+## How to configure the container
+
+See the [Configuration](Configuration) Page for infos about configuring the container to suit your needs.
+
+***
+
+## How to get the container:
+### For docker use:
+`docker pull quay.io/galexrt/zulip:1.3.7`
+
+***
+
+## **Configure your `docker-compose.yml`, before running the container!**
+**If you don't configure it, you'll end up with a misconfigured Zulip Instance!**
+
+***
+
+## Starting the container
+To start the container, you have to use either use `docker-compose` or `kubernetes`:
+
+**Don't forget to configure your `docker-compose.yml` properly!!**
+### Using docker-compose:
+Change to the root of the source folder and use `docker-compose up`.
+### Using kubernetes:
+Change to the root of the source folder and use `kubectl create -f ./kubernetes/`.
+
+***
+
+## Contributing
+
+If you find this container useful, here's how you can help:
+
+* Help users with issues they may encounter
+* Send a pull request with your awesome new features and bug fixes
+
+**A big thanks to everybody that sends in issues, pull request!** and helps with the issues/tickets! **:-)**
