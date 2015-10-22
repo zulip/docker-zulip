@@ -43,6 +43,8 @@ ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
 ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
 ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
 ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
+# Zulip related settings
+ZULIP_AUTH_BACKENDS="EmailAuthBackend"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
@@ -125,47 +127,6 @@ secretsSetup(){
     unset SECRET_KEY
 }
 zulipSetup(){
-    if [ -z "$DB_HOST" ]; then
-        echo "No DB_HOST given."
-        exit 2
-    fi
-    if [ -z "$DB_NAME" ]; then
-        echo "No DB_NAME given."
-        exit 2
-    fi
-    if [ -z "$DB_USER" ]; then
-        echo "No DB_USER given."
-        exit 2
-    fi
-    if [ -z "$DB_PASS" ]; then
-        echo "No DB_PASS given."
-        exit 2
-    fi
-    if [ -z "$DB_HOST_PORT" ]; then
-        export DB_HOST_PORT="5432"
-    fi
-    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
-from zerver.lib.db import TimeTrackingConnection
-
-REMOTE_POSTGRES_HOST = '$DB_HOST'
-
-DATABASES = {
-  "default": {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': '$DB_NAME',
-    'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASS',
-    'HOST': '$DB_HOST',
-    'PORT': '$DB_HOST_PORT',
-    'SCHEMA': 'zulip',
-    'CONN_MAX_AGE': 600,
-    'OPTIONS': {
-        'connection_factory': TimeTrackingConnection,
-        'sslmode': 'prefer',
-    },
-  },
-}
-EOF
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
     fi
@@ -214,6 +175,47 @@ EOF
     fi
     ln -sfT "$DATA_DIR/certs/zulip.key" "/etc/ssl/private/zulip.key"
     ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" "/etc/ssl/certs/zulip.combined-chain.crt"
+    if [ -z "$DB_HOST" ]; then
+        echo "No DB_HOST given."
+        exit 2
+    fi
+    if [ -z "$DB_NAME" ]; then
+        echo "No DB_NAME given."
+        exit 2
+    fi
+    if [ -z "$DB_USER" ]; then
+        echo "No DB_USER given."
+        exit 2
+    fi
+    if [ -z "$DB_PASS" ]; then
+        echo "No DB_PASS given."
+        exit 2
+    fi
+    if [ -z "$DB_HOST_PORT" ]; then
+        export DB_HOST_PORT="5432"
+    fi
+    cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
+from zerver.lib.db import TimeTrackingConnection
+
+REMOTE_POSTGRES_HOST = '$DB_HOST'
+
+DATABASES = {
+  "default": {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': '$DB_NAME',
+    'USER': '$DB_USER',
+    'PASSWORD': '$DB_PASS',
+    'HOST': '$DB_HOST',
+    'PORT': '$DB_HOST_PORT',
+    'SCHEMA': 'zulip',
+    'CONN_MAX_AGE': 600,
+    'OPTIONS': {
+        'connection_factory': TimeTrackingConnection,
+        'sslmode': 'prefer',
+    },
+  },
+}
+EOF
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
 CACHES = {
     'default': {
@@ -235,18 +237,9 @@ CACHES = {
 }
 EOF
     # Authentication Backends
-    local POSSIBLE_AUTH_BACKENDS=(
-        "EmailAuthBackend" "ZulipRemoteUserBackend" "GoogleMobileOauth2Backend" "ZulipLDAPAuthBackend"
-    )
-    for AUTH_BACKEND_KEY in "${POSSIBLE_AUTH_BACKENDS[@]}"; do
-        local KEY="ZULIP_AUTH_BACKENDS_$AUTH_BACKEND_KEY"
-        local AUTH_BACKEND_VAR="${!KEY}"
-        if [ -z "$AUTH_BACKEND_VAR" ]; then
-            echo "No authentication backend for key \"$AUTH_BACKEND_KEY\"."
-            continue
-        fi
-        echo "Adding authentication backend \"$AUTH_BACKEND_KEY\"."
-        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND_KEY',)" >> "$ZULIP_ZPROJECT_SETTINGS"
+    echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
+        echo "Adding authentication backend \"$AUTH_BACKEND\"."
+        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND',)" >> "$ZULIP_ZPROJECT_SETTINGS"
     done
     # Rabbitmq settings
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
