@@ -6,8 +6,8 @@ if [ "$DEBUG" == "true" ]; then
 fi
 set -e
 
-# Custom env variables
-# DB
+# Env variables
+# Database aka DB
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
@@ -30,12 +30,6 @@ REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
 MEMCACHED_HOST="${MEMCACHED_HOST:-127.0.0.1}"
 MEMCACHED_HOST_PORT="${MEMCACHED_HOST_PORT:-11211}"
 MEMCACHED_TIMEOUT="${MEMCACHED_TIMEOUT:-3600}"
-# Zulip user setup
-export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
-export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
-export ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
-export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
 # Zulip certifcate parameters
 ZULIP_AUTO_GENERATE_CERTS="${ZULIP_AUTO_GENERATE_CERTS:True}"
 ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
@@ -46,8 +40,14 @@ ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
 ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
+# Zulip user setup
+export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker by Galexrt}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
+export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
+export ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
+export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
 
-# entrypoint.sh specific variables
+# Paths used by entrypoint.sh
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
 ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZULIP_ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
@@ -66,11 +66,14 @@ rabbitmqSetup(){
         rabbitmqctl -n "$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
         echo "RabbitMQ set permissions for user"
     fi
+    # Double add the rabbitmq password, just for safety when Zulip updates again and I miss an usage of RABBITMQ_PASSWORD
     sed -i -r "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
-    export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
+    if [ "$ZULIP_SECRETS_rabbitmq_password" != "$RABBITMQ_PASS" ]; then
+        export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
+    fi
 }
 databaseInit(){
-    echo "Recreating database structure ..."
+    echo "databaseInit: (Re)creating database structure ..."
     echo """
     CREATE USER zulip;
     ALTER ROLE zulip SET search_path TO zulip,public;
@@ -84,11 +87,11 @@ databaseInit(){
         psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "zulip" || :
     fi
     unset PGPASSWORD
-    echo "Migrating database ..."
+    echo "databaseInit: Migrating database ..."
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
-    echo "Creating cache and third_party_api_results table ..."
+    echo "databaseInit: Creating cache and third_party_api_results table ..."
     su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results" || :
-    echo "Initializing Voyager database ..."
+    echo "databaseInit: Initializing Voyager database ..."
     su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db" || :
 }
 secretsSetup(){
@@ -97,16 +100,16 @@ secretsSetup(){
         local KEY="ZULIP_SECRETS_$SECRET_KEY"
         local SECRET_VAR="${!KEY}"
         if [ -z "$SECRET_VAR" ]; then
-            echo "No secret found for key \"$SECRET_KEY\"."
+            echo "secretsSetup: Empty secret given for key \"$SECRET_KEY\"."
             continue
         fi
         if [ ! -z "$(grep "$SECRET_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
-            echo "Secret found for \"$SECRET_KEY\". Edited $?."
+            echo "secretsSetup: Secret found for \"$SECRET_KEY\". Edited $?."
             sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
             continue
         else
             echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
-            echo "Secret found for \"$SECRET_KEY\". Added."
+            echo "secretsSetup: Secret found for \"$SECRET_KEY\". Added."
         fi
     done
     unset SECRET_KEY
@@ -123,18 +126,18 @@ zulipSetup(){
         export ZULIP_AUTO_GENERATE_CERTS="False"
         ;;
         *)
-        echo "Can't parse True or Right for ZULIP_AUTO_GENERATE_CERTS. Defaulting to True"
+        echo "zulipSetup: Can't parse True or Right for ZULIP_AUTO_GENERATE_CERTS. Defaulting to True"
         export ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
     esac
     if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
         if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-            echo "ZULIP_AUTO_GENERATE_CERTS is true and no certs where found in $DATA_DIR/certs. Autogenerating certificates ..."
+            echo "zulipSetup: ZULIP_AUTO_GENERATE_CERTS is true and no certs where found in $DATA_DIR/certs. Autogenerating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
                     if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
-                        echo "Certificates generation failed. Missing ZULIP_CERTIFICATE_CN and as backup ZULIP_SETTINGS_EXTERNAL_HOST not given."
-                        exit 1
+                        echo "zulipSetup: Certificates generation failed. Missing ZULIP_CERTIFICATE_CN and as backup ZULIP_SETTINGS_EXTERNAL_HOST not given."
+                        return 1
                     fi
                     export ZULIP_CERTIFICATE_CN="$ZULIP_SETTINGS_EXTERNAL_HOST"
                 fi
@@ -145,35 +148,35 @@ zulipSetup(){
             openssl req -new -nodes -subj "$ZULIP_CERTIFICATE_SUBJ" -key "$DATA_DIR/certs/zulip.key" -out /tmp/server.csr
             openssl x509 -req -days 365 -in /tmp/server.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
             rm -f /tmp/server.csr /tmp/server.pass.key
-            echo "Certificates autogenerated."
+            echo "zulipSetup: Certificates autogenerated."
         else
-            echo "Certificates already exist. No need to generate them."
+            echo "zulipSetup: Certificates already exist. No need to generate them."
         fi
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
-        echo "No zulip.key given in $DATA_DIR."
+        echo "zulipSetup: No zulip.key given in $DATA_DIR."
         return 1
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        echo "No zulip.combined-chain.crt given in $DATA_DIR."
+        echo "zulipSetup: No zulip.combined-chain.crt given in $DATA_DIR."
         return 1
     fi
     ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
     ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
     if [ -z "$DB_HOST" ]; then
-        echo "No DB_HOST given."
+        echo "zulipSetup: No DB_HOST given."
         exit 2
     fi
     if [ -z "$DB_NAME" ]; then
-        echo "No DB_NAME given."
+        echo "zulipSetup: No DB_NAME given."
         exit 2
     fi
     if [ -z "$DB_USER" ]; then
-        echo "No DB_USER given."
+        echo "zulipSetup: No DB_USER given."
         exit 2
     fi
     if [ -z "$DB_PASS" ]; then
-        echo "No DB_PASS given."
+        echo "zulipSetup: No DB_PASS given."
         exit 2
     fi
     sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" /usr/local/bin/process_fts_updates
@@ -221,8 +224,8 @@ CACHES = {
 EOF
     # Authentication Backends
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
-        echo "Adding authentication backend \"$AUTH_BACKEND\"."
-        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND',)" >> "$ZULIP_SETTINGS"
+        echo "zulipSetup: Adding authentication backend \"$AUTH_BACKEND\"."
+        echo "zulipSetup: AUTHENTICATION_BACKENDS += ('zproject.backends.$AUTH_BACKEND',)" >> "$ZULIP_SETTINGS"
     done
     # Rabbitmq settings
     cat >> "$ZULIP_ZPROJECT_SETTINGS" <<EOF
@@ -248,7 +251,7 @@ EOF
         export REDIS_RATE_LIMITING="False"
         ;;
         *)
-        echo "Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
+        echo "zulipSetup: Can't parse True or Right for REDIS_RATE_LIMITING. Defaulting to True"
         export REDIS_RATE_LIMITING="True"
         ;;
     esac
@@ -276,7 +279,7 @@ EOF
         local KEY="ZULIP_SETTINGS_$SETTING_KEY"
         local SETTING_VAR="${!KEY}"
         if [ -z "$SETTING_VAR" ]; then
-            echo "No settings env var for key \"$SETTING_KEY\"."
+            echo "zulipSetup: No settings env var for key \"$SETTING_KEY\"."
             continue
         fi
         case "$SETTING_VAR" in
@@ -293,38 +296,38 @@ EOF
         sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]*.*['\"]*$~${SETTING_KEY} = ${SETTING_VAR}~g" "$ZULIP_SETTINGS"
         if (($? > 0)); then
             echo "$SETTING_KEY = $SETTING_VAR" >> "$ZULIP_SETTINGS"
-            echo "Key found for \"$SETTING_KEY\". Added."
+            echo "zulipSetup: Key found for \"$SETTING_KEY\". Added."
         else
-            echo "Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
+            echo "zulipSetup: Setting key \"$SETTING_KEY\" to value \"$SETTING_VAR\"."
         fi
     done
     unset SETTING_KEY
     if [ -z "$ZULIP_USER_EMAIL" ]; then
-        echo "No zulip user email given."
+        echo "zulipSetup: No zulip user email given."
         return 1
     fi
     if [ -z "$ZULIP_USER_DOMAIN" ]; then
-        echo "No zulip user domain given."
+        echo "zulipSetup: No zulip user domain given."
         return 1
     fi
     if [ -z "$ZULIP_USER_PASS" ]; then
-        echo "No zulip user password given."
+        echo "zulipSetup: No zulip user password given."
         return 1
     fi
     if [ -z "$ZULIP_USER_FULLNAME" ]; then
-        echo "No zulip user full name given. Defaulting to \"Zulip Docker\""
+        echo "zulipSetup: No zulip user full name given. Defaulting to \"Zulip Docker\""
         export ZULIP_USER_FULLNAME="Zulip Docker"
     fi
 }
 waitingForDatabase() {
     export PGPASSWORD="$DB_PASS"
     local TIMEOUT=60
-    echo "Waiting for database server to allow connections"
+    echo "waitingForDatabase: Waiting for database server to allow connections"
     while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
         TIMEOUT=$(expr $TIMEOUT - 1)
         if [[ $TIMEOUT -eq 0 ]]; then
-            echo "Could not connect to database server. Aborting..."
+            echo "waitingForDatabase: Could not connect to database server. Aborting..."
             exit 1
         fi
         echo -n "."
@@ -333,10 +336,10 @@ waitingForDatabase() {
 }
 managePy() {
     if [ -z "$1" ]; then
-        echo "No command given for manage.py"
+        echo "managePy: No command given for manage.py"
         exit 1
     fi
-    echo "Running manage.py ..."
+    echo "managePy: Running manage.py ..."
     su zulip -c "/home/zulip/deployments/current/manage.py $*"
     exit $?
 }
@@ -362,7 +365,7 @@ fi
 ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
 chown zulip:zulip -R "$DATA_DIR/uploads"
 
-echo "Generating and setting secrets ..."
+echo "main: Generating and setting secrets ..."
 if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
     # Generate the secrets
     /root/zulip/scripts/setup/generate_secrets.py
@@ -370,54 +373,54 @@ if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
 fi
 ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
 secretsSetup
-echo "Secrets generated and set."
-echo "Creating settings.py link ..."
+echo "main: Secrets generated and set."
+echo "main: Creating settings.py link ..."
 if [ ! -e "$DATA_DIR/zulip-settings.py" ]; then
     mv -f /etc/zulip/settings.py "$DATA_DIR/zulip-settings.py"
 fi
 ln -sfT "$DATA_DIR/zulip-settings.py" /etc/zulip/settings.py
-echo "Setting Zulip settings ..."
+echo "main: Setting Zulip settings ..."
 # Setup zulip settings
 if ! zulipSetup; then
-    echo "Zulip settings setup failed."
+    echo "main: Zulip settings setup failed."
     exit 1
 fi
-echo "Zulip settings setup done."
-echo "Configuring RabbitMQ ..."
+echo "main: Zulip settings setup done."
+echo "main: Configuring RabbitMQ ..."
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
-echo "RabbitMQ configured."
-echo "Checking zulip config ..."
+echo "main: RabbitMQ configured."
+echo "main: Checking zulip config ..."
 if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
-    echo "Zulip config check failed. Return code: $?"
+    echo "main: Zulip config check failed. Return code: $?"
     exit 1
 fi
-echo "Zulip config checked."
+echo "Zulip config successfully checked."
 waitingForDatabase
 if [ ! -e "$DATA_DIR/.initiated" ]; then
-    echo "Initiating  Database ..."
+    echo "main: Initiating  Database ..."
     # Init database with something called data :D
     if ! databaseInit; then
-        echo "Database initiation failed."
+        echo "main: Database initiation failed."
         exit 1
     fi
-    echo "Database initiated."
+    echo "main: Database successfully initiated."
     touch "$DATA_DIR/.initiated"
 else
     rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
 fi
 # If there's an "update" available, then "JUST DO IT!" - Shia Labeouf
 if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
-    echo "Starting zulip migration ..."
+    echo "main: Starting zulip migration ..."
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
-        echo "Zulip migration failed."
+        echo "main: Zulip migration failed."
         exit 1
     fi
     rm -rf "$DATA_DIR/.zulip-*"
     touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
-    echo "Zulip migration done."
+    echo "main: Zulip migration done."
 fi
-echo "Starting zulip using supervisor ..."
+echo "main: Starting zulip using supervisor ..."
 echo "==="
 # Start supervisord
 exec supervisord
