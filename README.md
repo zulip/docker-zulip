@@ -43,6 +43,10 @@ Change to the root of the source folder and use `kubectl create -f ./kubernetes/
 
 ***
 
+## Community
+
+* Chat with other docker-zulip users in the **IRC**. On the [IRC Freenode Webchat](https://webchat.freenode.net) or using a client [Join IRC channel]/irc://chat.freenode.net:6697/#docker-zulip) server, in the #docker-zulip channel
+
 ## Contributing
 
 If you find this container useful, here's how you can help:
