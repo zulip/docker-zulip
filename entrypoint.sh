@@ -307,8 +307,7 @@ EOF
             ;;
         esac
         sed -i -r "s~#?${SETTING_KEY}[ ]*=[ ]*['\"]*.*['\"]*$~${SETTING_KEY} = ${SETTING_VAR}~g" "$ZULIP_SETTINGS"
-        SED_CODE=$?
-        if (($SED_CODE > 0)); then
+        if (($? > 0)); then
             echo "$SETTING_KEY = $SETTING_VAR" >> "$ZULIP_SETTINGS"
             echo "Key found for \"$SETTING_KEY\". Added."
         else
