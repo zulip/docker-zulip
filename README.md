@@ -25,6 +25,9 @@ See the [Configuration](Configuration) Page for infos about configuring the cont
 ### For docker use:
 `docker pull quay.io/galexrt/zulip:1.3.7`
 
+### For the latest development image changes use:
+`docker pull quay.io/galexrt/zulip:dev`
+
 ***
 
 ## **Configure your `docker-compose.yml`, before running the container!**
