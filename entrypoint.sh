@@ -44,7 +44,7 @@ ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
 ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
 ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 # Zulip related settings
-ZULIP_AUTH_BACKENDS="EmailAuthBackend"
+ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
