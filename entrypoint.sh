@@ -11,6 +11,8 @@ set -e
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
+DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
+DB_ROOT_PASS="${DB_ROOT_PASS:-}"
 DB_PASSWORD="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
 DB_NAME="${DB_NAME:-zulip}"
@@ -64,7 +66,65 @@ rabbitmqSetup(){
     sed -ri "s~#?RABBITMQ_PASSWORD[ ]*=[ ]*['\"]+.*['\"]+$~RABBITMQ_PASSWORD = '$RABBITMQ_PASS'~g" "$ZULIP_SETTINGS"
     export ZULIP_SECRETS_rabbitmq_password="$RABBITMQ_PASS"
 }
-databaseSetup(){
+databaseInit(){
+    export PGPASSWORD="$DB_PASS"
+    local TIMEOUT=60
+    echo -n "Waiting for database server to allow connections"
+    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    do
+        TIMEOUT=$(expr $TIMEOUT - 1)
+        if [[ $TIMEOUT -eq 0 ]]; then
+            echo "Could not connect to database server. Aborting..."
+            exit 1
+        fi
+        echo -n "."
+        sleep 1
+    done
+    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
+    echo "Recreating database structure ..."
+    echo """
+    CREATE USER zulip;
+    ALTER ROLE zulip SET search_path TO zulip,public;
+    CREATE DATABASE zulip OWNER=zulip;
+    CREATE SCHEMA zulip AUTHORIZATION zulip;
+    """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
+    if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
+        echo "DB_ROOT_USER given, creating extension tsearch_extras"
+        export PGPASSWORD="$DB_ROOT_PASS"
+        echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
+        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "zulip" || :
+    fi
+    unset PGPASSWORD
+    echo "Migrating database ..."
+    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
+    echo "Creating cache and third_party_api_results table ..."
+    su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results" || :
+    echo "Initializing Voyager database ..."
+    su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db" || :
+}
+secretsSetup(){
+    local POSSIBLE_SECRETS=(
+        "email_password" "rabbitmq_password" "s3_key" "s3_secret_key" "android_gcm_api_key"
+        "google_oauth2_client_secret" "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key"
+        "twitter_consumer_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"
+    )
+    for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
+        local KEY="ZULIP_SECRETS_$SECRET_KEY"
+        local SECRET_VAR="${!KEY}"
+        if [ -z "$SECRET_VAR" ]; then
+            echo "No secret found for key \"$SECRET_KEY\"."
+            continue
+        fi
+        echo "Secret found for \"$SECRET_KEY\"."
+        if [ ! -z "$(grep "$SECRET_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
+            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
+            continue
+        fi
+        echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
+    done
+    unset SECRET_KEY
+}
+zulipSetup(){
     if [ -z "$DB_HOST" ]; then
         echo "No DB_HOST given."
         exit 2
@@ -106,61 +166,6 @@ DATABASES = {
   },
 }
 EOF
-    export PGPASSWORD="$DB_PASS"
-    local TIMEOUT=60
-    echo -n "Waiting for database server to allow connections"
-    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
-    do
-        TIMEOUT=$(expr $TIMEOUT - 1)
-        if [[ $TIMEOUT -eq 0 ]]; then
-            echo "Could not connect to database server. Aborting..."
-            exit 1
-        fi
-        echo -n "."
-        sleep 1
-    done
-    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" "/usr/local/bin/process_fts_updates"
-    echo """
-    CREATE USER zulip;
-    ALTER ROLE zulip SET search_path TO zulip,public;
-    CREATE DATABASE zulip OWNER=zulip;
-    CREATE SCHEMA zulip AUTHORIZATION zulip;
-    """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
-    echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "zulip" || :
-    unset PGPASSWORD
-}
-databaseInitiation(){
-    echo "Migrating database ..."
-    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
-    echo "Creating cache and third_party_api_results table ..."
-    su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results" || :
-    echo "Initializing Voyager database ..."
-    su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db" || :
-}
-secretsSetup(){
-    local POSSIBLE_SECRETS=(
-        "email_password" "rabbitmq_password" "s3_key" "s3_secret_key" "android_gcm_api_key"
-        "google_oauth2_client_secret" "dropbox_app_key" "mailchimp_api_key" "mandrill_api_key"
-        "twitter_consumer_key" "twitter_consumer_secret" "twitter_access_token_key" "twitter_access_token_secret"
-    )
-    for SECRET_KEY in "${POSSIBLE_SECRETS[@]}"; do
-        local KEY="ZULIP_SECRETS_$SECRET_KEY"
-        local SECRET_VAR="${!KEY}"
-        if [ -z "$SECRET_VAR" ]; then
-            echo "No secret found for key \"$SECRET_KEY\"."
-            continue
-        fi
-        echo "Secret found for \"$SECRET_KEY\"."
-        if [ ! -z "$(grep "$SECRET_KEY" /etc/zulip/zulip-secrets.conf)" ]; then
-            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
-            continue
-        fi
-        echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
-    done
-    unset SECRET_KEY
-}
-zulipSetup(){
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
     fi
@@ -363,7 +368,7 @@ echo "Secrets generated and set."
 echo "Setting Zulip settings ..."
 # Setup zulip settings
 if ! zulipSetup; then
-    echo "Zulip setup failed."
+    echo "Zulip settings setup failed."
     exit 1
 fi
 echo "Zulip settings setup done."
@@ -371,21 +376,20 @@ echo "Configuring RabbitMQ ..."
 # Configure rabbitmq server everytime because it could be a new one ;)
 rabbitmqSetup
 echo "RabbitMQ configured."
-echo "Setting up database settings and server ..."
-# setup database
-databaseSetup
-echo "Database setup done."
 echo "Checking zulip config ..."
-su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
+if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+    echo "Zulip config check failed. Return code: $?"
+    exit 1
+fi
+echo "Zulip config checked."
 if [ ! -e "$DATA_DIR/.initiated" ]; then
     echo "Initiating  Database ..."
     # Init database with something called data :D
-    if ! databaseInitiation; then
+    if ! databaseInit; then
         echo "Database initiation failed."
         exit 1
     fi
     echo "Database initiated."
-    echo ""
     touch "$DATA_DIR/.initiated"
 else
     rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
@@ -402,5 +406,6 @@ if [ ! -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
     echo "Zulip migration done."
 fi
 echo "Starting zulip using supervisor ..."
+echo "==="
 # Start supervisord
 exec supervisord
