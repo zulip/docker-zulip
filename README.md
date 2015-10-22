@@ -17,7 +17,7 @@ Thanks to dropbox for Open Sourcing Zulip! - [Zulip's Github](https://github.com
 
 ## How to configure the container
 
-See the [Configuration](Configuration) Page for infos about configuring the container to suit your needs.
+See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configuration) Page for infos about configuring the container to suit your needs.
 
 ***
 
