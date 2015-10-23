@@ -454,7 +454,7 @@ case "$1" in
         if [[ -x $1 ]]; then
             $1
         else
-            local COMMAND="$1"
+            COMMAND="$1"
             if [[ -n $(which $COMMAND) ]] ; then
                 shift 1
                 $(which $COMMAND) "$@"
