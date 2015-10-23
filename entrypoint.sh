@@ -426,6 +426,7 @@ appBackup() {
 appRun() {
     createDirectories
     linkDirectoriesToVolume
+    linkFilesToVolume
     initialConfiguration
     bootstrappingEnvironment
     echo "Starting supervisor with \"/etc/supervisor/supervisor.conf\" ..."
