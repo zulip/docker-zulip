@@ -60,39 +60,19 @@ createDirectories() {
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
     fi
+}
+linkDirectoriesToVolume() {
     if [ ! -d /home/zulip/uploads ]; then
         mkdir -p /home/zulip/uploads
     fi
-    if [ ! -d  "$DATA_DIR/uploads" ]; then
-        mkdir -p "$DATA_DIR/uploads"
-    fi
-}
-linkDirectoriesToVolume() {
-    if [ -d "$DATA_DIR/uploads" ]; then
-        rm -rf /home/zulip/uploads
-    else
+    if [ ! -d "$DATA_DIR/uploads" ]; then
         mkdir -p "$DATA_DIR/uploads"
         mv -f /home/zulip/uploads "$DATA_DIR/uploads"
+    else
+        rm -rf /home/zulip/uploads
     fi
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
-}
-linkFilesToVolume() {
-    if [ ! -e "$DATA_DIR/zulip-settings.py" ]; then
-        mv -f /etc/zulip/settings.py "$DATA_DIR/zulip-settings.py"
-    fi
-    ln -sfT "$DATA_DIR/zulip-settings.py" /etc/zulip/settings.py
-    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
-        /root/zulip/scripts/setup/generate_secrets.py
-        mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
-    fi
-    ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
-    if [ -e "$DATA_DIR/certs/zulip.key" ]; then
-        ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
-    fi
-    if [ -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
-    fi
 }
 setConfigurationValue() {
     if [ -z "$1" ]; then
@@ -153,8 +133,14 @@ configureCerts() {
         export ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
     esac
-    if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
-        if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+    if [ -e "$DATA_DIR/certs/zulip.key" ]; then
+        ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
+    fi
+    if [ -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+        ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
+    fi
+    if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+        if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && [ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ]; then
             echo "ZULIP_AUTO_GENERATE_CERTS is true and no certs where found in $DATA_DIR/certs. Autogenerating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
@@ -186,6 +172,11 @@ configureCerts() {
     fi
 }
 secretsConfiguration() {
+    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
+        /root/zulip/scripts/setup/generate_secrets.py
+        mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
+    fi
+    ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
     local SECRETS=($(env | sed -nr "s/ZULIP_SECRETS_([A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
         local KEY="ZULIP_SECRETS_$SECRET_KEY"
@@ -284,6 +275,10 @@ zulipConfiguration() {
 initialConfiguration() {
     secretsConfiguration
     configureCerts
+    if [ ! -e "$DATA_DIR/zulip-settings.py" ]; then
+        mv -f /etc/zulip/settings.py "$DATA_DIR/zulip-settings.py"
+    fi
+    ln -sfT "$DATA_DIR/zulip-settings.py" /etc/zulip/settings.py
     databaseConfiguration
     cacheRatelimitConfiguration
     authenticationBackends
@@ -325,6 +320,7 @@ bootstrapDatabase() {
         unset
     fi
     unset PGPASSWORD
+    echo "Database structure recreated."
 }
 bootstrapRabbitMQ() {
     echo "RabbitMQ deleting user \"guest\"."
@@ -406,6 +402,7 @@ appVersion() {
     echo "This container contains:"
     echo "> Zulip server $ZULIP_VERSION"
     echo "> Checksum: $ZULIP_CHECKSUM"
+    exit 0
 }
 appManagePy() {
     COMMAND="$1"
@@ -426,7 +423,6 @@ appBackup() {
 appRun() {
     createDirectories
     linkDirectoriesToVolume
-    linkFilesToVolume
     initialConfiguration
     bootstrappingEnvironment
     echo "Starting supervisor with \"/etc/supervisor/supervisor.conf\" ..."
