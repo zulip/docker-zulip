@@ -78,6 +78,7 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/nginx/zulip-include-frontend/app",
   }
+
   file { "/etc/nginx/zulip-include/upstreams":
     require => Package["nginx-full"],
     owner  => "root",
@@ -85,6 +86,7 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/nginx/zulip-include-frontend/upstreams",
   }
+
   file { "/etc/nginx/zulip-include/uploads.types":
     require => Package["nginx-full"],
     owner  => "root",
@@ -92,12 +94,14 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/nginx/zulip-include-frontend/uploads.types",
   }
+
   file { "/etc/nginx/zulip-include/app.d/":
     ensure => directory,
     owner => "root",
     group => "root",
     mode => 755,
   }
+
   file { "/etc/supervisor/conf.d/zulip.conf":
     require => Package[supervisor],
     ensure => file,
@@ -106,25 +110,30 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip.conf",
   }
+
   file { "/home/zulip/tornado":
     ensure => directory,
     owner => "zulip",
     group => "zulip",
     mode => 755,
   }
+
   file { '/home/zulip/logs':
     ensure => 'directory',
     owner  => 'zulip',
     group  => 'zulip',
   }
+
   file { '/home/zulip/deployments':
     ensure => 'directory',
     owner  => 'zulip',
     group  => 'zulip',
   }
+
   file { "/etc/cron.d/email-mirror":
     ensure => absent,
   }
+
   file { '/etc/log2zulip.conf':
     ensure     => file,
     owner      => "zulip",
@@ -132,6 +141,7 @@ class zulip::app_frontend {
     mode       => 644,
     source     => 'puppet:///modules/zulip/log2zulip.conf',
   }
+
   file { '/etc/log2zulip.zuliprc':
     ensure     => file,
     owner      => "zulip",
@@ -139,6 +149,7 @@ class zulip::app_frontend {
     mode       => 600,
     source     => 'puppet:///modules/zulip/log2zulip.zuliprc',
   }
+
   file { "/etc/cron.d/check-apns-tokens":
     ensure => file,
     owner  => "root",
@@ -146,6 +157,7 @@ class zulip::app_frontend {
     mode => 644,
     source => "puppet:///modules/zulip/cron.d/check-apns-tokens",
   }
+
   file { "/etc/supervisor/conf.d/cron.conf":
     require => Package[supervisor],
     ensure => file,

@@ -1,7 +1,5 @@
 class zulip::postgres_common {
-  $postgres_packages = [# The database itself
-                        "postgresql-9.3",
-                        # Python modules used in our monitoring/worker threads
+  $postgres_packages = [# Python modules used in our monitoring/worker threads
                         "python-gevent",
                         "python-tz",
                         "python-dateutil",

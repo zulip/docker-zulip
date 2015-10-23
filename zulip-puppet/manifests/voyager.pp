@@ -40,6 +40,7 @@ class zulip::voyager {
     mode => 644,
     source => "puppet:///modules/zulip/cron.d/restart-zulip",
   }
+
   file { "/etc/supervisor/conf.d/zulip_postsetup.conf":
     require => Package[supervisor],
     ensure => file,
@@ -48,6 +49,7 @@ class zulip::voyager {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip_postsetup.conf",
   }
+
   file { "/opt/setupZulipUser.sh":
     ensure => file,
     owner  => "root",
