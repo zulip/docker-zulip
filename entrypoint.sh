@@ -85,10 +85,10 @@ setConfigurationValue() {
         echo "No KEY given for setConfigurationValue."
         return 1
     fi
-        if [ -z "$3" ]; then
-            echo "No FILE given for setConfigurationValue."
-            return 1
-        fi
+    if [ -z "$3" ]; then
+        echo "No FILE given for setConfigurationValue."
+        return 1
+    fi
     local KEY="$1"
     local FILE="$3"
     local TYPE="$4"
@@ -109,23 +109,24 @@ setConfigurationValue() {
         fi
         ;;
         literal)
-        local VALUE="$VALUE"
+        local VALUE="$2"
         ;;
         bool|boolean|int|integer|array)
-        local VALUE="$KEY = $VALUE"
+        local VALUE="$KEY = $2"
         ;;
         string|*)
-        local VALUE="$KEY = '${VALUE//\'/\'}'"
+        local VALUE="$KEY = '${2//\'/\'}'"
         ;;
     esac
-    set +e
     # REGEX? FTW!
-    echo "$(grep -v "$(grep -Pzo "#?$KEY*[ ]*=[ ]*(['\"].*['\"]$|[{(\[].*([})\}]$|\n(\n[}\}]$|.+\n)*)|.*$)" "$FILE")" "$FILE")" > "$FILE"
-    if (($? > 0)); then
-        echo "$VALUE" >> "$FILE"
-        echo "Setting key \"$KEY\" with value \"$VALUE\"."
+    set +e
+    GREP_RESULT="$(grep -v "$(grep -Pzo "#?$KEY*[ ]*=[ ]*(['\"].*['\"]$|[{(\[].*([})\}]$|\n(\n[}\}]$|.+\n)*)|.*$)" "$FILE")" "$FILE")"
+    if [ ! -z "$GREP_RESULT" ]; then
+        echo "$GREP_RESULT" > "$FILE"
     fi
     set -e
+    echo "$VALUE" >> "$FILE"
+    echo "Setting key \"$KEY\" with value \"$VALUE\"."
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
