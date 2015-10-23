@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$ZULIP_USER_DOMAIN" ] || [ -z "$ZULIP_USER_EMAIL" ]; then
+    echo "No zulip user configuration given."
+    exit 100
+fi
 # Doing everything in python, even I never coded in python #YOLO
 /home/zulip/deployments/current/manage.py shell <<EOF
 from zerver.lib.actions import do_create_user, do_change_is_admin

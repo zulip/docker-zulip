@@ -5,9 +5,11 @@ class zulip::base {
                      "python-simplejson",
                      ]
   package { $base_packages: ensure => "installed" }
+
   group { 'zulip':
     ensure     => present,
   }
+
   user { 'zulip':
     ensure     => present,
     require    => Group['zulip'],
@@ -16,12 +18,14 @@ class zulip::base {
     home       => '/home/zulip',
     managehome => true,
   }
+
   file { '/etc/zulip':
     ensure     => 'directory',
     mode       => 644,
     owner      => 'zulip',
     group      => 'zulip',
   }
+
   file { '/etc/security/limits.conf':
     ensure     => file,
     mode       => 640,
@@ -29,12 +33,14 @@ class zulip::base {
     group      => "root",
     source     => 'puppet:///modules/zulip/limits.conf',
   }
+
   file { '/var/log/zulip':
     ensure => 'directory',
     owner  => 'zulip',
     group  => 'zulip',
     mode   => 640,
   }
+
   file { '/var/log/zulip/queue_error':
     ensure => 'directory',
     owner  => 'zulip',

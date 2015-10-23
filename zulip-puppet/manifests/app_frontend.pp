@@ -1,7 +1,8 @@
 class zulip::app_frontend {
-  include zulip::supervisor
   include zulip::rabbit
   include zulip::nginx
+  include zulip::supervisor
+
   $web_packages = [ # Needed for memcached usage
                     "python-pylibmc",
                     # Fast JSON parser

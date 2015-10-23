@@ -4,6 +4,7 @@ class zulip::rabbit {
                       "rabbitmq-server",
                       ]
   package { $rabbit_packages: ensure => "installed" }
+
   file { "/etc/cron.d/rabbitmq-queuesize":
     require => Package[rabbitmq-server],
     ensure => file,

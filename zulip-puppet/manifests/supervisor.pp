@@ -3,6 +3,7 @@ class zulip::supervisor {
                           "supervisor",
                           ]
   package { $supervisor_packages: ensure => "installed" }
+
   file { "/etc/supervisor/supervisord.conf":
     require => Package[supervisor],
     ensure => file,
@@ -11,6 +12,7 @@ class zulip::supervisor {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/supervisord.conf",
   }
+
   file { '/etc/supervisor/conf.d':
     require => Package[supervisor],
     ensure => 'directory',
