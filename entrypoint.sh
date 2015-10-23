@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$DEBUG" == "true" ]; then
+if [ "$DEBUG" == "true" ] || [ "$DEBUG" == "True" ]; then
     set -x
     set -o functrace
 fi
@@ -118,13 +118,14 @@ setConfigurationValue() {
         local VALUE="$KEY = '${VALUE//\'/\'}'"
         ;;
     esac
+    set +e
     # REGEX? FTW!
     echo "$(grep -v "$(grep -Pzo "#?$KEY*[ ]*=[ ]*(['\"].*['\"]$|[{(\[].*([})\}]$|\n(\n[}\}]$|.+\n)*)|.*$)" "$FILE")" "$FILE")" > "$FILE"
     if (($? > 0)); then
         echo "$VALUE" >> "$FILE"
         echo "Setting key \"$KEY\" with value \"$VALUE\"."
     fi
-    return 0
+    set -e
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
@@ -193,6 +194,7 @@ secretsConfiguration() {
         echo "Zulip secrets already generated."
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
+    set +e
     local SECRETS=($(env | sed -nr "s/ZULIP_SECRETS_([A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
         local KEY="ZULIP_SECRETS_$SECRET_KEY"
@@ -210,6 +212,7 @@ secretsConfiguration() {
             echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
         fi
     done
+    set -e
     unset SECRET_KEY SECRET_VAR KEY
     echo "==="
     echo "Zulip secrets configuration succeeded."
