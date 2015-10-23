@@ -186,7 +186,7 @@ secretsConfiguration() {
     echo "==="
     if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
-        su zulip -c "/root/zulip/scripts/setup/generate_secrets.py"
+        /root/zulip/scripts/setup/generate_secrets.py
         mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
         echo "Zulip secrets generation succeeded."
     else
