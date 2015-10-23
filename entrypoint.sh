@@ -173,7 +173,7 @@ configureCerts() {
 }
 secretsConfiguration() {
     if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
-        /root/zulip/scripts/setup/generate_secrets.py
+        su zulip -c "/root/zulip/scripts/setup/generate_secrets.py"
         mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
