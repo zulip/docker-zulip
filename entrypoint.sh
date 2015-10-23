@@ -400,6 +400,7 @@ zulipFirstStartInit() {
     fi
     echo "Executing Zulip first start init ..."
     echo "==="
+    set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
         RETURN_CODE=$?
         echo "==="
@@ -420,6 +421,7 @@ zulipFirstStartInit() {
         echo "Zulip first start init failed in \"initialize_voyager_db\" with exit code $RETURN_CODE."
         exit $RETURN_CODE
     fi
+    set -e
     echo "==="
     echo "Zulip first start init sucessful."
 }
@@ -430,12 +432,14 @@ zulipMigration() {
     fi
     echo "Migrating Zulip to new version ..."
     echo "==="
+    set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         RETURN_CODE=$?
         echo "==="
         echo "Zulip migration failed."
         exit $RETURN_CODE
     fi
+    set -e
     rm -rf "$DATA_DIR/.zulip-*"
     touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "==="
@@ -475,6 +479,7 @@ appManagePy() {
     fi
     echo "Running manage.py ..."
     echo "==="
+    set +e
     su zulip -c "/home/zulip/deployments/current/manage.py $COMMAND $*"
     exit $?
 }
