@@ -485,7 +485,7 @@ appRun() {
     linkDirectoriesToVolume
     initialConfiguration
     bootstrappingEnvironment
-    echo "Starting supervisor with \"/etc/supervisor/supervisor.conf\" ..."
+    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisor.conf\" ..."
     echo "==="
     exec supervisord -c /etc/supervisor/supervisor.conf
 }
