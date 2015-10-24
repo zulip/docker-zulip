@@ -1,7 +1,8 @@
 class zulip::supervisor {
-  $supervisor_packages = [# Needed to run supervisor
-                          "supervisor",
-                          ]
+  $supervisor_packages = [
+    # Needed to run supervisor
+    "supervisor",
+  ]
   package { $supervisor_packages: ensure => "installed" }
 
   file { "/etc/supervisor/supervisord.conf":
@@ -16,7 +17,7 @@ class zulip::supervisor {
   file { '/etc/supervisor/conf.d':
     require => Package[supervisor],
     ensure => 'directory',
-    owner  => 'root',
-    group  => 'root',
+    owner => 'root',
+    group => 'root',
   }
 }

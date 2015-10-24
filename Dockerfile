@@ -11,7 +11,6 @@ RUN apt-get -qq update -q && \
     wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
-    echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -qq dist-upgrade -y && \
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
