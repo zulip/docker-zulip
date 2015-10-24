@@ -1,4 +1,3 @@
 MAILTO=""
-
 # Send digest emails once a day. Time is in UTC.
-0 18 * * *   zulip cd /home/zulip/deployments/current && python manage.py enqueue_digest_emails
+0 18 * * *   zulip cd /home/zulip/deployments/current; python manage.py enqueue_digest_emails
