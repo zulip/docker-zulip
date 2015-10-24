@@ -47,6 +47,7 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $RABBITMQ_PASS)}"
+ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Log2Zulip settings
 LOG2ZULIP_ENABLED="False"
 LOG2ZULIP_EMAIL=""
@@ -77,6 +78,9 @@ linkDirectoriesToVolume() {
     fi
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
+    if [ ! -d "$DATA_DIR/post-setup.d/" ]; then
+        mkdir -p "$DATA_DIR/post-setup.d/"
+    fi
 }
 setConfigurationValue() {
     if [ -z "$1" ]; then
@@ -442,6 +446,30 @@ zulipMigration() {
     echo "==="
     echo "Zulip migration succeeded."
 }
+runPostSetupScripts() {
+    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] || [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
+        echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
+        return 0
+    fi
+    echo "Post setup scripts execution ..."
+    echo "==="
+    set +e
+    for FILE in *; do
+        if [ -x "$FILE" ]; then
+            echo "Executing \"$FILE\" ..."
+            bash -c "$FILE"
+            echo "Executed \"$FILE\"."
+        else
+            echo "Permissions denied for \"$FILE\". Please check the permissions."
+            echo "==="
+            echo "Post setup scripts execution failed. Exiting."
+            exit 1
+        fi
+    done
+    set -e
+    echo "==="
+    echo "Post setup scripts execution succeeded."
+}
 bootstrappingEnvironment() {
     echo "=== Begin Bootstrap Phase ==="
     waitingForDatabase
@@ -449,6 +477,7 @@ bootstrappingEnvironment() {
     bootstrapRabbitMQ
     zulipFirstStartInit
     zulipMigration
+    runPostSetupScripts
     echo "=== End Bootstrap Phase ==="
 }
 # END appRun functionss
@@ -489,9 +518,10 @@ appRun() {
     linkDirectoriesToVolume
     initialConfiguration
     bootstrappingEnvironment
-    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisor.conf\" ..."
+    echo "=== Begin Run Phase ==="
+    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" ..."
     echo "==="
-    exec supervisord -c /etc/supervisor/supervisor.conf
+    exec supervisord -c "/etc/supervisor/supervisord.conf"
 }
 
 case "$1" in
