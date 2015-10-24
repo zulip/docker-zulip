@@ -6,8 +6,7 @@ if [ "$DEBUG" == "true" ] || [ "$DEBUG" == "True" ]; then
 fi
 set -e
 
-# Custom env variables
-# DB
+# DB aka Database
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_USER="${DB_USER:-zulip}"
