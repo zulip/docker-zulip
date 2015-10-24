@@ -221,7 +221,7 @@ secretsConfiguration() {
 databaseConfiguration() {
     echo "Setting database configuration ..."
     setConfigurationValue "from zerver.lib.db import TimeTrackingConnection" "" "$ZPROJECT_SETTINGS" "literal"
-    VALUE="DATABASES = {
+    VALUE="{
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
@@ -243,7 +243,7 @@ databaseConfiguration() {
 }
 cacheRatelimitConfiguration() {
     echo "Setting caches configuration ..."
-    VALUE="CACHES = {
+    VALUE="{
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
         'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_HOST_PORT',
@@ -302,7 +302,6 @@ zulipConfiguration() {
             continue
         fi
         setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$ZPROJECT_SETTINGS"
-        echo "Set key \"$SETTING_KEY\"."
     done
     unset SETTING_KEY SETTING_VAR KEY
     if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
