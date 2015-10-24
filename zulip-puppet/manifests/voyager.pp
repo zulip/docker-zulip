@@ -10,7 +10,7 @@ class zulip::voyager {
     key => '84C2BE60E50E336456E4749CE84240474E26AE47',
     key_source => 'https://zulip.com/dist/keys/zulip.asc',
     pin => '995',
-    include_src => true,
+    include_src => false,
   }
 
   file { "/etc/nginx/sites-available/zulip-enterprise":
