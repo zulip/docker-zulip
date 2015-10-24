@@ -61,12 +61,10 @@ ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
-createDirectories() {
+linkDirectoriesToVolume() {
     if [ ! -d "$DATA_DIR/certs" ]; then
         mkdir -p "$DATA_DIR/certs"
     fi
-}
-linkDirectoriesToVolume() {
     if [ ! -d /home/zulip/uploads ]; then
         mkdir -p /home/zulip/uploads
     fi
@@ -514,7 +512,6 @@ appBackup() {
     exit 1
 }
 appRun() {
-    createDirectories
     linkDirectoriesToVolume
     initialConfiguration
     bootstrappingEnvironment
