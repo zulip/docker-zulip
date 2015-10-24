@@ -536,21 +536,6 @@ appRun() {
     echo "==="
     exec supervisord -c "/etc/supervisor/supervisord.conf"
 }
-appHelp() {
-    echo "Available commands:"
-    echo "> app:help     - Show this help menu and exit"
-    echo "> app:version  - Container Zulip server version"
-    echo "> app:managepy - Run Zulip's manage.py script"
-    echo "> app:manage   - Create, Restore and manage backups of Zulip instances"
-    echo "> app:run      - Run the Zulip server"
-    echo "> [COMMAND]    - Run given command with arguments in shell"
-}
-appVersion() {
-    echo "This container contains:"
-    echo "> Zulip server $ZULIP_VERSION"
-    echo "> Checksum: $ZULIP_CHECKSUM"
-    exit 0
-}
 appManagePy() {
     COMMAND="$1"
     shift 1
@@ -632,6 +617,21 @@ appRestore() {
     rm -r "/tmp/$(basename  | cut -d. -f1)/"
     echo "==="
     echo "Restore process succeeded."
+    exit 0
+}
+appHelp() {
+    echo "Available commands:"
+    echo "> app:help     - Show this help menu and exit"
+    echo "> app:version  - Container Zulip server version"
+    echo "> app:managepy - Run Zulip's manage.py script"
+    echo "> app:manage   - Create, Restore and manage backups of Zulip instances"
+    echo "> app:run      - Run the Zulip server"
+    echo "> [COMMAND]    - Run given command with arguments in shell"
+}
+appVersion() {
+    echo "This container contains:"
+    echo "> Zulip server $ZULIP_VERSION"
+    echo "> Checksum: $ZULIP_CHECKSUM"
     exit 0
 }
 
