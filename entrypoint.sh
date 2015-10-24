@@ -118,7 +118,7 @@ setConfigurationValue() {
         local VALUE="$KEY = '${2//\'/\'}'"
         ;;
     esac
-    # REGEX? FTW!
+    # REGEX? FTW! https://regex101.com/r/hF1oS4/2
     set +e
     GREP_RESULT="$(grep -v "$(grep -Pzo "^#?$KEY[ ]*=[ ]+([{(\[]+.*([\])}]+$|(\n[ ]*[\])}]$|\n.+)+)|['\"]*.*['\"]*$)" "$FILE")" "$FILE")"
     if [ ! -z "$GREP_RESULT" ]; then
@@ -521,11 +521,10 @@ case "$1" in
             COMMAND="$1"
             if [[ -n $(which $COMMAND) ]] ; then
                 shift 1
-                $(which $COMMAND) "$@"
+                exec "$(which $COMMAND)" "$@"
             else
                 appHelp
             fi
         fi
     ;;
 esac
-exit 0
