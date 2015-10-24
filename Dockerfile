@@ -29,6 +29,7 @@ RUN apt-get -qq update -q && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
 
