@@ -57,6 +57,6 @@ If you find this container useful, here's how you can help:
 * Help users with issues they may encounter
 * Send a pull request with your awesome new features and bug fixes
 
-_Please use a 4 space intent in the files you edit. Thanks!_
+_Please use 4 spaces as intent in the files, Thanks!_
 
 **A big thanks to everybody that sends in issues, pull request!** and helps with the issues/tickets! **:-)**
