@@ -18,7 +18,7 @@ RUN apt-get -qq update -q && \
     /root/zulip/scripts/zulip-puppet-apply -f && \
     cp -fa /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py && \
-    ZULIP_DEPLOY_PATH=$(/root/zulip/zulip_tools.py make_deploy_path) && \
+    ZULIP_DEPLOY_PATH="$(/root/zulip/zulip_tools.py make_deploy_path)" && \
     mv /root/zulip "$ZULIP_DEPLOY_PATH" && \
     ln -nsf "/home/zulip/deployments/next" /root/zulip && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "/home/zulip/deployments/next" && \
