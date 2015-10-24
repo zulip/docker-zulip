@@ -56,7 +56,6 @@ LOG2ZULIP_LOGFILES="/var/log/nginx/error.log"
 
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
-ZULIP_SETTINGS="/etc/zulip/settings.py"
 ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
 
 # BEGIN appRun functions
