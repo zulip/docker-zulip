@@ -139,7 +139,7 @@ configureCerts() {
         export ZULIP_AUTO_GENERATE_CERTS="False"
         ;;
         *)
-        echo "Can't parse True or Right for ZULIP_AUTO_GENERATE_CERTS. Defaulting to True"
+        echo "ZULIP_AUTO_GENERATE_CERTS not \"True/true\" or \"Right/right\". Defaulting to \"True\"."
         export ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
     esac
