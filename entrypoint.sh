@@ -120,7 +120,7 @@ setConfigurationValue() {
     esac
     # REGEX? FTW!
     set +e
-    GREP_RESULT="$(grep -v "$(grep -Pzo "#?$KEY*[ ]*=[ ]*(['\"].*['\"]$|[{(\[].*([})\}]$|\n(\n[}\}]$|.+\n)*)|.*$)" "$FILE")" "$FILE")"
+    GREP_RESULT="$(grep -v "$(grep -Pzo "^#?$KEY[ ]*=[ ]+([{(\[]+.*([\])}]+$|(\n[ ]*[\])}]$|\n.+)+)|['\"]*.*['\"]*$)" "$FILE")" "$FILE")"
     if [ ! -z "$GREP_RESULT" ]; then
         echo "$GREP_RESULT" > "$FILE"
     fi
