@@ -213,7 +213,7 @@ secretsConfiguration() {
 databaseConfiguration() {
     echo "Setting database configuration ..."
     setConfigurationValue "from zerver.lib.db import TimeTrackingConnection" "" "$ZPROJECT_SETTINGS" "literal"
-    VALUE="{
+    local VALUE="{
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME': '$DB_NAME',
@@ -235,7 +235,7 @@ databaseConfiguration() {
 }
 cacheRatelimitConfiguration() {
     echo "Setting caches configuration ..."
-    VALUE="{
+    local VALUE="{
     'default': {
         'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
         'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_HOST_PORT',
@@ -256,8 +256,14 @@ cacheRatelimitConfiguration() {
 }
 authenticationBackends() {
     echo "Activating authentication backends ..."
+    local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
-        echo "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" >> "$ZULIP_SETTINGS"
+        if [ "$FIRST" = true ]; then
+            setConfigurationValue "AUTHENTICATION_BACKENDS = ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
+            local FIRST=false
+        else
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
+        fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
