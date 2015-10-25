@@ -12,7 +12,7 @@ RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && 
     echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -q dist-upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install -y puppet tar git openssl python-dev python-six python-pbs && \
+    DEBIAN_FRONTEND=noninteractive apt-get -q install -y puppet git python-dev python-six python-pbs && \
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
     wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -P "/tmp" && \
     echo "$ZULIP_CHECKSUM /tmp/zulip-server-$ZULIP_VERSION.tar.gz" | sha1sum -c && \
