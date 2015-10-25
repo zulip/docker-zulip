@@ -319,7 +319,7 @@ zulipConfiguration() {
     echo "Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
-    if [ "$AUTO_BACKUP_ENABLED" != "True" ] || [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
+    if ([ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]); then
         rm -f /etc/cron.d/autobackup
         echo "Auto backup is disabled. Continuing."
         return 0
