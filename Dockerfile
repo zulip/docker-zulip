@@ -5,6 +5,7 @@ ENV ZULIP_VERSION="1.3.7" ZULIP_CHECKSUM="88bfa668eb14e07b0b806977db2ae2cd4d7e7e
 
 ADD entrypoint.sh /entrypoint.sh
 ADD zulip-puppet /root/zulip-puppet
+
 RUN apt-get -qq update -q && \
     apt-get -qq dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install -y puppet tar git openssl python-dev python-six python-pbs && \
