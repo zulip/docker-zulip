@@ -48,13 +48,6 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
-# Zulip user setup
-ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
-ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
-ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
-ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
-unset ZULIP_USER_PASSWORD
 # Log2Zulip settings
 LOG2ZULIP_ENABLED="False"
 LOG2ZULIP_EMAIL=""
@@ -102,6 +95,7 @@ setConfigurationValue() {
     local KEY="$1"
     local FILE="$3"
     local TYPE="$4"
+    local VALUE
     if [ -z "$TYPE" ]; then
         case "$2" in
             [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])
@@ -215,13 +209,12 @@ secretsConfiguration() {
             echo "Empty secret for key \"$SECRET_KEY\"."
             continue
         fi
-        grep -q "$SECRET_KEY" /etc/zulip/zulip-secrets.conf
+        sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" /etc/zulip/zulip-secrets.conf
         if (($? > 0)); then
-            echo "Secret found for \"$SECRET_KEY\"."
-            sed -i -r "s~#?${SECRET_KEY}[ ]*=[ ]*['\"]+.*['\"]+$~${SECRET_KEY} = '${SECRET_VAR}'~g" /etc/zulip/zulip-secrets.conf
-            continue
-        else
             echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
+            echo "Secret added for \"$SECRET_KEY\"."
+        else
+            echo "Secret found for \"$SECRET_KEY\"."
         fi
     done
     set -e

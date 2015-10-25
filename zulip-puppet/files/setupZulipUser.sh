@@ -1,5 +1,16 @@
 #!/bin/bash
 
+if [ "$ZULIP_USER_CREATION_ENABLED" != "True" ] || [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]; then
+    exit 100
+fi
+# Zulip user setup
+export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
+export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
+ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
+export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
+unset ZULIP_USER_PASSWORD
+
 if [ -z "$ZULIP_USER_DOMAIN" ] || [ -z "$ZULIP_USER_EMAIL" ]; then
     echo "No zulip user configuration given."
     exit 100
