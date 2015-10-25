@@ -391,7 +391,7 @@ bootstrapRabbitMQ() {
 }
 userCreationConfiguration() {
     echo "Executing Zulip user creation script ..."
-    if ([ "$ZULIP_USER_CREATION_ENABLED" != "True" ] || [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
+    if ([ "$ZULIP_USER_CREATION_ENABLED" != "True" ] && [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
         rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
         echo "Zulip user creation disabled."
         return 0
@@ -400,7 +400,7 @@ userCreationConfiguration() {
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if ([ "$FORCE_FIRST_START_INIT" != "True" ] || [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
+    if ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
         echo "First Start Init not needed."
         return 0
     fi
@@ -445,7 +445,7 @@ zulipMigration() {
 }
 runPostSetupScripts() {
     echo "Post setup scripts execution ..."
-    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] || [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
+    if ([ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] && [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]); then
         echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
         return 0
     fi
