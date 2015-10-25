@@ -15,7 +15,7 @@ DB_USER="${DB_USER:-zulip}"
 DB_PASSWORD="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
 DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
-DB_ROOT_PASS="${DB_ROOT_PASS:$(echo $DB_PASS)}"
+DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
 RABBITMQ_SETUP="${RABBITMQ_SETUP:-True}"
@@ -372,6 +372,8 @@ bootstrapDatabase() {
         echo "Creating tsearch_extras extension ..."
         echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_SCHEMA;" | \
         psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
+    else
+        echo ""
     fi
     unset PGPASSWORD
     echo "Database structure recreated."
