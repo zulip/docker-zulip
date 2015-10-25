@@ -372,11 +372,11 @@ bootstrapDatabase() {
         echo "Creating tsearch_extras extension ..."
         echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_SCHEMA;" | \
         psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
+        echo "Database structure recreated."
     else
-        echo ""
+        echo "No database root user nor password given. Not (re)creating database structure."
     fi
     unset PGPASSWORD
-    echo "Database structure recreated."
 }
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
