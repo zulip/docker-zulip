@@ -48,6 +48,14 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
+# Zulip user setup
+export ZULIP_USER_CREATION_ENABLED="${ZULIP_USER_CREATION_ENABLED:-True}"
+export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
+export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
+ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
+export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
+unset ZULIP_USER_PASSWORD
 # Log2Zulip settings
 LOG2ZULIP_ENABLED="False"
 LOG2ZULIP_EMAIL=""
@@ -61,6 +69,7 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # entrypoint.sh specific variables
 ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
 ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
+ZULIP_SETTINGS="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -93,9 +102,9 @@ setConfigurationValue() {
         return 1
     fi
     local KEY="$1"
+    local VALUE
     local FILE="$3"
     local TYPE="$4"
-    local VALUE
     if [ -z "$TYPE" ]; then
         case "$2" in
             [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])
@@ -146,12 +155,6 @@ configureCerts() {
         ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
     esac
-    if [ -e "$DATA_DIR/certs/zulip.key" ]; then
-        ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
-    fi
-    if [ -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
-    fi
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
         if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && ([ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" == "true" ]); then
             echo "No certs in \"$DATA_DIR/certs\"."
@@ -187,6 +190,8 @@ configureCerts() {
         echo "Certificates configuration failed."
         exit 1
     fi
+    ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
+    ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
     echo "Certificates configuration succeeded."
 }
 secretsConfiguration() {
@@ -224,7 +229,6 @@ secretsConfiguration() {
 }
 databaseConfiguration() {
     echo "Setting database configuration ..."
-    setConfigurationValue "from zerver.lib.db import TimeTrackingConnection" "" "$ZPROJECT_SETTINGS" "literal"
     local VALUE="{
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -271,10 +275,10 @@ authenticationBackends() {
     local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS = ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
-            local FIRST=false
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZULIP_SETTINGS" "array"
+            FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZULIP_SETTINGS" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
@@ -411,6 +415,20 @@ bootstrapRabbitMQ() {
     rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
     echo "RabbitMQ bootstrap succeeded."
 }
+userCreationConfiguration() {
+    echo "Executing Zulip user creation script ..."
+    if [ "$ZULIP_USER_CREATION_ENABLED" != "True" ] || [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]; then
+        rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
+        echo "Disabled Zulip user creation."
+        return 0
+    fi
+    if [ -e "$DATA_DIR/.initiated" ]; then
+        rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
+        echo "Zulip user already created. Initiated dotfile found."
+        return 0
+    fi
+    echo "Enabled Zulip user creation."
+}
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
     if [ -z "$FORCE_FIRST_START_INIT" ] || [ -e "$DATA_DIR/.initiated" ]; then
@@ -436,6 +454,7 @@ zulipFirstStartInit() {
         exit $RETURN_CODE
     fi
     set -e
+    touch "$DATA_DIR/.initiated"
     echo "Zulip first start init sucessful."
 }
 zulipMigration() {
@@ -462,8 +481,7 @@ runPostSetupScripts() {
         return 0
     fi
     if [ ! -d "$DATA_DIR/post-setup.d/" ]; then
-        echo "No post-setup.d folder found. Skipping post setup scripts execution."
-        echo "Post setup scripts execution skipped."
+        echo "No post-setup.d folder found. Continuing."
         return 0
     fi
     if [ "$(ls -A "$DATA_DIR/post-setup.d/")" ]; then
@@ -471,7 +489,7 @@ runPostSetupScripts() {
         return 0
     fi
     set +e
-    for FILE in *; do
+    for FILE in $DATA_DIR/post-setup.d/*; do
         if [ -x "$FILE" ]; then
             echo "Executing \"$FILE\" ..."
             bash -c "$FILE"
@@ -490,6 +508,7 @@ bootstrappingEnvironment() {
     waitingForDatabase
     bootstrapDatabase
     bootstrapRabbitMQ
+    userCreationConfiguration
     zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
