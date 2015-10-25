@@ -43,11 +43,11 @@ class zulip::voyager {
     source => "puppet:///modules/zulip/supervisor/conf.d/zulip_postsetup.conf",
   }
 
-  file { "/opt/setupZulipUser.sh":
+  file { "/opt/createZulipAdmin.sh":
     ensure => file,
     owner => "root",
     group => "root",
     mode => 755,
-    source => "puppet:///modules/zulip/setupZulipUser.sh",
+    source => "puppet:///modules/zulip/createZulipAdmin.sh",
   }
 }

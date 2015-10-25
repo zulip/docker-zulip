@@ -56,12 +56,6 @@ export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
 ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
 export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
 unset ZULIP_USER_PASSWORD
-# Log2Zulip settings
-LOG2ZULIP_ENABLED="False"
-LOG2ZULIP_EMAIL=""
-LOG2ZULIP_API_KEY=""
-LOG2ZULIP_SITE=""
-LOG2ZULIP_LOGFILES="/var/log/nginx/error.log"
 # Auto backup settings
 AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
@@ -215,11 +209,12 @@ secretsConfiguration() {
             echo "Empty secret for key \"$SECRET_KEY\"."
             continue
         fi
-        sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" /etc/zulip/zulip-secrets.conf
+        grep -q "$SECRET_KEY" /etc/zulip/zulip-secrets.conf
         if (($? > 0)); then
             echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
             echo "Secret added for \"$SECRET_KEY\"."
         else
+            sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" /etc/zulip/zulip-secrets.conf
             echo "Secret found for \"$SECRET_KEY\"."
         fi
     done
@@ -323,26 +318,6 @@ zulipConfiguration() {
     fi
     echo "Zulip configuration succeeded."
 }
-log2zulipConfiguration() {
-    if [ "$LOG2ZULIP_ENABLED" != "True" ] || [ "$LOG2ZULIP_ENABLED" != "true" ]; then
-        rm -f /etc/cron/conf.d/log2zulip
-        echo "Log2Zulip is disabled."
-        return 0
-    fi
-    echo "Executing Log2Zulip configuration ..."
-    if ([ "$LOG2ZULIP_AUTO_CREATE" != "True" ] || [ "$LOG2ZULIP_AUTO_CREATE" != "true" ]) && [ ! -z "$LOG2ZULIP_EMAIL" ] && [ ! -z "$LOG2ZULIP_API_KEY" ] && [ ! -z "$LOG2ZULIP_SITE" ]; then
-        sed -i "s/email = .*/email = $LOG2ZULIP_EMAIL/g" /etc/log2zulip.zuliprc
-        sed -i "s/key = .*/key = $LOG2ZULIP_API_KEY/g" /etc/log2zulip.zuliprc
-        sed -i "s/site = .*/site = $LOG2ZULIP_SITE/g" /etc/log2zulip.zuliprc
-        LOGFILES="["
-        echo "$LOG2ZULIP_LOGFILES" | sed -n 1'p' | tr ',' '\n' | while read LOG_FILE; do
-            LOGFILES="$LOGFILES\"${LOG_FILE//\"/\"}\","
-            echo "Adding log file \"$LOG_FILE\"."
-        done
-        echo "$(echo "$LOGFILES" | sed 's/,$//g')]" > /etc/log2zulip.conf
-    fi
-    echo "Log2Zulip configuration succeeded."
-}
 autoBackupConfiguration() {
     if [ "$AUTO_BACKUP_ENABLED" != "True" ] || [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
         rm -f /etc/cron.d/autobackup
@@ -364,7 +339,6 @@ initialConfiguration() {
     rabbitmqConfiguration
     camoConfiguration
     zulipConfiguration
-    log2zulipConfiguration
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
 }
@@ -417,21 +391,16 @@ bootstrapRabbitMQ() {
 }
 userCreationConfiguration() {
     echo "Executing Zulip user creation script ..."
-    if [ "$ZULIP_USER_CREATION_ENABLED" != "True" ] || [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]; then
+    if ([ "$ZULIP_USER_CREATION_ENABLED" != "True" ] || [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
         rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
-        echo "Disabled Zulip user creation."
+        echo "Zulip user creation disabled."
         return 0
     fi
-    if [ -e "$DATA_DIR/.initiated" ]; then
-        rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
-        echo "Zulip user already created. Initiated dotfile found."
-        return 0
-    fi
-    echo "Enabled Zulip user creation."
+    echo "Zulip user creation left enabled."
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if [ -z "$FORCE_FIRST_START_INIT" ] || [ -e "$DATA_DIR/.initiated" ]; then
+    if ([ "$FORCE_FIRST_START_INIT" != "True" ] || [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
         echo "First Start Init not needed."
         return 0
     fi
