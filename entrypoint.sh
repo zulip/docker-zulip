@@ -23,7 +23,7 @@ RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
 RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-zulip}"
 RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
 RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
-ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $RABBITMQ_PASS)}"
+export ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $RABBITMQ_PASS)}"
 unset RABBITMQ_PASSWORD RABBITMQ_PASS
 # Redis
 REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
@@ -38,7 +38,7 @@ NGINX_WORKERS="${NGINX_WORKERS:-1}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-20m}"
 # Zulip certifcate parameters
-ZULIP_AUTO_GENERATE_CERTS="${ZULIP_AUTO_GENERATE_CERTS:True}"
+ZULIP_AUTO_GENERATE_CERTS="${ZULIP_AUTO_GENERATE_CERTS:-True}"
 ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
 ZULIP_CERTIFICATE_C="${ZULIP_CERTIFICATE_C:-US}"
 ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
@@ -406,9 +406,9 @@ bootstrapRabbitMQ() {
     echo "RabbitMQ adding user \"$RABBITMQ_USERNAME\"."
     rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$ZULIP_SECRETS_rabbitmq_password" 2> /dev/null || :
     echo "RabbitMQ setting user tags for \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
     echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
     echo "RabbitMQ bootstrap succeeded."
 }
 zulipFirstStartInit() {
