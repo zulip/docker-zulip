@@ -4,7 +4,6 @@ database:
     DB_NAME: zulip
     DB_USER: zulip
     DB_PASS: zulip
-    DB_ROOT_PASS: "zulip"
   volumes:
     - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql:rw"
 memcached:
@@ -41,9 +40,6 @@ zulip:
     REDIS_HOST: "redis"
     RABBITMQ_HOST: "rabbitmq"
     RABBITMQ_PASS: "zulip"
-    ZULIP_USER_EMAIL: "example@example.com"
-    ZULIP_USER_PASS: "zulip"
-    ZULIP_USER_DOMAIN: "example.com"
     ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
     ZULIP_SECRETS_email_password: "12345"
     ZULIP_SETTINGS_EXTERNAL_HOST: "example.com"
@@ -53,5 +49,8 @@ zulip:
     ZULIP_SETTINGS_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
     ZULIP_SETTINGS_EMAIL_HOST: "smtp.example.com"
     ZULIP_SETTINGS_EMAIL_HOST_USER: "noreply@example.com"
+    ZULIP_USER_EMAIL: "example@example.com"
+    ZULIP_USER_PASS: "zulip"
+    ZULIP_USER_DOMAIN: "example.com"
   volumes:
     - "/opt/docker/zulip/zulip:/data:rw"
