@@ -18,7 +18,7 @@ except Realm.DoesNotExist:
     raise CommandError("Realm/Domain does not exist.")
 
 try:
-    create_user('$ZULIP_USER_EMAIL', '$ZULIP_USER_PASS', realm, '$ZULIP_USER_FULLNAME', email_to_username(email))
+    create_user('$ZULIP_USER_EMAIL', '$ZULIP_USER_PASS', realm, '$ZULIP_USER_FULLNAME', email_to_username('$ZULIP_USER_EMAIL'))
 except:
     pass
 

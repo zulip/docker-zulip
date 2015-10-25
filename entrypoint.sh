@@ -362,16 +362,15 @@ bootstrapDatabase() {
     echo "(Re)creating database structure ..."
     export PGPASSWORD="$DB_PASS"
     echo """
-    CREATE USER zulip;
-    ALTER ROLE zulip SET search_path TO zulip,public;
-    CREATE DATABASE zulip OWNER=zulip;
-    CREATE SCHEMA zulip AUTHORIZATION zulip;
+    ALTER ROLE $DB_USER SET search_path TO zulip,public;
+    CREATE DATABASE $DB_NAME OWNER=$DB_USER;
+    CREATE SCHEMA $DB_NAME AUTHORIZATION $DB_USER;
     """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
     if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
         echo "DB_ROOT_USER given, creating extension tsearch_extras"
         export PGPASSWORD="$DB_ROOT_PASS"
-        echo "CREATE EXTENSION tsearch_extras SCHEMA zulip;" | \
-        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "zulip" || :
+        echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_NAME;" | \
+        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
         unset
     fi
     unset PGPASSWORD
