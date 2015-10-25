@@ -195,9 +195,10 @@ secretsConfiguration() {
         echo "Generating Zulip secrets ..."
         /root/zulip/scripts/setup/generate_secrets.py
         mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
-        echo "Zulip secrets generation succeeded."
+        echo "Secrets generation succeeded."
     else
-        echo "Zulip secrets already generated."
+        rm -rf /etc/zulip/zulip-secrets.con
+        echo "Secrets already generated."
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
     set +e
