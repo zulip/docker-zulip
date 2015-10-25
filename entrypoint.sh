@@ -12,10 +12,10 @@ DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_SCHEMA="${DB_SCHEMA:-zulip}"
 DB_USER="${DB_USER:-zulip}"
-DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
-DB_ROOT_PASS="${DB_ROOT_PASS:-}"
 DB_PASSWORD="${DB_PASSWORD:-zulip}"
 DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
+DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
+DB_ROOT_PASS="${DB_ROOT_PASS:$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
 RABBITMQ_SETUP="${RABBITMQ_SETUP:-True}"
@@ -360,18 +360,18 @@ waitingForDatabase() {
 }
 bootstrapDatabase() {
     echo "(Re)creating database structure ..."
-    export PGPASSWORD="$DB_PASS"
-    echo """
-    ALTER ROLE $DB_USER SET search_path TO zulip,public;
-    CREATE DATABASE $DB_NAME OWNER=$DB_USER;
-    CREATE SCHEMA $DB_NAME AUTHORIZATION $DB_USER;
-    """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
+    export PGPASSWORD="$DB_ROOT_PASS"
     if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
-        echo "DB_ROOT_USER given, creating extension tsearch_extras"
-        export PGPASSWORD="$DB_ROOT_PASS"
-        echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_NAME;" | \
+        echo "Setting up the database, schema and user ..."
+        echo """
+        CREATE USER $DB_USER;
+        ALTER ROLE $DB_USER SET search_path TO zulip,public;
+        CREATE DATABASE $DB_NAME OWNER=$DB_USER;
+        CREATE SCHEMA $DB_SCHEMA AUTHORIZATION $DB_USER;
+        """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
+        echo "Creating tsearch_extras extension ..."
+        echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_SCHEMA;" | \
         psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
-        unset
     fi
     unset PGPASSWORD
     echo "Database structure recreated."
