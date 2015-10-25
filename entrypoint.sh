@@ -129,18 +129,17 @@ setConfigurationValue() {
         ;;
     esac
     echo "$VALUE" >> "$FILE"
-    echo "Setting key \"$KEY\" with value \"$VALUE\"."
+    echo "Setting key \"$KEY\", type \"$TYPE\"."
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
-    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/app
+    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
     echo "Nginx configuration succeeded."
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
-    echo "==="
     case "$ZULIP_AUTO_GENERATE_CERTS" in
         [Tt][Rr][Uu][Ee])
         ZULIP_AUTO_GENERATE_CERTS="True"
@@ -167,7 +166,6 @@ configureCerts() {
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
                     if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
                         echo "Certificates generation failed. \"ZULIP_CERTIFICATE_CN\" and as fallback \"ZULIP_SETTINGS_EXTERNAL_HOST\" not given."
-                        echo "==="
                         echo "Certificates configuration failed."
                         exit 1
                     fi
@@ -187,22 +185,18 @@ configureCerts() {
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
         echo "No zulip.key given in $DATA_DIR."
-        echo "==="
         echo "Certificates configuration failed."
         exit 1
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
         echo "No zulip.combined-chain.crt given in $DATA_DIR."
-        echo "==="
         echo "Certificates configuration failed."
         exit 1
     fi
-    echo "==="
     echo "Certificates configuration succeeded."
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
-    echo "==="
     if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
         /root/zulip/scripts/setup/generate_secrets.py
@@ -232,7 +226,6 @@ secretsConfiguration() {
     done
     set -e
     unset SECRET_KEY SECRET_VAR KEY
-    echo "==="
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
@@ -312,7 +305,6 @@ camoConfiguration() {
 }
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
-    echo "==="
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
         echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZPROJECT_SETTINGS"
     fi
@@ -331,16 +323,15 @@ zulipConfiguration() {
         echo "Error in Zulip configuration."
         exit 1
     fi
-    echo "==="
     echo "Zulip configuration succeeded."
 }
 log2zulipConfiguration() {
     if [ "$LOG2ZULIP_ENABLED" != "True" ] || [ "$LOG2ZULIP_ENABLED" != "true" ]; then
         rm -f /etc/cron/conf.d/log2zulip
+        echo "Log2Zulip is disabled."
         return 0
     fi
     echo "Executing Log2Zulip configuration ..."
-    echo "==="
     if ([ "$LOG2ZULIP_AUTO_CREATE" != "True" ] || [ "$LOG2ZULIP_AUTO_CREATE" != "true" ]) && [ ! -z "$LOG2ZULIP_EMAIL" ] && [ ! -z "$LOG2ZULIP_API_KEY" ] && [ ! -z "$LOG2ZULIP_SITE" ]; then
         sed -i "s/email = .*/email = $LOG2ZULIP_EMAIL/g" /etc/log2zulip.zuliprc
         sed -i "s/key = .*/key = $LOG2ZULIP_API_KEY/g" /etc/log2zulip.zuliprc
@@ -352,7 +343,6 @@ log2zulipConfiguration() {
         done
         echo "$(echo "$LOGFILES" | sed 's/,$//g')]" > /etc/log2zulip.conf
     fi
-    echo "==="
     echo "Log2Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
@@ -398,7 +388,6 @@ waitingForDatabase() {
 }
 bootstrapDatabase() {
     echo "(Re)creating database structure ..."
-    echo "==="
     export PGPASSWORD="$DB_PASS"
     echo """
     CREATE USER zulip;
@@ -414,76 +403,66 @@ bootstrapDatabase() {
         unset
     fi
     unset PGPASSWORD
-    echo "==="
     echo "Database structure recreated."
 }
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
-    echo "==="
     echo "RabbitMQ deleting user \"guest\"."
-    rabbitmqctl -n "$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
     echo "RabbitMQ adding user \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$ZULIP_SECRETS_rabbitmq_password" 2> /dev/null || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$ZULIP_SECRETS_rabbitmq_password" 2> /dev/null || :
     echo "RabbitMQ setting user tags for \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator || :
     echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' 2> /dev/null || :
-    echo "==="
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_permissions -p / "$RABBITMQ_USERNAME" '.*' '.*' '.*' || :
     echo "RabbitMQ bootstrap succeeded."
 }
 zulipFirstStartInit() {
+    echo "Executing Zulip first start init ..."
     if [ -z "$FORCE_FIRST_START_INIT" ] || [ -e "$DATA_DIR/.initiated" ]; then
         echo "First Start Init not needed."
         return 0
     fi
-    echo "Executing Zulip first start init ..."
-    echo "==="
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
         local RETURN_CODE=$?
-        echo "==="
         echo "Zulip first start init failed in \"migrate --noinput\". with exit code $RETURN_CODE"
         exit $RETURN_CODE
     fi
     echo "Creating Zulip cache and third_party_api_results tables ..."
     if ! su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results"; then
         local RETURN_CODE=$?
-        echo "==="
         echo "Zulip first start init failed in \"createcachetable third_party_api_results\" with exit code $RETURN_CODE."
         exit $RETURN_CODE
     fi
     echo "Initializing Zulip Voyager database ..."
     if ! su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db"; then
         local RETURN_CODE=$?
-        echo "==="
         echo "Zulip first start init failed in \"initialize_voyager_db\" with exit code $RETURN_CODE."
         exit $RETURN_CODE
     fi
     set -e
-    echo "==="
     echo "Zulip first start init sucessful."
 }
 zulipMigration() {
+    echo "Migrating Zulip to new version ..."
     if [ -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
         echo "No Zulip migration needed. Continuing."
         return 0
     fi
-    echo "Migrating Zulip to new version ..."
-    echo "==="
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         local RETURN_CODE=$?
-        echo "==="
         echo "Zulip migration failed."
         exit $RETURN_CODE
     fi
     set -e
     rm -rf "$DATA_DIR/.zulip-*"
     touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
-    echo "==="
     echo "Zulip migration succeeded."
 }
 runPostSetupScripts() {
+    echo "Post setup scripts execution ..."
     if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] || [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
         echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
         return 0
@@ -497,8 +476,6 @@ runPostSetupScripts() {
         echo "No post setup scripts found in \"$DATA_DIR/post-setup.d/\"."
         return 0
     fi
-    echo "Post setup scripts execution ..."
-    echo "==="
     set +e
     for FILE in *; do
         if [ -x "$FILE" ]; then
@@ -507,13 +484,11 @@ runPostSetupScripts() {
             echo "Executed \"$FILE\". Return code $?."
         else
             echo "Permissions denied for \"$FILE\". Please check the permissions."
-            echo "==="
             echo "Post setup scripts execution failed. Exiting."
             exit 1
         fi
     done
     set -e
-    echo "==="
     echo "Post setup scripts execution succeeded."
 }
 bootstrappingEnvironment() {
@@ -533,7 +508,7 @@ appRun() {
     bootstrappingEnvironment
     echo "=== Begin Run Phase ==="
     echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" ..."
-    echo "==="
+    echo ""
     exec supervisord -c "/etc/supervisor/supervisord.conf"
 }
 appManagePy() {
@@ -544,17 +519,14 @@ appManagePy() {
         COMMAND="shell"
     fi
     echo "Running manage.py ..."
-    echo "==="
     set +e
     su zulip -c "/home/zulip/deployments/current/manage.py $COMMAND $*"
     exit $?
 }
 appBackup() {
     echo "Starting backup process ..."
-    echo "==="
     if [ -d "/tmp/backup-$(date "%D-%H-%M-%S")" ]; then
         echo "Temporary backup folder for \"$(date "%D-%H-%M-%S")\" already exists. Aborting."
-        echo "==="
         echo "Backup process failed."
         exit 1
     fi
@@ -565,16 +537,13 @@ appBackup() {
     pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
     tar -zcvf "$DATA_DIR/backups/backup-$(date "%D-%H-%M-%S").tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
-    echo "==="
     echo "Backup process succeeded."
     exit 0
 }
 appRestore() {
     echo "Starting restore process ..."
-    echo "==="
     if [ "$(ls -A "$DATA_DIR/backups/")" ]; then
         echo "No backups to restore found in \"$DATA_DIR/backups/\"."
-        echo "==="
         echo "Restore process failed."
         exit 1
     fi
@@ -595,11 +564,11 @@ appRestore() {
     done
     echo "File \"$BACKUP_FILE\" found."
     echo ""
-    echo "=============================================================="
+    echo "==============================================================="
     echo "!! WARNING !! Your current data will be deleted!"
     echo "!! WARNING !! YOU HAVE BEEN WARNED! You can abort with \"CTRL+C\"."
     echo "!! WARNING !! Waiting 10 seconds before continuing ..."
-    echo "=============================================================="
+    echo "==============================================================="
     echo ""
     local TIMEOUT=10
     while true; do
@@ -615,7 +584,6 @@ appRestore() {
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
     psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename  | cut -d. -f1)/"
-    echo "==="
     echo "Restore process succeeded."
     exit 0
 }

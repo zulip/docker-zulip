@@ -39,7 +39,7 @@ location /api/v1/events {
 
     proxy_pass http://tornado;
     include /etc/nginx/zulip-include/proxy_longpolling;
-    proxy_buffering                  on;
+
     proxy_set_header X-Real-IP       $remote_addr;
 }
 
