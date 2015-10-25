@@ -271,10 +271,10 @@ authenticationBackends() {
     local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS = ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
+            setConfigurationValue "" "AUTHENTICATION_BACKENDS = ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZPROJECT_SETTINGS" "literal"
             local FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZPROJECT_SETTINGS" "literal"
+            setConfigurationValue "" "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZPROJECT_SETTINGS" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
