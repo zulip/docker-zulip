@@ -133,9 +133,9 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
-    sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;" /etc/nginx/nginx.conf
-    sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;" /etc/nginx/nginx.conf
-    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;" /etc/nginx/zulip-include/app
+    sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
+    sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
+    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/app
     echo "Nginx configuration succeeded."
 }
 configureCerts() {
