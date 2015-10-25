@@ -6,8 +6,12 @@ ENV ZULIP_VERSION="1.3.7" ZULIP_CHECKSUM="88bfa668eb14e07b0b806977db2ae2cd4d7e7e
 ADD entrypoint.sh /entrypoint.sh
 ADD zulip-puppet /root/zulip-puppet
 
-RUN apt-get -qq update -q && \
-    apt-get -qq dist-upgrade -y && \
+RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
+    apt-key add /root/zulip-ppa.asc && \
+    echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
+    echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
+    apt-get -qq update && \
+    apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install -y puppet tar git openssl python-dev python-six python-pbs && \
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
     wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -P "/tmp" && \

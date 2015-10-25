@@ -23,7 +23,7 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ## How to get the container:
 ### For docker use:
-`docker pull quay.io/galexrt/zulip:1.3.7`
+`docker pull quay.io/galexrt/zulip:1.3.7-1`
 
 ### For the latest development image changes use:
 `docker pull quay.io/galexrt/zulip:dev`
