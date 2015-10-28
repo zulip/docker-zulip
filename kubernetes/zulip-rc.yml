@@ -43,12 +43,6 @@ spec:
           value: "zulip"
         - name: RABBITMQ_DEFAULT_PASS
           value: "zulip"
-      - name: camo
-        image: quay.io/galexrt/camo:latest
-        resources:
-        limits:
-          cpu: 75m
-          memory: 512Mi
       - name: postgresql
         image: quay.io/galexrt/zulip-postgresql-tsearchextras:latest
         resources:

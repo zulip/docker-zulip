@@ -16,9 +16,6 @@ rabbitmq:
   environment:
       RABBITMQ_DEFAULT_USER: "zulip"
       RABBITMQ_DEFAULT_PASS: "zulip"
-camo:
-  image: "quay.io/galexrt/camo:latest"
-  restart: always
 redis:
   image: "quay.io/sameersbn/redis:latest"
   volumes:
@@ -32,7 +29,6 @@ zulip:
     - database
     - memcached
     - rabbitmq
-    - camo
     - redis
   environment:
     DB_HOST: "database"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINERS=(zulip_database zulip_memcached zulip_rabbitmq zulip_camo zulip_redis zulip_zulip)
+CONTAINERS=(zulip_database zulip_memcached zulip_rabbitmq zulip_redis zulip_zulip)
 for CONTAINER_NAME in $"${CONTAINERS[@]}";
 do
     docker stop "$CONTAINER_NAME"
@@ -29,11 +29,6 @@ docker run \
     docker.io/rabbitmq:3.5.5
 docker run \
     -d \
-    --name=zulip_camo \
-    --restart=always \
-    quay.io/galexrt/camo:latest
-docker run \
-    -d \
     --name=zulip_redis \
     -v /opt/docker/zulip/redis:/var/lib/redis:rw \
     quay.io/galexrt/camo:latest
@@ -44,7 +39,6 @@ docker run \
     --link=zulip_database:database \
     --link=zulip_memcached:memcached \
     --link=zulip_rabbitmq:rabbitmq \
-    --link=zulip_camo:camo \
     --link=zulip_redis:redis \
     -p 80:80 \
     -p 443:443 \
