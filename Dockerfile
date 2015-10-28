@@ -16,7 +16,7 @@ RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && 
     mkdir -p "/root/zulip" "/etc/zulip" "$DATA_DIR" && \
     echo "[machine]\npuppet_classes = zulip::voyager\ndeploy_type = voyager" > /etc/zulip/zulip.conf && \
     cd /root/zulip && \
-    git clone https://github.com/zulip/zulip.git && \
+    git clone https://github.com/zulip/zulip.git . && \
     git checkout "$ZULIP_VERSION" && \
     mv -f /root/puppet-zulip /root/zulip/puppet/zulip && \
     /root/zulip/scripts/zulip-puppet-apply -f && \
