@@ -157,6 +157,6 @@ class zulip::app_frontend {
     owner => "root",
     group => "root",
     mode => 644,
-    source => "puppet:///modules/zulip/cron.d/clearsessions",
+    source => "puppet:///modules/zulip_internal/cron.d/clearsessions",
   }
 }
