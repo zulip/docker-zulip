@@ -18,6 +18,7 @@ RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && 
     cd /root/zulip && \
     git clone https://github.com/zulip/zulip.git . && \
     git checkout "$ZULIP_VERSION" && \
+    rm -rf /root/zulip/puppet/zulip/manifests && \
     mv -f /root/puppet-zulip /root/zulip/puppet/zulip && \
     /root/zulip/scripts/zulip-puppet-apply -f && \
     cp -fa /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
