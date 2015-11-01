@@ -4,7 +4,7 @@ MAINTAINER Alexander Trost <galexrt@googlemail.com>
 ENV ZULIP_VERSION="master" DATA_DIR="/data"
 
 ADD entrypoint.sh /entrypoint.sh
-ADD puppet/zulip /root/puppet-zulip
+ADD puppet/zulip/ /root/puppet-zulip
 
 RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && \
     apt-key add /root/zulip-ppa.asc && \
@@ -19,7 +19,8 @@ RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && 
     git clone https://github.com/zulip/zulip.git . && \
     git checkout "$ZULIP_VERSION" && \
     rm -rf /root/zulip/puppet/zulip/manifests /root/zulip/puppet/zulip_internal/manifests && \
-    mv -f /root/puppet-zulip/* /root/zulip/puppet/zulip && \
+    mv -f /root/puppet-zulip/manifests /root/zulip/puppet/zulip && \
+    mv -f /root/puppet-zulip/files/* /root/zulip/puppet/zulip/files && \
     rm -rf /root/puppet-zulip && \
     /root/zulip/scripts/zulip-puppet-apply -f && \
     cp -fa /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py && \
