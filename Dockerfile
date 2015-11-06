@@ -29,8 +29,6 @@ RUN wget -q -O /root/zulip-ppa.asc https://zulip.com/dist/keys/zulip-ppa.asc && 
     ln -nsf "$ZULIP_DEPLOY_PATH" "/home/zulip/deployments/next" && \
     ln -nsf "$ZULIP_DEPLOY_PATH" "/home/zulip/deployments/current" && \
     ln -nsf /etc/zulip/settings.py "$ZULIP_DEPLOY_PATH/zproject/local_settings.py" && \
-    /root/zulip/tools/update-prod-static && \
-    cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "/home/zulip/prod-static" && \
     chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
