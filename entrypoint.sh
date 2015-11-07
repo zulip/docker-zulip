@@ -69,23 +69,25 @@ ZULIP_SETTINGS="/etc/zulip/settings.py"
 # === initialConfiguration ===
 prepareDirectories() {
     if [ ! -d "$DATA_DIR/backups" ]; then
-        mkdir -p "$DATA_DIR/backups" || :
+        echo "Creating backups folder ..."
+        mkdir -p "$DATA_DIR/backups"
+        echo "Created backups folder."
     fi
     if [ ! -d "$DATA_DIR/certs" ]; then
-        mkdir -p "$DATA_DIR/certs" || :
+        echo "Creating certs folder ..."
+        mkdir -p "$DATA_DIR/certs"
+        echo "Created certs folder."
     fi
     if [ ! -d "$DATA_DIR/uploads" ]; then
-        mkdir -p "$DATA_DIR/uploads" || :
-        if [ -d /home/zulip/uploads ]; then
-            mv -f /home/zulip/uploads "$DATA_DIR/uploads"
-        else
-            mkdir -p /home/zulip/uploads || :
-        fi
-    else
-        rm -rf /home/zulip/uploads
+        echo "Creating uploads folder ..."
+        mkdir -p "$DATA_DIR/uploads"
+        echo "Created uploads folder."
     fi
+    echo "Preparing and linking the uploads folder ..."
+    rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
+    echo "Prepared and linked the uploads directory."
 }
 setConfigurationValue() {
     if [ -z "$1" ]; then
@@ -330,6 +332,7 @@ autoBackupConfiguration() {
 }
 initialConfiguration() {
     echo "=== Begin Initial Configuration Phase ==="
+    prepareDirectories
     nginxConfiguration
     configureCerts
     secretsConfiguration
@@ -487,7 +490,6 @@ bootstrappingEnvironment() {
 }
 # END appRun functionss
 appRun() {
-    prepareDirectories
     initialConfiguration
     bootstrappingEnvironment
     echo "=== Begin Run Phase ==="
