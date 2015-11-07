@@ -406,13 +406,6 @@ zulipFirstStartInit() {
         echo "First Start Init not needed."
         return 0
     fi
-    if [ ! -d "/home/zulip/prod-static" ] || [ "$(ls -A "/home/zulip/prod-static/")" ]; then
-      echo "Generating static files ..."
-      /root/zulip/tools/update-prod-static
-      mkdir -f "/home/zulip/prod-static"
-      cp -rfT "$ZULIP_DEPLOY_PATH/prod-static/serve" "/home/zulip/prod-static"
-      echo "Static files generated."
-    fi
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
         local RETURN_CODE=$?
