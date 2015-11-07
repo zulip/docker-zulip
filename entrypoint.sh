@@ -500,7 +500,7 @@ appRun() {
     echo "=== Begin Run Phase ==="
     echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" ..."
     echo ""
-    exec supervisord -c "/etc/supervisor/supervisord.conf"
+    exec supervisord -n -c "/etc/supervisor/supervisord.conf"
 }
 appManagePy() {
     COMMAND="$1"
