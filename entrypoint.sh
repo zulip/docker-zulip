@@ -201,7 +201,7 @@ secretsConfiguration() {
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
     set +e
-    local SECRETS=($(env | sed -nr "s/ZULIP_SECRETS_([A-Z_a-z-]*).*/\1/p"))
+    local SECRETS=($(env | sed -nr "s/ZULIP_SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
         local KEY="ZULIP_SECRETS_$SECRET_KEY"
         local SECRET_VAR="${!KEY}"
@@ -313,7 +313,7 @@ zulipConfiguration() {
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
         echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZPROJECT_SETTINGS"
     fi
-    local SET_SETTINGS=($(env | sed -n -r "s/ZULIP_SETTINGS_([A-Z_]*).*/\1/p"))
+    local SET_SETTINGS=($(env | sed -n -r "s/ZULIP_SETTINGS_([0-9A-Za-z_]*).*/\1/p"))
     for SETTING_KEY in "${SET_SETTINGS[@]}"; do
         local KEY="ZULIP_SETTINGS_$SETTING_KEY"
         local SETTING_VAR="${!KEY}"
