@@ -278,7 +278,7 @@ authenticationBackends() {
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
-    # Setup LDAP Auth if set
+    echo "Setting LDAP settings if set ..."
     if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
         setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "/etc/zulip/settings.py" "array"
     fi
@@ -289,6 +289,7 @@ authenticationBackends() {
         setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "/etc/zulip/settings.py" "array"
     fi
     unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
+    echo "LDAP settings set."
 }
 redisConfiguration() {
     echo "Setting redis configuration ..."
