@@ -288,7 +288,7 @@ authenticationBackends() {
     if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
         setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "/etc/zulip/settings.py" "array"
     fi
-    unset LDAP_SETTINGS_HERE
+    unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
 }
 redisConfiguration() {
     echo "Setting redis configuration ..."
