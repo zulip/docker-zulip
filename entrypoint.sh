@@ -59,11 +59,8 @@ unset ZULIP_USER_PASSWORD
 # Auto backup settings
 AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
-
-# entrypoint.sh specific variables
-ZULIP_CURRENT_DEPLOY="/home/zulip/deployments/current"
-ZPROJECT_SETTINGS="$ZULIP_CURRENT_DEPLOY/zproject/settings.py"
-ZULIP_SETTINGS="/etc/zulip/settings.py"
+# entrypoint.sh specific variable(s)
+ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -273,14 +270,26 @@ authenticationBackends() {
     local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZULIP_SETTINGS" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "/etc/zulip/settings.py" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZULIP_SETTINGS" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "/etc/zulip/settings.py" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
+    echo "Setting LDAP settings if set ..."
+    if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
+        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "/etc/zulip/settings.py" "array"
+    fi
+    if [ -z "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" ]; then
+        setConfigurationValue "LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" "/etc/zulip/settings.py" "string"
+    fi
+    if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
+        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "/etc/zulip/settings.py" "array"
+    fi
+    unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
+    echo "LDAP settings set."
 }
 redisConfiguration() {
     echo "Setting redis configuration ..."
@@ -292,7 +301,7 @@ redisConfiguration() {
 rabbitmqConfiguration() {
     echo "Setting rabbitmq configuration ..."
     setConfigurationValue "RABBITMQ_HOST" "$RABBITMQ_HOST" "$ZPROJECT_SETTINGS"
-    sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "$ZULIP_CURRENT_DEPLOY/zerver/lib/queue.py"
+    sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "/home/zulip/deployments/current/zerver/lib/queue.py"
     setConfigurationValue "RABBITMQ_USERNAME" "$RABBITMQ_USERNAME" "$ZPROJECT_SETTINGS"
     echo "Rabbitmq configuration succeeded."
 }
