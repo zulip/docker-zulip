@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.3.7" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.3.9" DATA_DIR="/data"
 
 ADD entrypoint.sh /entrypoint.sh
 ADD puppet/zulip/ /root/puppet-zulip
