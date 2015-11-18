@@ -279,13 +279,13 @@ authenticationBackends() {
     done
     echo "Authentication backend activation succeeded."
     echo "Setting LDAP settings if set ..."
-    if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
+    if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
         setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "/etc/zulip/settings.py" "array"
     fi
-    if [ -z "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" ]; then
+    if [ ! -z "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" ]; then
         setConfigurationValue "LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" "/etc/zulip/settings.py" "string"
     fi
-    if [ -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
+    if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
         setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "/etc/zulip/settings.py" "array"
     fi
     unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
