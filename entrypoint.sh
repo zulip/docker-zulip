@@ -49,9 +49,10 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Zulip user setup
+export FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
 export ZULIP_USER_CREATION_ENABLED="${ZULIP_USER_CREATION_ENABLED:-True}"
 export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTERNAL_HOST)}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTwERNAL_HOST)}"
 export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
 ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
 export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
@@ -65,6 +66,9 @@ ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 # BEGIN appRun functions
 # === initialConfiguration ===
 prepareDirectories() {
+    if [ ! -d "$DATA_DIR" ]; then
+        mkdir -p "$DATA_DIR"
+    fi
     if [ ! -d "$DATA_DIR/backups" ]; then
         echo "Creating backups folder ..."
         mkdir -p "$DATA_DIR/backups"
@@ -373,9 +377,9 @@ waitingForDatabase() {
 }
 bootstrapDatabase() {
     echo "(Re)creating database structure ..."
-    export PGPASSWORD="$DB_ROOT_PASS"
     if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
         echo "Setting up the database, schema and user ..."
+        export PGPASSWORD="$DB_ROOT_PASS"
         echo """
         CREATE USER $DB_USER;
         ALTER ROLE $DB_USER SET search_path TO zulip,public;
@@ -385,11 +389,11 @@ bootstrapDatabase() {
         echo "Creating tsearch_extras extension ..."
         echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_SCHEMA;" | \
         psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
+        unset PGPASSWORD
         echo "Database structure recreated."
     else
         echo "No database root user nor password given. Not (re)creating database structure."
     fi
-    unset PGPASSWORD
 }
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
@@ -415,7 +419,7 @@ userCreationConfiguration() {
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
     if ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
-        echo "First Start Init not needed."
+        echo "First Start Init not needed. Continuing."
         return 0
     fi
     set +e
@@ -449,7 +453,7 @@ zulipMigration() {
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         local RETURN_CODE=$?
-        echo "Zulip migration failed."
+        echo "Zulip migration failed with exit code $RETURN_CODE."
         exit $RETURN_CODE
     fi
     set -e
@@ -510,7 +514,7 @@ appManagePy() {
     COMMAND="$1"
     shift 1
     if [ -z "$COMMAND" ]; then
-        echo "No command given for manage.py. Defaulting to \"shell\""
+        echo "No command given for manage.py. Defaulting to \"shell\"."
         COMMAND="shell"
     fi
     echo "Running manage.py ..."
