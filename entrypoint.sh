@@ -130,7 +130,7 @@ setConfigurationValue() {
         ;;
     esac
     echo "$VALUE" >> "$FILE"
-    echo "Setting key \"$KEY\", type \"$TYPE\"."
+    echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
