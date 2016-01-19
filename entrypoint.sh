@@ -325,7 +325,13 @@ zulipConfiguration() {
             echo "Empty var for key \"$SETTING_KEY\"."
             continue
         fi
-        setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$ZPROJECT_SETTINGS"
+        # Zulip settings.py / zproject specific overrides here
+        if [ "$SETTING_KEY" = "ADMIN_DOMAIN" ]; then
+           FILE="/etc/zulip/settings.py" 
+        else
+            FILE="$ZPROJECT_SETTINGS"
+        fi
+        setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$FILE"
     done
     unset SETTING_KEY SETTING_VAR KEY
     if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
