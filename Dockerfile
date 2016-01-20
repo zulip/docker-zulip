@@ -9,7 +9,6 @@ ADD puppet/zulip/ /root/puppet-zulip
 RUN wget -qO - https://zulip.com/dist/keys/zulip-ppa.asc | \
     apt-key add - && \
     echo "deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" > /etc/apt/sources.list.d/zulip.list && \
-    echo "deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main" >> /etc/apt/sources.list.d/zulip.list && \
     apt-get -qq update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y puppet git python-dev python-six python-pbs && \
