@@ -18,21 +18,20 @@ DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
-RABBITMQ_SETUP="${RABBITMQ_SETUP:-True}"
-RABBITMQ_HOST="${RABBITMQ_HOST:-127.0.0.1}"
-RABBITMQ_USERNAME="${RABBITMQ_USERNAME:-zulip}"
-RABBITMQ_PASSWORD="${RABBITMQ_PASSWORD:-zulip}"
-RABBITMQ_PASS="${RABBITMQ_PASS:-$(echo $RABBITMQ_PASSWORD)}"
-export ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $RABBITMQ_PASS)}"
-unset RABBITMQ_PASSWORD RABBITMQ_PASS
+ZULIP_SETTINGS_RABBITMQ_HOST="${ZULIP_SETTINGS_RABBITMQ_HOST:-127.0.0.1}"
+ZULIP_SETTINGS_RABBITMQ_USERNAME="${ZULIP_SETTINGS_RABBITMQ_USERNAME:-zulip}"
+ZULIP_SETTINGS_RABBITMQ_PASSWORD="${ZULIP_SETTINGS_RABBITMQ_PASSWORD:-zulip}"
+ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $ZULIP_SETTINGS_RABBITMQ_PASSWORD)}"
+unset ZULIP_SETTINGS_RABBITMQ_PASSWORD
 # Redis
-REDIS_RATE_LIMITING="${REDIS_RATE_LIMITING:-True}"
-REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
-REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
+ZULIP_SETTINGS_RATE_LIMITING="${ZULIP_SETTINGS_RATE_LIMITING:-True}"
+ZULIP_SETTINGS_REDIS_HOST="${ZULIP_SETTINGS_REDIS_HOST:-127.0.0.1}"
+ZULIP_SETTINGS_REDIS_PORT="${ZULIP_SETTINGS_REDIS_PORT:-6379}"
 # Memcached
-MEMCACHED_HOST="${MEMCACHED_HOST:-127.0.0.1}"
-MEMCACHED_HOST_PORT="${MEMCACHED_HOST_PORT:-11211}"
-MEMCACHED_TIMEOUT="${MEMCACHED_TIMEOUT:-3600}"
+ZULIP_SETTINGS_MEMCACHED_HOST="${ZULIP_SETTINGS_MEMCACHED_HOST:-127.0.0.1}"
+ZULIP_SETTINGS_MEMCACHED_HOST_PORT="${ZULIP_SETTINGS_MEMCACHED_HOST_PORT:-11211}"
+ZULIP_SETTINGS_MEMCACHED_LOCATION="${:-$(echo $ZULIP_SETTINGS_MEMCACHED_HOST:$ZULIP_SETTINGS_MEMCACHED_HOST_PORT)}"
+unset ZULIP_SETTINGS_MEMCACHED_HOST ZULIP_SETTINGS_MEMCACHED_HOST_PORT
 # Nginx settings
 NGINX_WORKERS="${NGINX_WORKERS:-1}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
@@ -62,6 +61,7 @@ AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
+ZULIP_SETTINGS="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -143,14 +143,14 @@ configureCerts() {
     echo "Exectuing certificates configuration..."
     case "$ZULIP_AUTO_GENERATE_CERTS" in
         [Tt][Rr][Uu][Ee])
-        ZULIP_AUTO_GENERATE_CERTS="True"
+            ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
         [Ff][Aa][Ll][Ss][Ee])
-        ZULIP_AUTO_GENERATE_CERTS="False"
+            ZULIP_AUTO_GENERATE_CERTS="False"
         ;;
         *)
-        echo "Defaulting \"ZULIP_AUTO_GENERATE_CERTS\" to \"True\". Couldn't parse if \"True\" or \"False\"."
-        ZULIP_AUTO_GENERATE_CERTS="True"
+            echo "Defaulting \"ZULIP_AUTO_GENERATE_CERTS\" to \"True\". Couldn't parse if \"True\" or \"False\"."
+            ZULIP_AUTO_GENERATE_CERTS="True"
         ;;
     esac
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
@@ -250,23 +250,7 @@ databaseConfiguration() {
 }
 cacheRatelimitConfiguration() {
     echo "Setting caches configuration ..."
-    local VALUE="{
-    'default': {
-        'BACKEND':  'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': '$MEMCACHED_HOST:$MEMCACHED_HOST_PORT',
-        'TIMEOUT':  $MEMCACHED_TIMEOUT
-    },
-    'database': {
-        'BACKEND':  'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION':  'third_party_api_results',
-        'TIMEOUT': 2000000000,
-        'OPTIONS': {
-            'MAX_ENTRIES': 100000000,
-            'CULL_FREQUENCY': 10,
-        }
-    },
-}"
-    setConfigurationValue "CACHES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
+    setConfigurationValue "MEMCACHED_LOCATION" "$MEMCACHED_HOST:$MEMCACHED_HOST_PORT" "$ZULIP_SETTINGS" "string"
     echo "Caches configuration succeeded."
 }
 authenticationBackends() {
@@ -295,20 +279,6 @@ authenticationBackends() {
     unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
     echo "LDAP settings set."
 }
-redisConfiguration() {
-    echo "Setting redis configuration ..."
-    setConfigurationValue "RATE_LIMITING" "$REDIS_RATE_LIMITING" "$ZPROJECT_SETTINGS" "bool"
-    setConfigurationValue "REDIS_HOST" "$REDIS_HOST" "$ZPROJECT_SETTINGS"
-    setConfigurationValue "REDIS_HOST_PORT" "$REDIS_HOST_PORT" "$ZPROJECT_SETTINGS" "int"
-    echo "Redis configuration succeeded."
-}
-rabbitmqConfiguration() {
-    echo "Setting rabbitmq configuration ..."
-    setConfigurationValue "RABBITMQ_HOST" "$RABBITMQ_HOST" "$ZPROJECT_SETTINGS"
-    sed -i "s~pika.ConnectionParameters('localhost',~pika.ConnectionParameters(settings.RABBITMQ_HOST,~g" "/home/zulip/deployments/current/zerver/lib/queue.py"
-    setConfigurationValue "RABBITMQ_USERNAME" "$RABBITMQ_USERNAME" "$ZPROJECT_SETTINGS"
-    echo "Rabbitmq configuration succeeded."
-}
 camoConfiguration() {
     setConfigurationValue "CAMO_URI" "$CAMO_URI" "$ZPROJECT_SETTINGS" "emptyreturn"
 }
@@ -334,8 +304,9 @@ zulipConfiguration() {
         setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$FILE"
     done
     unset SETTING_KEY SETTING_VAR KEY
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
-        echo "Error in Zulip configuration."
+    su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
+    if [[ $? != 0 ]]; then
+        echo "Error in Zulip configuration. Exiting."
         exit 1
     fi
     echo "Zulip configuration succeeded."
@@ -374,7 +345,7 @@ waitingForDatabase() {
     do
         TIMEOUT=$(expr $TIMEOUT - 1)
         if [[ $TIMEOUT -eq 0 ]]; then
-            echo "Could not connect to database server. Aborting ..."
+            echo "Could not connect to database server. Exiting."
             exit 1
         fi
         echo -n "."
@@ -431,19 +402,19 @@ zulipFirstStartInit() {
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
         local RETURN_CODE=$?
-        echo "Zulip first start init failed in \"migrate --noinput\". with exit code $RETURN_CODE"
+        echo "Zulip first start init failed in \"migrate --noinput\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     echo "Creating Zulip cache and third_party_api_results tables ..."
     if ! su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results"; then
         local RETURN_CODE=$?
-        echo "Zulip first start init failed in \"createcachetable third_party_api_results\" with exit code $RETURN_CODE."
+        echo "Zulip first start init failed in \"createcachetable third_party_api_results\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     echo "Initializing Zulip Voyager database ..."
     if ! su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db"; then
         local RETURN_CODE=$?
-        echo "Zulip first start init failed in \"initialize_voyager_db\" with exit code $RETURN_CODE."
+        echo "Zulip first start init failed in \"initialize_voyager_db\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
@@ -459,7 +430,7 @@ zulipMigration() {
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         local RETURN_CODE=$?
-        echo "Zulip migration failed with exit code $RETURN_CODE."
+        echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
@@ -532,7 +503,7 @@ appBackup() {
     echo "Starting backup process ..."
     if [ -d "/tmp/backup-$(date "%D-%H-%M-%S")" ]; then
         echo "Temporary backup folder for \"$(date "%D-%H-%M-%S")\" already exists. Aborting."
-        echo "Backup process failed."
+        echo "Backup process failed. Exiting."
         exit 1
     fi
     local BACKUP_FOLDER
@@ -549,7 +520,7 @@ appRestore() {
     echo "Starting restore process ..."
     if [ "$(ls -A "$DATA_DIR/backups/")" ]; then
         echo "No backups to restore found in \"$DATA_DIR/backups/\"."
-        echo "Restore process failed."
+        echo "Restore process failed. Exiting."
         exit 1
     fi
     while true; do
@@ -589,18 +560,28 @@ appRestore() {
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
     psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename  | cut -d. -f1)/"
-    echo "Restore process succeeded."
+    echo "Restore process succeeded. Exiting."
+    exit 0
+}
+appCertificates() {
+    echo "Running openssl to generate the certificates ..."
+    openssl genrsa -out "$DATA_DIR/certs/zulip.key" 2048
+    openssl req -new -key "$DATA_DIR/certs/zulip.key" -out /tmp/zulip.csr
+    openssl x509 -req -days 3650 -in /tmp/zulip.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
+    rm -f /tmp/zulip.csr
+    echo "Certificates generation done. Exiting."
     exit 0
 }
 appHelp() {
     echo "Available commands:"
-    echo "> app:help     - Show this help menu and exit"
-    echo "> app:version  - Container Zulip server version"
-    echo "> app:managepy - Run Zulip's manage.py script"
-    echo "> app:backup   - Create backups of Zulip instances"
-    echo "> app:restore  - Restore backups of Zulip instances"
-    echo "> app:run      - Run the Zulip server"
-    echo "> [COMMAND]    - Run given command with arguments in shell"
+    echo "> app:help         - Show this help menu and exit"
+    echo "> app:version      - Container Zulip server version"
+    echo "> app:managepy     - Run Zulip's manage.py script"
+    echo "> app:backup       - Create backups of Zulip instances"
+    echo "> app:restore      - Restore backups of Zulip instances"
+    echo "> app:certificates - Create self-signed certificates"
+    echo "> app:run          - Run the Zulip server"
+    echo "> [COMMAND]        - Run given command with arguments in shell"
 }
 appVersion() {
     echo "This container contains:"
@@ -622,6 +603,9 @@ case "$1" in
     ;;
     app:restore)
         appRestore
+    ;;
+    app:certificates)
+        appCertificates
     ;;
     app:help)
         appHelp
