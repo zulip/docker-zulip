@@ -327,7 +327,7 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$SETTING_KEY" = "ADMIN_DOMAIN" ]; then
-           FILE="/etc/zulip/settings.py" 
+           FILE="/etc/zulip/settings.py"
         else
             FILE="$ZPROJECT_SETTINGS"
         fi
@@ -597,7 +597,8 @@ appHelp() {
     echo "> app:help     - Show this help menu and exit"
     echo "> app:version  - Container Zulip server version"
     echo "> app:managepy - Run Zulip's manage.py script"
-    echo "> app:manage   - Create, Restore and manage backups of Zulip instances"
+    echo "> app:backup   - Create backups of Zulip instances"
+    echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:run      - Run the Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
 }
