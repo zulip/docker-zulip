@@ -326,8 +326,6 @@ initialConfiguration() {
     databaseConfiguration
     cacheRatelimitConfiguration
     authenticationBackends
-    redisConfiguration
-    rabbitmqConfiguration
     camoConfiguration
     zulipConfiguration
     autoBackupConfiguration
