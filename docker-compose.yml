@@ -32,7 +32,7 @@ zulip:
     - redis
   environment:
     DB_HOST: "database"
-    ZULIP_SETTINGS_MEMCACHED_HOST: "memcached"
+    ZULIP_SETTINGS_MEMCACHED_LOCATION: "memcached:11211"
     ZULIP_SETTINGS_RABBITMQ_HOST: "rabbitmq"
     ZULIP_SECRETS_email_password: "12345"
     ZULIP_SECRETS_rabbitmq_password: "zulip"

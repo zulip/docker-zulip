@@ -10,12 +10,12 @@ spec:
   replicas: 1
   selector:
     version: v1.3.9-1
-    app: gitlab
+    app: zulip
   template:
     metadata:
       labels:
         version: v1.3.9-1
-        app: gitlab
+        app: zulip
     spec:
       containers:
       - name: redis
@@ -74,14 +74,10 @@ spec:
           value: "redis"
         - name: RABBITMQ_HOST
           value: "rabbitmq"
-        - name: ZULIP_USER_EMAIL
-          value: "example@example.com"
-        - name: ZULIP_USER_DOMAIN
-          value: "example.com"
         - name: ZULIP_AUTH_BACKENDS
           value: "EmailAuthBackend"
         - name: ZULIP_SECRETS_email_password
-          value: "12345"
+          value: "123456789"
         - name: ZULIP_SETTINGS_EXTERNAL_HOST
           value: "localhost"
         - name: ZULIP_SETTINGS_ZULIP_ADMINISTRATOR
@@ -96,6 +92,12 @@ spec:
           value: "smtp.example.com"
         - name: ZULIP_SETTINGS_EMAIL_HOST_USER
           value: "noreply@example.com"
+        - name: ZULIP_USER_EMAIL
+          value: "example@example.com"
+        - name: ZULIP_USER_DOMAIN
+          value: "example.com"
+        - name: ZULIP_USER_PASS
+          value: "123456789"
         ports:
         - containerPort: 80
           name: http
