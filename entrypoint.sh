@@ -259,23 +259,23 @@ authenticationBackends() {
     local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "/etc/zulip/settings.py" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZULIP_SETTINGS" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "/etc/zulip/settings.py" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZULIP_SETTINGS" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
     echo "Setting LDAP settings if set ..."
     if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "/etc/zulip/settings.py" "array"
+        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS" "array"
     fi
     if [ ! -z "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" ]; then
-        setConfigurationValue "LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" "/etc/zulip/settings.py" "string"
+        setConfigurationValue "LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS" "string"
     fi
     if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "/etc/zulip/settings.py" "array"
+        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS" "array"
     fi
     unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
     echo "LDAP settings set."
@@ -298,9 +298,11 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$SETTING_KEY" = "ADMIN_DOMAIN" ]; then
-           FILE="/etc/zulip/settings.py"
-        else
+           FILE=""
+       elif [ "$SETTING_KEY" = "MEMCACHED_LOCATION" ]; then
             FILE="$ZPROJECT_SETTINGS"
+        elif [ "$SETTING_KEY" = "REDIS_HOST" ]; then
+             FILE="$ZPROJECT_SETTINGS"
         fi
         setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$FILE"
     done
