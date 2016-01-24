@@ -301,8 +301,10 @@ zulipConfiguration() {
            FILE=""
        elif [ "$SETTING_KEY" = "MEMCACHED_LOCATION" ]; then
             FILE="$ZPROJECT_SETTINGS"
-        elif [ "$SETTING_KEY" = "REDIS_HOST" ]; then
+        elif [[ "$SETTING_KEY" = "REDIS_"* ]]; then
              FILE="$ZPROJECT_SETTINGS"
+         elif [[ "$SETTING_KEY" = "RABBITMQ_"* ]]; then
+              FILE="$ZPROJECT_SETTINGS"
         fi
         setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$FILE"
     done
