@@ -577,14 +577,14 @@ appCertificates() {
 }
 appHelp() {
     echo "Available commands:"
-    echo "> app:help         - Show this help menu and exit"
-    echo "> app:version      - Container Zulip server version"
-    echo "> app:managepy     - Run Zulip's manage.py script"
-    echo "> app:backup       - Create backups of Zulip instances"
-    echo "> app:restore      - Restore backups of Zulip instances"
-    echo "> app:certificates - Create self-signed certificates"
-    echo "> app:run          - Run the Zulip server"
-    echo "> [COMMAND]        - Run given command with arguments in shell"
+    echo "> app:help     - Show this help menu and exit"
+    echo "> app:version  - Container Zulip server version"
+    echo "> app:managepy - Run Zulip's manage.py script"
+    echo "> app:backup   - Create backups of Zulip instances"
+    echo "> app:restore  - Restore backups of Zulip instances"
+    echo "> app:certs    - Create self-signed certificates"
+    echo "> app:run      - Run the Zulip server"
+    echo "> [COMMAND]    - Run given command with arguments in shell"
 }
 appVersion() {
     echo "This container contains:"
