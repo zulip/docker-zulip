@@ -5,7 +5,9 @@ ENV ZULIP_VERSION="master" DATA_DIR="/data"
 
 ADD entrypoint.sh /sbin/entrypoint.sh
 
-RUN mkdir -p "$DATA_DIR" /root/zulip && \
+RUN apt-get -q update && \
+    apt-get install -y git && \
+    mkdir -p "$DATA_DIR" /root/zulip && \
     git clone https://github.com/zulip/zulip.git /root/zulip && \
     cd /root/zulip && \
     git checkout "$ZULIP_VERSION" && \
