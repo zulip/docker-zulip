@@ -76,21 +76,21 @@ spec:
           value: "rabbitmq"
         - name: ZULIP_AUTH_BACKENDS
           value: "EmailAuthBackend"
-        - name: ZULIP_SECRETS_email_password
+        - name: SECRETS_email_password
           value: "123456789"
-        - name: ZULIP_SETTINGS_EXTERNAL_HOST
+        - name: SETTING_EXTERNAL_HOST
           value: "localhost"
-        - name: ZULIP_SETTINGS_ZULIP_ADMINISTRATOR
+        - name: SETTING_ZULIP_ADMINISTRATOR
           value: "admin@example.com"
-        - name: ZULIP_SETTINGS_ADMIN_DOMAIN
+        - name: SETTING_ADMIN_DOMAIN
           value: "zerbytes.net"
-        - name: ZULIP_SETTINGS_NOREPLY_EMAIL_ADDRESS
+        - name: SETTING_NOREPLY_EMAIL_ADDRESS
           value: "noreply@example.com"
-        - name: ZULIP_SETTINGS_DEFAULT_FROM_EMAIL
+        - name: SETTING_DEFAULT_FROM_EMAIL
           value: "Zulip <noreply@example.com>"
-        - name: ZULIP_SETTINGS_EMAIL_HOST
+        - name: SETTING_EMAIL_HOST
           value: "smtp.example.com"
-        - name: ZULIP_SETTINGS_EMAIL_HOST_USER
+        - name: SETTING_EMAIL_HOST_USER
           value: "noreply@example.com"
         - name: ZULIP_USER_EMAIL
           value: "example@example.com"

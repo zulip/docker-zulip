@@ -2,7 +2,7 @@
 
 if [ ! -z "$ZULIP_USER_CREATION_ENABLED" ] && ([ -z "$ZULIP_USER_DOMAIN" ] || [ -z "$ZULIP_USER_EMAIL" ]); then
     echo "No zulip user configuration given."
-    exit 100
+    exit 1
 fi
 # Doing everything in python, even I never coded in python #YOLO
 /home/zulip/deployments/current/manage.py shell <<EOF
@@ -27,4 +27,3 @@ do_change_is_admin(User, True, 'administer')
 User.save()
 quit()
 EOF
-exit 200

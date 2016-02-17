@@ -12,26 +12,25 @@ DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_SCHEMA="${DB_SCHEMA:-zulip}"
 DB_USER="${DB_USER:-zulip}"
-DB_PASSWORD="${DB_PASSWORD:-zulip}"
-DB_PASS="${DB_PASS:-$(echo $DB_PASSWORD)}"
+DB_PASS="${DB_PASS:-zulip}"
 DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
-ZULIP_SETTINGS_RABBITMQ_HOST="${ZULIP_SETTINGS_RABBITMQ_HOST:-127.0.0.1}"
-ZULIP_SETTINGS_RABBITMQ_USERNAME="${ZULIP_SETTINGS_RABBITMQ_USERNAME:-zulip}"
-ZULIP_SETTINGS_RABBITMQ_PASSWORD="${ZULIP_SETTINGS_RABBITMQ_PASSWORD:-zulip}"
-ZULIP_SECRETS_rabbitmq_password="${ZULIP_SECRETS_rabbitmq_password:-$(echo $ZULIP_SETTINGS_RABBITMQ_PASSWORD)}"
-unset ZULIP_SETTINGS_RABBITMQ_PASSWORD
+SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
+SETTING_RABBITMQ_USERNAME="${SETTING_RABBITMQ_USERNAME:-zulip}"
+SETTING_RABBITMQ_PASSWORD="${SETTING_RABBITMQ_PASSWORD:-zulip}"
+SECRETS_rabbitmq_password="${SECRETS_rabbitmq_password:-$(echo $SETTING_RABBITMQ_PASSWORD)}"
+unset SETTING_RABBITMQ_PASSWORD
 # Redis
-ZULIP_SETTINGS_RATE_LIMITING="${ZULIP_SETTINGS_RATE_LIMITING:-True}"
-ZULIP_SETTINGS_REDIS_HOST="${ZULIP_SETTINGS_REDIS_HOST:-127.0.0.1}"
-ZULIP_SETTINGS_REDIS_PORT="${ZULIP_SETTINGS_REDIS_PORT:-6379}"
+SETTING_RATE_LIMITING="${SETTING_RATE_LIMITING:-True}"
+SETTING_REDIS_HOST="${SETTING_REDIS_HOST:-127.0.0.1}"
+SETTING_REDIS_PORT="${SETTING_REDIS_PORT:-6379}"
 # Memcached
-if [ -z "$ZULIP_SETTINGS_MEMCACHED_LOCATION" ]; then
-    ZULIP_SETTINGS_MEMCACHED_LOCATION="127.0.0.1:11211"
+if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
+    SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
 else
-    ZULIP_SETTINGS_MEMCACHED_LOCATION="$ZULIP_SETTINGS_MEMCACHED_LOCATION"
+    SETTING_MEMCACHED_LOCATION="$SETTING_MEMCACHED_LOCATION"
 fi
 # Nginx settings
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
@@ -49,14 +48,12 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Zulip user setup
-export FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
+FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
 export ZULIP_USER_CREATION_ENABLED="${ZULIP_USER_CREATION_ENABLED:-True}"
 export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $ZULIP_SETTINGS_EXTwERNAL_HOST)}"
+export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $SETTING_EXTERNAL_HOST)}"
 export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
-ZULIP_USER_PASSWORD="${ZULIP_USER_PASSWORD:-zulip}"
-export ZULIP_USER_PASS="${ZULIP_USER_PASS:-$(echo $ZULIP_USER_PASSWORD)}"
-unset ZULIP_USER_PASSWORD
+export ZULIP_USER_PASS="${ZULIP_USER_PASS:-zulip}"
 # Auto backup settings
 AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
@@ -160,12 +157,12 @@ configureCerts() {
             echo "Autogenerating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
                 if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
-                    if [ -z "$ZULIP_SETTINGS_EXTERNAL_HOST" ]; then
-                        echo "Certificates generation failed. \"ZULIP_CERTIFICATE_CN\" and as fallback \"ZULIP_SETTINGS_EXTERNAL_HOST\" not given."
+                    if [ -z "$SETTING_EXTERNAL_HOST" ]; then
+                        echo "Certificates generation failed. \"ZULIP_CERTIFICATE_CN\" and as fallback \"SETTING_EXTERNAL_HOST\" not given."
                         echo "Certificates configuration failed."
                         exit 1
                     fi
-                    ZULIP_CERTIFICATE_CN="$ZULIP_SETTINGS_EXTERNAL_HOST"
+                    ZULIP_CERTIFICATE_CN="$SETTING_EXTERNAL_HOST"
                 fi
                 ZULIP_CERTIFICATE_SUBJ="/C=$ZULIP_CERTIFICATE_C/ST=$ZULIP_CERTIFICATE_ST/L=$ZULIP_CERTIFICATE_L/O=$ZULIP_CERTIFICATE_O/CN=$ZULIP_CERTIFICATE_CN"
             fi
@@ -206,9 +203,9 @@ secretsConfiguration() {
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
     set +e
-    local SECRETS=($(env | sed -nr "s/ZULIP_SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
+    local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
-        local KEY="ZULIP_SECRETS_$SECRET_KEY"
+        local KEY="SECRETS_$SECRET_KEY"
         local SECRET_VAR="${!KEY}"
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
@@ -268,16 +265,16 @@ authenticationBackends() {
     done
     echo "Authentication backend activation succeeded."
     echo "Setting LDAP settings if set ..."
-    if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS" "array"
+    if [ ! -z "$SETTING_AUTH_LDAP_USER_SEARCH" ]; then
+        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$SETTING_AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS" "array"
     fi
-    if [ ! -z "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" ]; then
-        setConfigurationValue "LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS_LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS" "string"
+    if [ ! -z "$SETTING_LDAP_APPEND_DOMAIN" ]; then
+        setConfigurationValue "LDAP_APPEND_DOMAIN" "$SETTING_LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS" "string"
     fi
-    if [ ! -z "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS" "array"
+    if [ ! -z "$SETTING_AUTH_LDAP_USER_ATTR_MAP" ]; then
+        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$SETTING_AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS" "array"
     fi
-    unset ZULIP_SETTINGS_AUTH_LDAP_USER_SEARCH ZULIP_SETTINGS_LDAP_APPEND_DOMAIN ZULIP_SETTINGS_AUTH_LDAP_USER_ATTR_MAP
+    unset SETTING_AUTH_LDAP_USER_SEARCH SETTING_LDAP_APPEND_DOMAIN SETTING_AUTH_LDAP_USER_ATTR_MAP
     echo "LDAP settings set."
 }
 camoConfiguration() {
@@ -288,27 +285,27 @@ zulipConfiguration() {
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
         echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZPROJECT_SETTINGS"
     fi
-    local SET_SETTINGS=($(env | sed -n -r "s/ZULIP_SETTINGS_([0-9A-Za-z_]*).*/\1/p"))
-    for SETTING_KEY in "${SET_SETTINGS[@]}"; do
-        local KEY="ZULIP_SETTINGS_$SETTING_KEY"
-        local SETTING_VAR="${!KEY}"
+    local given_settings=($(env | sed -n -r "s/SETTING_([0-9A-Za-z_]*).*/\1/p"))
+    for setting_key in "${given_settings[@]}"; do
+        local key="SETTING_$setting_key"
+        local setting_var="${!key}"
         if [ -z "$SETTING_VAR" ]; then
-            echo "Empty var for key \"$SETTING_KEY\"."
+            echo "Empty var for key \"$setting_key\"."
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
-        if [ "$SETTING_KEY" = "ADMIN_DOMAIN" ]; then
+        if [ "$setting_key" = "ADMIN_DOMAIN" ]; then
            FILE=""
-       elif [ "$SETTING_KEY" = "MEMCACHED_LOCATION" ]; then
+       elif [ "$setting_key" = "MEMCACHED_LOCATION" ]; then
             FILE="$ZPROJECT_SETTINGS"
-        elif [[ "$SETTING_KEY" = "REDIS_"* ]]; then
+        elif [[ "$setting_key" = "REDIS_"* ]]; then
              FILE="$ZPROJECT_SETTINGS"
-         elif [[ "$SETTING_KEY" = "RABBITMQ_"* ]]; then
+         elif [[ "$setting_key" = "RABBITMQ_"* ]]; then
               FILE="$ZPROJECT_SETTINGS"
         fi
-        setConfigurationValue "$SETTING_KEY" "$SETTING_VAR" "$FILE"
+        setConfigurationValue "$setting_key" "$setting_var" "$FILE"
     done
-    unset SETTING_KEY SETTING_VAR KEY
+    unset setting_key setting_var KEY
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
     if [[ $? != 0 ]]; then
         echo "Error in Zulip configuration. Exiting."
@@ -349,11 +346,13 @@ waitingForDatabase() {
         TIMEOUT=$(expr $TIMEOUT - 1)
         if [[ $TIMEOUT -eq 0 ]]; then
             echo "Could not connect to database server. Exiting."
+            unset PGPASSWORD
             exit 1
         fi
         echo -n "."
         sleep 1
     done
+    unset PGPASSWORD
 }
 bootstrapDatabase() {
     echo "(Re)creating database structure ..."
@@ -380,7 +379,7 @@ bootstrapRabbitMQ() {
     echo "RabbitMQ deleting user \"guest\"."
     rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" delete_user guest 2> /dev/null || :
     echo "RabbitMQ adding user \"$RABBITMQ_USERNAME\"."
-    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$ZULIP_SECRETS_rabbitmq_password" 2> /dev/null || :
+    rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" add_user "$RABBITMQ_USERNAME" "$SECRETS_rabbitmq_password" 2> /dev/null || :
     echo "RabbitMQ setting user tags for \"$RABBITMQ_USERNAME\"."
     rabbitmqctl -n "$RABBITMQ_USER@$RABBITMQ_HOST" set_user_tags "$RABBITMQ_USERNAME" administrator 2> /dev/null || :
     echo "RabbitMQ setting permissions for user \"$RABBITMQ_USERNAME\"."
@@ -456,14 +455,13 @@ runPostSetupScripts() {
         return 0
     fi
     set +e
-    for FILE in $DATA_DIR/post-setup.d/*; do
-        if [ -x "$FILE" ]; then
-            echo "Executing \"$FILE\" ..."
-            bash -c "$FILE"
-            echo "Executed \"$FILE\". Return code $?."
+    for file in $DATA_DIR/post-setup.d/*; do
+        if [ -x "$file" ]; then
+            echo "Executing \"$file\" ..."
+            bash -c "$file"
+            echo "Executed \"$file\". Return code $?."
         else
-            echo "Permissions denied for \"$FILE\". Please check the permissions."
-            echo "Post setup scripts execution failed. Exiting."
+            echo "Permissions denied for \"$file\". Please check the permissions. Exiting."
             exit 1
         fi
     done
@@ -549,7 +547,7 @@ appRestore() {
     echo "!! WARNING !! Waiting 10 seconds before continuing ..."
     echo "==============================================================="
     echo ""
-    local TIMEOUT=10
+    local TIMEOUT=11
     while true; do
         TIMEOUT=$(expr $TIMEOUT - 1)
         if [[ $TIMEOUT -eq 0 ]]; then
@@ -566,7 +564,7 @@ appRestore() {
     echo "Restore process succeeded. Exiting."
     exit 0
 }
-appCertificates() {
+appCerts() {
     echo "Running openssl to generate the certificates ..."
     openssl genrsa -out "$DATA_DIR/certs/zulip.key" 2048
     openssl req -new -key "$DATA_DIR/certs/zulip.key" -out /tmp/zulip.csr
@@ -579,7 +577,7 @@ appHelp() {
     echo "Available commands:"
     echo "> app:help     - Show this help menu and exit"
     echo "> app:version  - Container Zulip server version"
-    echo "> app:managepy - Run Zulip's manage.py script"
+    echo "> app:managepy - Run Zulip's manage.py script (defaults to \"shell\")"
     echo "> app:backup   - Create backups of Zulip instances"
     echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:certs    - Create self-signed certificates"
@@ -607,8 +605,8 @@ case "$1" in
     app:restore)
         appRestore
     ;;
-    app:certificates)
-        appCertificates
+    app:certs)
+        appCerts
     ;;
     app:help)
         appHelp
