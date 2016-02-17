@@ -4,7 +4,6 @@ MAINTAINER Alexander Trost <galexrt@googlemail.com>
 ENV ZULIP_VERSION="1.3.10" DATA_DIR="/data"
 
 ADD entrypoint.sh /entrypoint.sh
-ADD puppet/zulip/ /root/puppet-zulip
 
 RUN wget -qO - https://zulip.com/dist/keys/zulip-ppa.asc | \
     apt-key add - && \
@@ -36,6 +35,9 @@ RUN wget -qO - https://zulip.com/dist/keys/zulip-ppa.asc | \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ADD files/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
+ADD files/createZulipAdmin.sh /opt/createZulipAdmin.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443

@@ -7,6 +7,7 @@ fi
 set -e
 
 # DB aka Database
+# TODO Make part of these vars to "ZULIP_SETTINGS_*"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
@@ -362,7 +363,7 @@ bootstrapDatabase() {
         export PGPASSWORD="$DB_ROOT_PASS"
         echo """
         CREATE USER $DB_USER;
-        ALTER ROLE $DB_USER SET search_path TO zulip,public;
+        ALTER ROLE $DB_USER SET search_path TO $DB_NAME,public;
         CREATE DATABASE $DB_NAME OWNER=$DB_USER;
         CREATE SCHEMA $DB_SCHEMA AUTHORIZATION $DB_USER;
         """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
