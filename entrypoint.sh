@@ -295,7 +295,7 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "ADMIN_DOMAIN" ]; then
-           FILE=""
+           FILE="$ZULIP_SETTINGS"
        elif [ "$setting_key" = "MEMCACHED_LOCATION" ]; then
             FILE="$ZPROJECT_SETTINGS"
         elif [[ "$setting_key" = "REDIS_"* ]]; then
