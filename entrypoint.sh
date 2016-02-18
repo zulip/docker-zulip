@@ -450,7 +450,7 @@ runPostSetupScripts() {
         echo "No post-setup.d folder found. Continuing."
         return 0
     fi
-    if [ "$(ls -A "$DATA_DIR/post-setup.d/")" ]; then
+    if [ ! "$(ls "$DATA_DIR/post-setup.d/")" ]; then
         echo "No post setup scripts found in \"$DATA_DIR/post-setup.d/\"."
         return 0
     fi
