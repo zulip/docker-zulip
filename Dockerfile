@@ -22,8 +22,9 @@ RUN apt-get -q update && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD files/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
-ADD files/createZulipAdmin.sh /opt/createZulipAdmin.sh
+ADD files/ /opt/files
+ADD includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
+ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
