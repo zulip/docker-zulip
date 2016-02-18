@@ -29,10 +29,9 @@ SETTING_REDIS_PORT="${SETTING_REDIS_PORT:-6379}"
 # Memcached
 if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
     SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
-else
-    SETTING_MEMCACHED_LOCATION="$SETTING_MEMCACHED_LOCATION"
 fi
 # Nginx settings
+DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-20m}"
@@ -132,6 +131,10 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
+    if [ "$DISABLE_HTTPS" != "false" ] && [ "$DISABLE_HTTPS" != "False" ]; then
+        rm -f /etc/nginx/sites-enabled/*
+        mv /opt/files/nginx/zulip-enterprise /etc/nginx/sites-enabled/zulip-enterprise
+    fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
     sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
