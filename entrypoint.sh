@@ -58,7 +58,7 @@ AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
-$SETTINGS_PYS="/etc/zulip/settings.py"
+SETTINGS_PY="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
