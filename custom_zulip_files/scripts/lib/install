@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -xe
+
+# Specify options for apt
+APT_OPTIONS="${APT_OPTIONS:-}"
+# Install additional packages using apt
+ADDITIONAL_PACKAGES=${ADDITIONAL_PACKAGES:-}
+# Call the default type "voyager", for docker it's "dockervoyager"
+DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
+# Can be for example "dockervoyager" or voyager
+VOYAGER_CLASS="${VOYAGER_CLASS:-voyager}"
+
+# Assumes we've already been untarred
+
+# First, install any updates from the apt repo that may be needed
+# Install the key through a pipe
+wget -qO - https://zulip.com/dist/keys/zulip-ppa.asc | apt-key add -
+cat >/etc/apt/sources.list.d/zulip.list <<EOF
+deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main
+deb-src http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main
+EOF
+
+apt-get update
+apt-get -y dist-upgrade $APT_OPTIONS
+apt-get install -y puppet git python $ADDITIONAL_PACKAGES
+
+mkdir -p /etc/zulip
+
+echo -e "[machine]\npuppet_classes = zulip::$VOYAGER_CLASS\ndeploy_type = voyager" > /etc/zulip/zulip.conf
+/root/zulip/scripts/zulip-puppet-apply -f
+
+# These server restarting bits should be moveable into puppet-land, ideally
+apt-get -y upgrade
+# Don't start services when deploying in docker aka dockervoyager
+if [ "$DEPLOYMENT_TYPE" != "dockervoyager" ]; then
+    if [ -e "/etc/init.d/nginx" ]; then
+        # Check nginx was configured properly now that we've installed it.
+        # Most common failure mode is certs not having been installed.
+        nginx -t
+        service nginx restart
+    fi
+    /root/zulip/scripts/setup/generate_secrets.py
+    if ! rabbitmqctl status >/dev/null; then
+        set +x
+        echo; echo "RabbitMQ seems to not have started properly after the installation process."
+        echo "Often, this can be caused by misconfigured /etc/hosts in virtualized environments"
+        echo "See https://github.com/zulip/zulip/issues/53#issuecomment-143805121"
+        echo "for more information"
+        echo
+        set -x
+        exit 1
+    fi
+fi
+cp -a /root/zulip/zproject/local_settings_template.py /etc/zulip/settings.py
+ln -nsf /etc/zulip/settings.py /root/zulip/zproject/local_settings.py
+if [ "$DEPLOYMENT_TYPE" != "dockervoyager" ]; then
+    /root/zulip/scripts/setup/configure-rabbitmq
+
+    /root/zulip/scripts/setup/postgres-init-db
+else
+    echo; echo "Skipping service starts, chosen Deployment Type is \'$DEPLOYMENT_TYPE\'."
+fi
+
+deploy_path=$(/root/zulip/zulip_tools.py make_deploy_path)
+mv /root/zulip "$deploy_path"
+ln -nsf /home/zulip/deployments/next /root/zulip
+ln -nsf "$deploy_path" /home/zulip/deployments/next
+ln -nsf "$deploy_path" /home/zulip/deployments/current
+ln -nsf /etc/zulip/settings.py "$deploy_path"/zproject/local_settings.py
+if [ "$DEPLOYMENT_TYPE" == "dockervoyager" ]; then
+    # We generate the static files later in the entrypoint.sh we don't have the
+    # static files right now, so just create the folder to fix the error with "cp ..."
+    mkdir -p "$deploy_path"/prod-static/serve
+fi
+cp -rT "$deploy_path"/prod-static/serve /home/zulip/prod-static
+chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py
+# Allow this to fail, if there is no supervisor running in a docker install
+chown -f zulip:zulip /var/run/supervisor.sock || :
+
+cd /home/zulip/deployments/current
+
+set +x
+cat <<EOF
+
+ Installation complete!
+
+ Now edit /etc/zulip/settings.py and fill in the mandatory values.
+
+ Once you've done that, please run:
+
+ su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
+
+ To configure the initial database.
+EOF

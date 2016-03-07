@@ -12,6 +12,11 @@ RUN apt-get -q update && \
     git clone https://github.com/zulip/zulip.git /root/zulip && \
     cd /root/zulip && \
     git checkout "$ZULIP_VERSION" && \
+    rm -rf /root/zulip/.git
+
+ADD custom_zulip_files/ /root/custom_zulip
+
+RUN cp -rf /root/custom_zulip/* /root/zulip && \
     VOYAGER_CLASS="dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
     /root/zulip/scripts/setup/install && \
     wget -q https://www.zulip.com/dist/releases/zulip-server-latest.tar.gz -O /tmp/zulip-server.tar.gz && \
@@ -22,9 +27,9 @@ RUN apt-get -q update && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD files/ /opt/files
+ADD setup_files/ /opt/files
 ADD includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
-ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
+ADD includes/createZulipAdmin.sh /createZulipAdmin.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443

@@ -58,7 +58,7 @@ AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
-ZULIP_SETTINGS="/etc/zulip/settings.py"
+$SETTINGS_PYS="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -251,7 +251,7 @@ databaseConfiguration() {
 }
 cacheRatelimitConfiguration() {
     echo "Setting caches configuration ..."
-    setConfigurationValue "MEMCACHED_LOCATION" "$MEMCACHED_HOST:$MEMCACHED_HOST_PORT" "$ZULIP_SETTINGS" "string"
+    setConfigurationValue "MEMCACHED_LOCATION" "$MEMCACHED_HOST:$MEMCACHED_HOST_PORT" "$SETTINGS_PY" "string"
     echo "Caches configuration succeeded."
 }
 authenticationBackends() {
@@ -259,23 +259,23 @@ authenticationBackends() {
     local FIRST=true
     echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$ZULIP_SETTINGS" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$ZULIP_SETTINGS" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$SETTINGS_PY" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
     echo "Setting LDAP settings if set ..."
     if [ ! -z "$SETTING_AUTH_LDAP_USER_SEARCH" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$SETTING_AUTH_LDAP_USER_SEARCH" "$ZULIP_SETTINGS" "array"
+        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$SETTING_AUTH_LDAP_USER_SEARCH" "$SETTINGS_PY" "array"
     fi
     if [ ! -z "$SETTING_LDAP_APPEND_DOMAIN" ]; then
-        setConfigurationValue "LDAP_APPEND_DOMAIN" "$SETTING_LDAP_APPEND_DOMAIN" "$ZULIP_SETTINGS" "string"
+        setConfigurationValue "LDAP_APPEND_DOMAIN" "$SETTING_LDAP_APPEND_DOMAIN" "$SETTINGS_PY" "string"
     fi
     if [ ! -z "$SETTING_AUTH_LDAP_USER_ATTR_MAP" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$SETTING_AUTH_LDAP_USER_ATTR_MAP" "$ZULIP_SETTINGS" "array"
+        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$SETTING_AUTH_LDAP_USER_ATTR_MAP" "$SETTINGS_PY" "array"
     fi
     unset SETTING_AUTH_LDAP_USER_SEARCH SETTING_LDAP_APPEND_DOMAIN SETTING_AUTH_LDAP_USER_ATTR_MAP
     echo "LDAP settings set."
@@ -298,7 +298,7 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "ADMIN_DOMAIN" ]; then
-           FILE="$ZULIP_SETTINGS"
+           FILE="$SETTINGS_PY"
        elif [ "$setting_key" = "MEMCACHED_LOCATION" ]; then
             FILE="$ZPROJECT_SETTINGS"
         elif [[ "$setting_key" = "REDIS_"* ]]; then
