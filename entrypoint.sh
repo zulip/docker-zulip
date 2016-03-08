@@ -246,7 +246,6 @@ databaseConfiguration() {
   },
 }"
     setConfigurationValue "DATABASES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
-    sed -i "s~psycopg2.connect\(.*\)~psycopg2.connect(\"host=$DB_HOST port=$DB_HOST_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASS\")~g" /usr/local/bin/process_fts_updates
     echo "Database configuration succeeded."
 }
 cacheRatelimitConfiguration() {
