@@ -299,12 +299,6 @@ zulipConfiguration() {
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "ADMIN_DOMAIN" ]; then
             file="$SETTINGS_PY"
-        elif [ "$setting_key" = "MEMCACHED_LOCATION" ]; then
-            file="$ZPROJECT_SETTINGS"
-        elif [[ "$setting_key" = "REDIS_"* ]]; then
-            file="$ZPROJECT_SETTINGS"
-        elif [[ "$setting_key" = "RABBITMQ_"* ]]; then
-            file="$ZPROJECT_SETTINGS"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file"
     done
