@@ -248,11 +248,6 @@ databaseConfiguration() {
     setConfigurationValue "DATABASES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
     echo "Database configuration succeeded."
 }
-cacheRatelimitConfiguration() {
-    echo "Setting caches configuration ..."
-    setConfigurationValue "MEMCACHED_LOCATION" "$MEMCACHED_HOST:$MEMCACHED_HOST_PORT" "$SETTINGS_PY" "string"
-    echo "Caches configuration succeeded."
-}
 authenticationBackends() {
     echo "Activating authentication backends ..."
     local FIRST=true
@@ -326,7 +321,6 @@ initialConfiguration() {
     configureCerts
     secretsConfiguration
     databaseConfiguration
-    cacheRatelimitConfiguration
     authenticationBackends
     camoConfiguration
     zulipConfiguration
