@@ -291,21 +291,22 @@ zulipConfiguration() {
     for setting_key in "${given_settings[@]}"; do
         local key="SETTING_$setting_key"
         local setting_var="${!key}"
+        local file="$ZPROJECT_SETTINGS"
         if [ -z "$setting_var" ]; then
             echo "Empty var for key \"$setting_key\"."
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "ADMIN_DOMAIN" ]; then
-            local FILE="$SETTINGS_PY"
+            file FILE="$SETTINGS_PY"
         elif [ "$setting_key" = "MEMCACHED_LOCATION" ]; then
-            FILE="$ZPROJECT_SETTINGS"
+            file="$ZPROJECT_SETTINGS"
         elif [[ "$setting_key" = "REDIS_"* ]]; then
-            FILE="$ZPROJECT_SETTINGS"
+            file="$ZPROJECT_SETTINGS"
         elif [[ "$setting_key" = "RABBITMQ_"* ]]; then
-            FILE="$ZPROJECT_SETTINGS"
+            file="$ZPROJECT_SETTINGS"
         fi
-        setConfigurationValue "$setting_key" "$setting_var" "$FILE"
+        setConfigurationValue "$setting_key" "$setting_var" "$file"
     done
     unset setting_key setting_var KEY
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
