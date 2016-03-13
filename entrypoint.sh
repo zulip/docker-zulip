@@ -292,7 +292,12 @@ zulipConfiguration() {
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
-        if [ "$setting_key" = "ADMIN_DOMAIN" ] || [ "$setting_key" = "MEMCACHED_LOCATION" ] || [[ "$setting_key" = RABBITMQ* ]] || [[ "$setting_key" = REDIS* ]] || [ "$setting_key" = "RATE_LIMITING" ]; then
+        if [ "$setting_key" = "ADMIN_DOMAIN" ] || [ "$setting_key" = "MEMCACHED_LOCATION" ] || \
+            [[ "$setting_key" = RABBITMQ* ]] || [[ "$setting_key" = REDIS* ]] || \
+            [ "$setting_key" = "RATE_LIMITING" ] || [ "$setting_key" = "EXTERNAL_HOST" ] || \
+            [ "$setting_key" = "ZULIP_ADMINISTRATOR" ] || [ "$setting_key" = "ADMIN_DOMAIN" ] || \
+            [ "$setting_key" = "SECRET_KEY" ] || [ "$setting_key" = "NOREPLY_EMAIL_ADDRESS" ] || \
+            [ "$setting_key" = "DEFAULT_FROM_EMAIL" ] || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             file="$SETTINGS_PY"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file"
