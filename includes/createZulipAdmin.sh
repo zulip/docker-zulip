@@ -4,6 +4,7 @@ if [ ! -z "$ZULIP_USER_CREATION_ENABLED" ] && ([ -z "$ZULIP_USER_DOMAIN" ] || [ 
     echo "No zulip user configuration given."
     exit 1
 fi
+set +e
 # Doing everything in python, even I never coded in python #YOLO
 /home/zulip/deployments/current/manage.py shell <<EOF
 from django.core.management.base import CommandError
