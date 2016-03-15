@@ -286,7 +286,7 @@ zulipConfiguration() {
             [ "$setting_key" = "ZULIP_ADMINISTRATOR" ] || [ "$setting_key" = "ADMIN_DOMAIN" ] || \
             [ "$setting_key" = "SECRET_KEY" ] || [ "$setting_key" = "NOREPLY_EMAIL_ADDRESS" ] || \
             [ "$setting_key" = "DEFAULT_FROM_EMAIL" ] || [ "$setting_key" = "ALLOWED_HOSTS" ] || \
-            [ "$setting_key" = AUTH_* ] || [ "$setting_key" = LDAP_* ]; then
+            [[ "$setting_key" = AUTH_* ]] || [[ "$setting_key" = LDAP_* ]]; then
             file="$SETTINGS_PY"
         fi
         if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
