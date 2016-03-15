@@ -275,6 +275,7 @@ zulipConfiguration() {
         local key="SETTING_$setting_key"
         local setting_var="${!key}"
         local file="$ZPROJECT_SETTINGS"
+        local type="string"
         if [ -z "$setting_var" ]; then
             echo "Empty var for key \"$setting_key\"."
             continue
@@ -291,7 +292,7 @@ zulipConfiguration() {
         fi
         if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
            ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]); then
-             local type="array"
+             type="array"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
     done
