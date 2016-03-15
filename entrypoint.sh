@@ -261,18 +261,6 @@ authenticationBackends() {
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
     echo "Authentication backend activation succeeded."
-    echo "Setting LDAP settings if set ..."
-    if [ ! -z "$SETTING_AUTH_LDAP_USER_SEARCH" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_SEARCH" "$SETTING_AUTH_LDAP_USER_SEARCH" "$SETTINGS_PY" "array"
-    fi
-    if [ ! -z "$SETTING_LDAP_APPEND_DOMAIN" ]; then
-        setConfigurationValue "LDAP_APPEND_DOMAIN" "$SETTING_LDAP_APPEND_DOMAIN" "$SETTINGS_PY" "string"
-    fi
-    if [ ! -z "$SETTING_AUTH_LDAP_USER_ATTR_MAP" ]; then
-        setConfigurationValue "AUTH_LDAP_USER_ATTR_MAP" "$SETTING_AUTH_LDAP_USER_ATTR_MAP" "$SETTINGS_PY" "array"
-    fi
-    unset SETTING_AUTH_LDAP_USER_SEARCH SETTING_LDAP_APPEND_DOMAIN SETTING_AUTH_LDAP_USER_ATTR_MAP
-    echo "LDAP settings set."
 }
 camoConfiguration() {
     setConfigurationValue "CAMO_URI" "$CAMO_URI" "$ZPROJECT_SETTINGS" "emptyreturn"
@@ -297,10 +285,15 @@ zulipConfiguration() {
             [ "$setting_key" = "RATE_LIMITING" ] || [ "$setting_key" = "EXTERNAL_HOST" ] || \
             [ "$setting_key" = "ZULIP_ADMINISTRATOR" ] || [ "$setting_key" = "ADMIN_DOMAIN" ] || \
             [ "$setting_key" = "SECRET_KEY" ] || [ "$setting_key" = "NOREPLY_EMAIL_ADDRESS" ] || \
-            [ "$setting_key" = "DEFAULT_FROM_EMAIL" ] || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
+            [ "$setting_key" = "DEFAULT_FROM_EMAIL" ] || [ "$setting_key" = "ALLOWED_HOSTS" ] || \
+            [ "$setting_key" = AUTH_* ] || [ "$setting_key" = LDAP_* ]; then
             file="$SETTINGS_PY"
         fi
-        setConfigurationValue "$setting_key" "$setting_var" "$file"
+        if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
+           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]); then
+             local type="array"
+        fi
+        setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
     done
     unset setting_key setting_var KEY
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
