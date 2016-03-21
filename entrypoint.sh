@@ -559,13 +559,7 @@ appRestore() {
     exit 0
 }
 appCerts() {
-    echo "Running openssl to generate the certificates ..."
-    openssl genrsa -out "$DATA_DIR/certs/zulip.key" 2048
-    openssl req -new -key "$DATA_DIR/certs/zulip.key" -out /tmp/zulip.csr
-    openssl x509 -req -days 3650 -in /tmp/zulip.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
-    rm -f /tmp/zulip.csr
-    echo "Certificates generation done. Exiting."
-    exit 0
+    configureCerts
 }
 appHelp() {
     echo "Available commands:"
