@@ -20,7 +20,7 @@ RUN cp -rf /root/custom_zulip/* /root/zulip && \
     VOYAGER_CLASS="dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
     /root/zulip/scripts/setup/install && \
     wget -q https://www.zulip.com/dist/releases/zulip-server-latest.tar.gz -O /tmp/zulip-server.tar.gz && \
-    tar xfz /tmp/zulip-server.tar.gz -C "/home/zulip/prod-static" --strip-components=3 --wildcards */prod-static/serve && \
+    tar xfz /tmp/zulip-server.tar.gz -C "/home/zulip/deployments/current" --strip-components=3 --wildcards */prod-static && \
     rm -rf /tmp/zulip-server.tar.gz && \
     ln -nsf /home/zulip/deployments/current/prod-static/serve /home/zulip/prod-static && \
     apt-get -qq autoremove --purge -y && \
