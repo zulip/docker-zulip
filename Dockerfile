@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.3.10" DATA_DIR="/data"
+ENV ZULIP_BRANCH="master" ZULIP_VERSION="1.3.10" DATA_DIR="/data"
 
 ADD entrypoint.sh /sbin/entrypoint.sh
 
@@ -11,7 +11,7 @@ RUN apt-get -q update && \
     mkdir -p "$DATA_DIR" /root/zulip && \
     git clone https://github.com/zulip/zulip.git /root/zulip && \
     cd /root/zulip && \
-    git checkout "$ZULIP_VERSION" && \
+    git checkout "$ZULIP_BRANCH" && \
     rm -rf /root/zulip/.git
 
 ADD custom_zulip_files/ /root/custom_zulip

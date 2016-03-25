@@ -568,7 +568,7 @@ appHelp() {
 }
 appVersion() {
     echo "This container contains:"
-    echo "> Zulip server $ZULIP_VERSION"
+    echo "> Zulip server $ZULIP_VERSION, Branch: $ZULIP_BRANCH"
     echo "> Checksum: $ZULIP_CHECKSUM"
     exit 0
 }
