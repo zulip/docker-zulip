@@ -491,8 +491,7 @@ appManagePy() {
     fi
     echo "Running manage.py ..."
     set +e
-    su zulip -c "/home/zulip/deployments/current/manage.py $COMMAND $*"
-    exit $?
+    exec su zulip -c "/home/zulip/deployments/current/manage.py $COMMAND $*"
 }
 appBackup() {
     echo "Starting backup process ..."
@@ -585,7 +584,7 @@ case "$1" in
     ;;
     app:managepy)
         shift 1
-        exec appManagePy "$@"
+        appManagePy "$@"
     ;;
     app:backup)
         appBackup
