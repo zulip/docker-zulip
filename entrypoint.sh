@@ -419,10 +419,6 @@ zulipFirstStartInit() {
 }
 zulipMigration() {
     echo "Migrating Zulip to new version ..."
-    if [ -e "$DATA_DIR/.zulip-$ZULIP_VERSION" ]; then
-        echo "No Zulip migration needed. Continuing."
-        return 0
-    fi
     set +e
     if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
         local RETURN_CODE=$?
@@ -431,7 +427,6 @@ zulipMigration() {
     fi
     set -e
     rm -rf "$DATA_DIR/.zulip-*"
-    touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "Zulip migration succeeded."
 }
 runPostSetupScripts() {
