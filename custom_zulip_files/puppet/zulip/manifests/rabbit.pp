@@ -39,4 +39,22 @@ class zulip::rabbit {
     mode => 644,
     source => "puppet:///modules/zulip/rabbitmq/rabbitmq.config",
   }
+
+  # epmd doesn't have an init script.  This won't leak epmd processes
+  # because epmd checks if one is already running and exits if so.
+  #
+  # TODO: Ideally we'd still check if it's already running to keep the
+  # puppet log for what is being changed clean
+  exec { "epmd":
+    command => "epmd -daemon",
+    require => Package[erlang-base],
+    path    => "/usr/bin/:/bin/",
+  }
+
+  service { "rabbitmq-server":
+    ensure => running,
+    require => Exec["epmd"],
+  }
+
+  # TODO: Should also call exactly once "configure-rabbitmq"
 }

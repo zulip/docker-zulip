@@ -85,6 +85,17 @@ prepareDirectories() {
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
+    # Create settings directories
+    if [ ! -d "$DATA_DIR/settings" ]; then
+        mkdir -p "$DATA_DIR/settings"
+    fi
+    # Link settings folder
+    if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
+        cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
+    fi
+    # Link /etc/zulip/ settings folder
+    rm -rf /etc/zulip
+    ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
     echo "Prepared and linked the uploads directory."
 }
 setConfigurationValue() {
@@ -131,9 +142,9 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
-    if [ "$DISABLE_HTTPS" != "false" ] && [ "$DISABLE_HTTPS" != "False" ]; then
-        rm -f /etc/nginx/sites-enabled/*
-        mv /opt/files/nginx/zulip-enterprise /etc/nginx/sites-enabled/zulip-enterprise
+    if [ "$DISABLE_HTTPS" == "True" ] && [ "$DISABLE_HTTPS" == "true" ]; then
+        echo "Disabling https in nginx."
+        mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
     fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
@@ -142,6 +153,10 @@ nginxConfiguration() {
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
+    if [ "$DISABLE_HTTPS" == "True" ] && [ "$DISABLE_HTTPS" == "true" ]; then
+        echo "DISABLE_HTTPS is true. No certs required."
+        return 0
+    fi
     case "$ZULIP_AUTO_GENERATE_CERTS" in
         [Tt][Rr][Uu][Ee])
             ZULIP_AUTO_GENERATE_CERTS="True"
@@ -427,6 +442,7 @@ zulipMigration() {
     fi
     set -e
     rm -rf "$DATA_DIR/.zulip-*"
+    touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "Zulip migration succeeded."
 }
 runPostSetupScripts() {
@@ -568,7 +584,7 @@ appHelp() {
 }
 appVersion() {
     echo "This container contains:"
-    echo "> Zulip server $ZULIP_VERSION, Branch: $ZULIP_BRANCH"
+    echo "> Zulip server $ZULIP_VERSION"
     echo "> Checksum: $ZULIP_CHECKSUM"
     exit 0
 }
