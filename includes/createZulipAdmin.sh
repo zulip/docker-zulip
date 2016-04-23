@@ -6,7 +6,7 @@ if [ ! -z "$ZULIP_USER_CREATION_ENABLED" ] && ([ -z "$ZULIP_USER_DOMAIN" ] || [ 
 fi
 set +e
 # Doing everything in python, even I never coded in python #YOLO
-/home/zulip/deployments/current/manage.py shell <<EOF
+su -c "/home/zulip/deployments/current/manage.py shell" zulip <<EOF
 from django.core.management.base import CommandError
 from zerver.lib.create_user import create_user
 from zerver.lib.actions import do_change_is_admin
