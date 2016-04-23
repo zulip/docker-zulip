@@ -18,7 +18,7 @@ ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 RUN rm -rf /root/zulip/puppet && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    VOYAGER_CLASS="zulip::dockervoyager" DEPLOYMENT_TYPE="zulip::dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
+    VOYAGER_CLASS="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
     /root/zulip/scripts/setup/install && \
     chown zulip:zulip /opt/createZulipAdmin.sh && \
     apt-get -qq autoremove --purge -y && \
