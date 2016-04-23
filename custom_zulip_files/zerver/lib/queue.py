@@ -259,3 +259,4 @@ def queue_json_publish(queue_name, event, processor):
             get_queue_client().json_publish(queue_name, event)
         else:
             processor(event)
+
