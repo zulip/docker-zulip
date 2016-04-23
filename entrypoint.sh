@@ -216,7 +216,7 @@ secretsConfiguration() {
         mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
         echo "Secrets generation succeeded."
     else
-        rm -rf /etc/zulip/zulip-secrets.con
+        rm -rf /etc/zulip/zulip-secrets.conf
         echo "Secrets already generated."
     fi
     ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
