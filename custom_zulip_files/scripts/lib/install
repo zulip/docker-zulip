@@ -7,8 +7,8 @@ APT_OPTIONS="${APT_OPTIONS:-}"
 ADDITIONAL_PACKAGES=${ADDITIONAL_PACKAGES:-}
 # Call the default type "voyager", for docker it's "dockervoyager"
 DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
-# Can be for example "dockervoyager" or voyager
-VOYAGER_CLASS="${VOYAGER_CLASS:-voyager}"
+# Can be for example "zulip::dockervoyager" or "zulip::voyager"
+VOYAGER_CLASS="${VOYAGER_CLASS:-zulip::voyager}"
 
 # Assumes we've already been untarred
 
@@ -26,7 +26,7 @@ apt-get install -y puppet git python $ADDITIONAL_PACKAGES
 
 mkdir -p /etc/zulip
 
-echo -e "[machine]\npuppet_classes = zulip::$VOYAGER_CLASS\ndeploy_type = voyager" > /etc/zulip/zulip.conf
+echo -e "[machine]\npuppet_classes = $VOYAGER_CLASS\ndeploy_type = voyager" > /etc/zulip/zulip.conf
 /root/zulip/scripts/zulip-puppet-apply -f
 
 # These server restarting bits should be moveable into puppet-land, ideally
