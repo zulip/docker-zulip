@@ -92,6 +92,10 @@ prepareDirectories() {
     # Link settings folder
     if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
         cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
+    else
+        if [ -h "$DATA_DIR/settings/etc-zulip" ]; then
+            rm -rf "$DATA_DIR/settings/etc-zulip"
+        fi
     fi
     # Link /etc/zulip/ settings folder
     rm -rf /etc/zulip
@@ -210,16 +214,13 @@ configureCerts() {
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
-    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
+    if [ ! -e "/etc/zulip/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
         /root/zulip/scripts/setup/generate_secrets.py
-        mv -f /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
         echo "Secrets generation succeeded."
     else
-        rm -rf /etc/zulip/zulip-secrets.conf
         echo "Secrets already generated."
     fi
-    ln -sfT "$DATA_DIR/zulip-secrets.conf" /etc/zulip/zulip-secrets.conf
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
