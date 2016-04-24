@@ -1,6 +1,5 @@
 #!/bin/bash
-set -e
-set -x
+set -ex
 
 # A bit of a helper variable, default is voyager
 DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
@@ -44,7 +43,7 @@ CREATE USER zulip;
 ALTER ROLE zulip SET search_path TO zulip,public;
 EOF
 # Never drop the database when run from docker!
-# In Docker we have to run this script everytime we start the container, so don't drop..
+# In Docker we have to run this script everytime we start the container, so don't drop.
 if [ "$DEPLOYMENT_TYPE" != "dockervoyager" ]; then
     su "$POSTGRES_USER" -c "$POSTGRES_COMMAND" <<EOF
 DROP DATABASE IF EXISTS zulip;
