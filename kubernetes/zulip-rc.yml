@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: zulip-v1.3.10
+  name: zulip-v1.3.10-1
   namespace: default
   labels:
-    version: v1.3.10
+    version: v1.3.10-1
     app: zulip
 spec:
   replicas: 1
   selector:
-    version: v1.3.10
+    version: v1.3.10-1
     app: zulip
   template:
     metadata:
       labels:
-        version: v1.3.10
+        version: v1.3.10-1
         app: zulip
     spec:
       containers:
@@ -60,7 +60,7 @@ spec:
           - name: postgresql-persistent-storage
             mountPath: /var/lib/postgresql
       - name: zulip
-        image: quay.io/galexrt/zulip:v1.3.10
+        image: quay.io/galexrt/zulip:v1.3.10-1
         resources:
           limits:
             cpu: 100m
