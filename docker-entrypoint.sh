@@ -307,7 +307,8 @@ zulipConfiguration() {
             file="$SETTINGS_PY"
         fi
         if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
-           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]); then
+           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) && [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
+           [[ "$setting_key" = "CSRF_"* ]]; then
              type="array"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
