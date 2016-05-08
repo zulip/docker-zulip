@@ -287,9 +287,6 @@ authenticationBackends() {
     done
     echo "Authentication backend activation succeeded."
 }
-camoConfiguration() {
-    setConfigurationValue "CAMO_URI" "$CAMO_URI" "$ZPROJECT_SETTINGS" "emptyreturn"
-}
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
@@ -350,7 +347,6 @@ initialConfiguration() {
     secretsConfiguration
     databaseConfiguration
     authenticationBackends
-    camoConfiguration
     zulipConfiguration
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
