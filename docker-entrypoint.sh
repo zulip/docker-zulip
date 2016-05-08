@@ -56,6 +56,8 @@ export ZULIP_USER_PASS="${ZULIP_USER_PASS:-zulip}"
 # Auto backup settings
 AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
+# Zulip configuration function specific variable(s)
+SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-True}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 SETTINGS_PY="/etc/zulip/settings.py"
@@ -117,8 +119,14 @@ setConfigurationValue() {
     local TYPE="$4"
     if [ -z "$TYPE" ]; then
         case "$2" in
-            [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])
+            [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
             TYPE="bool"
+            ;;
+            [0-9]*)
+            TYPE="integer"
+            ;;
+            \(*\))
+            TYPE="array"
             ;;
             *)
             TYPE="string"
@@ -130,6 +138,7 @@ setConfigurationValue() {
         if [ -z "$2" ]; then
             return 0
         fi
+        VALUE="$2"
         ;;
         literal)
         VALUE="$1"
@@ -309,7 +318,10 @@ zulipConfiguration() {
         if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
            ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) && [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
            [[ "$setting_key" = "CSRF_"* ]]; then
-             type="array"
+            type="array"
+        fi
+        if [ -z "$SPECIAL_SETTING_DETECTION_MODE" ] && ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]); then
+            type=""
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
     done

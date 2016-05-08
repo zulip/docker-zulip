@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -xe
 
-# Specify options for apt
-APT_OPTIONS="${APT_OPTIONS:-}"
-# Install additional packages using apt
-ADDITIONAL_PACKAGES=${ADDITIONAL_PACKAGES:-}
-# Call the default type "voyager", for docker it's the same
-DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
-# Can be for example "dockervoyager" or voyager
-PUPPET_CLASSES="${PUPPET_CLASSES:-zulip::voyager}"
-
 # Assumes we've already been untarred
 
+# Specify options for apt.
+APT_OPTIONS="${APT_OPTIONS:-}"
+# Install additional packages using apt.
+ADDITIONAL_PACKAGES=${ADDITIONAL_PACKAGES:-}
+# Deployment type is almost always voyager.
+DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
+# Comma-separated list of puppet manifests to install.  default is
+# zulip::voyager for an all-in-one system or zulip::dockervoyager for
+# Docker.  Use e.g. zulip::app_frontend for a Zulip frontend server.
+PUPPET_CLASSES="${PUPPET_CLASSES:-zulip::voyager}"
+
 # First, install any updates from the apt repo that may be needed
-# Install the key through a pipe
 wget -qO - https://zulip.com/dist/keys/zulip-ppa.asc | apt-key add -
 cat >/etc/apt/sources.list.d/zulip.list <<EOF
 deb http://ppa.launchpad.net/tabbott/zulip/ubuntu trusty main
@@ -25,7 +26,6 @@ apt-get -y dist-upgrade $APT_OPTIONS
 apt-get install -y puppet git python $ADDITIONAL_PACKAGES
 
 mkdir -p /etc/zulip
-
 echo -e "[machine]\npuppet_classes = $PUPPET_CLASSES\ndeploy_type = $DEPLOYMENT_TYPE" > /etc/zulip/zulip.conf
 /root/zulip/scripts/zulip-puppet-apply -f
 
@@ -71,8 +71,10 @@ ln -nsf /etc/zulip/settings.py "$deploy_path"/zproject/local_settings.py
 mkdir -p "$deploy_path"/prod-static/serve
 cp -rT "$deploy_path"/prod-static/serve /home/zulip/prod-static
 chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py
-# Allow this to fail, if there is no supervisor running in a docker install
-chown -f zulip:zulip /var/run/supervisor.sock || :
+if [ -e "/var/run/supervisor.sock" ]; then
+    # If supervisor isn't running, no need to chown its socket
+    chown zulip:zulip /var/run/supervisor.sock
+fi
 
 cd /home/zulip/deployments/current
 

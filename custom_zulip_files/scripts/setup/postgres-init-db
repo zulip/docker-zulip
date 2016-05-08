@@ -1,5 +1,6 @@
 #!/bin/bash
-set -ex
+set -e
+set -x
 
 # A bit of a helper variable, default is voyager
 DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
@@ -72,3 +73,4 @@ if [ "$DEPLOYMENT_TYPE" != "dockervoyager" ]; then
 fi
 
 echo "Database created"
+

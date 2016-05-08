@@ -4,6 +4,8 @@
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
+Current Version: `v1.3.11`
+
 ***
 
 This is a container image for [Zulip](https://zulip.org) from [Dropbox](https://blogs.dropbox.com/tech/2015/09/open-sourcing-zulip-a-dropbox-hack-week-project/)
@@ -23,9 +25,9 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ## How to get the container:
 ### For docker use:
-`docker pull quay.io/galexrt/zulip:v1.3.10-1`
+`docker pull quay.io/galexrt/zulip:v1.3.11`
 or
-`docker pull galexrt/zulip:v1.3.10-1`
+`docker pull galexrt/zulip:v1.3.11`
 
 ### For the latest development image changes use:
 `docker pull quay.io/galexrt/zulip:dev`
