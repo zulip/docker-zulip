@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.3.10" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.3.11" DATA_DIR="/data"
 
 RUN apt-get -q update && \
     apt-get -q dist-upgrade -y && \
@@ -12,11 +12,10 @@ RUN apt-get -q update && \
 
 ADD custom_zulip_files/ /root/custom_zulip
 
-RUN rm -rf /root/zulip/puppet && \
-    cp -rf /root/custom_zulip/* /root/zulip && \
+RUN cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
-    /root/zulip/scripts/setup/install
+    /root/zulip/scripts/setup/install && \
 
 ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 
