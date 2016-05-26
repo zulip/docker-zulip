@@ -445,7 +445,7 @@ zulipFirstStartInit() {
 zulipMigration() {
     echo "Migrating Zulip to new version ..."
     set +e
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
+    if ! su zulip -c "yes | /home/zulip/deployments/current/manage.py migrate"; then
         local RETURN_CODE=$?
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
