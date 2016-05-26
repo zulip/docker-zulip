@@ -33,5 +33,4 @@ class zulip::dockervoyager {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/nginx.conf",
   }
-  include zulip::localhost_camo
 }
