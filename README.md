@@ -4,7 +4,7 @@
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-Current Version: `v1.3.12`
+Current Version: `v1.3.12-1`
 
 ***
 
@@ -23,13 +23,13 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ***
 
-## How to get the container:
-### For docker use:
-`docker pull quay.io/galexrt/zulip:v1.3.12`
+## How to get the container running
+### To pull the image run
+`docker pull quay.io/galexrt/zulip:v1.3.12-1`
 or
-`docker pull galexrt/zulip:v1.3.12`
+`docker pull galexrt/zulip:v1.3.12-1`
 
-### For the latest development image changes use:
+### For the latest development image run
 `docker pull quay.io/galexrt/zulip:dev`
 
 ***
@@ -37,16 +37,20 @@ or
 ## **Configure your `docker-compose.yml`, before running the container!**
 **If you don't configure it, you'll end up with a misconfigured Zulip Instance!**
 
+Check the wiki page on how to configure the image, [here](https://github.com/galexrt/docker-zulip/wiki/Configuration). [Wiki Page](https://github.com/galexrt/docker-zulip/wiki/Configuration)
+
 ***
 
 ## Starting the container
 To start the container, you have to use either use `docker-compose` or `kubernetes`:
 
 **Don't forget to configure your `docker-compose.yml` properly!!**
-### Using docker-compose:
+
+### Using docker-compose
 Change to the root of the source folder and use `docker-compose up`.
-### Using kubernetes:
-Change to the root of the source folder and use `kubectl create -f ./kubernetes/`.
+
+### Using Kubernetes
+A Kubernetes pod file is in the `kubernetes/` folder. The command to run it would be `kubectl create -f ./kubernetes/`.
 
 ***
 

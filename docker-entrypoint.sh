@@ -34,7 +34,7 @@ fi
 DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
-NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-20m}"
+NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-24m}"
 # Zulip certifcate parameters
 ZULIP_AUTO_GENERATE_CERTS="${ZULIP_AUTO_GENERATE_CERTS:-True}"
 ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
@@ -445,7 +445,7 @@ zulipFirstStartInit() {
 zulipMigration() {
     echo "Migrating Zulip to new version ..."
     set +e
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate"; then
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
         local RETURN_CODE=$?
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
