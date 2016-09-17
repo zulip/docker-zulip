@@ -17,6 +17,7 @@ DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
+IGNORE_RABBITMQ_ERRORS="false"
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
 SETTING_RABBITMQ_USER="${SETTING_RABBITMQ_USER:-zulip}"
 SETTING_RABBITMQ_PASSWORD="${SETTING_RABBITMQ_PASSWORD:-zulip}"
@@ -138,7 +139,6 @@ setConfigurationValue() {
         if [ -z "$2" ]; then
             return 0
         fi
-        VALUE="$2"
         ;;
         literal)
         VALUE="$1"
@@ -391,14 +391,15 @@ bootstrapDatabase() {
 }
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
-    echo "RabbitMQ deleting user \"guest\"."
-    rabbitmqctl -n "$SETTING_RABBITMQ_USER@$SETTING_RABBITMQ_HOST" delete_user guest 2> /dev/null || :
-    echo "RabbitMQ adding user \"$SETTING_RABBITMQ_USER\"."
-    rabbitmqctl -n "$SETTING_RABBITMQ_USER@$SETTING_RABBITMQ_HOST" add_user "$SETTING_RABBITMQ_USER" "$SECRETS_rabbitmq_password" 2> /dev/null || :
-    echo "RabbitMQ setting user tags for \"$SETTING_RABBITMQ_USER\"."
-    rabbitmqctl -n "$SETTING_RABBITMQ_USER@$SETTING_RABBITMQ_HOST" set_user_tags "$SETTING_RABBITMQ_USER" administrator 2> /dev/null || :
-    echo "RabbitMQ setting permissions for user \"$SETTING_RABBITMQ_USER\"."
-    rabbitmqctl -n "$SETTING_RABBITMQ_USER@$SETTING_RABBITMQ_HOST" set_permissions -p / "$SETTING_RABBITMQ_USER" '.*' '.*' '.*' 2> /dev/null || :
+    set +e
+    /root/zulip/scripts/setup/configure-rabbitmq
+    RETURN_CODE=$?
+    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" != "True" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "true" ]); then
+        echo "=> If you want to ignore RabbitMQ bootstrap errors, add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
+        echo "Zulip RabbitMQ bootstrap failed in \"configure-rabbitmq\" exit code $RETURN_CODE. Exiting."
+        exit $RETURN_CODE
+    fi
+    set -e
     echo "RabbitMQ bootstrap succeeded."
 }
 userCreationConfiguration() {
@@ -418,24 +419,10 @@ zulipFirstStartInit() {
     fi
     local RETURN_CODE=0
     set +e
-    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
+    su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
     RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start init failed in \"migrate --noinput\" exit code $RETURN_CODE. Exiting."
-        exit $RETURN_CODE
-    fi
-    echo "Creating Zulip cache and third_party_api_results tables ..."
-    su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results"
-    RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start init failed in \"createcachetable third_party_api_results\" exit code $RETURN_CODE. Exiting."
-        exit $RETURN_CODE
-    fi
-    echo "Initializing Zulip Voyager database ..."
-    su zulip -c "/home/zulip/deployments/current/manage.py initialize_voyager_db"
-    RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start init failed in \"initialize_voyager_db\" exit code $RETURN_CODE. Exiting."
+        echo "Zulip first start database initi failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
@@ -445,8 +432,9 @@ zulipFirstStartInit() {
 zulipMigration() {
     echo "Migrating Zulip to new version ..."
     set +e
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"; then
-        local RETURN_CODE=$?
+    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
+    local RETURN_CODE=$?
+    if [[ $RETURN_CODE != 0 ]]; then
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
