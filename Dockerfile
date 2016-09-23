@@ -15,7 +15,16 @@ ADD custom_zulip_files/ /root/custom_zulip
 RUN cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
-    /root/zulip/scripts/setup/install
+    /root/zulip/scripts/setup/install && \
+    deploy_path=$(/root/zulip/scripts/lib/zulip_tools.py make_deploy_path) && \
+    mv /root/zulip "$deploy_path" && \
+    ln -nsf /home/zulip/deployments/next /root/zulip && \
+    ln -nsf "$deploy_path" /home/zulip/deployments/next && \
+    ln -nsf "$deploy_path" /home/zulip/deployments/current && \
+    ln -nsf /etc/zulip/settings.py "$deploy_path"/zproject/prod_settings.py && \
+    mkdir -p "$deploy_path"/prod-static/serve && \
+    cp -rT "$deploy_path"/prod-static/serve /home/zulip/prod-static && \
+    chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py
 
 ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 
