@@ -6,7 +6,7 @@
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-Current Version: `1.4.1-2`
+Current Version: `1.4.2`
 
 ***
 
@@ -27,9 +27,9 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ## How to get the container running
 ### To pull the image run
-`docker pull quay.io/galexrt/zulip:1.4.1-2`
+`docker pull quay.io/galexrt/zulip:1.4.2`
 or
-`docker pull galexrt/zulip:1.4.1-2`
+`docker pull galexrt/zulip:1.4.2`
 
 ### For the latest development image run
 `docker pull quay.io/galexrt/zulip:dev`
