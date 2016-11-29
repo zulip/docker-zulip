@@ -155,7 +155,7 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
-    if [ "$DISABLE_HTTPS" == "True" ] && [ "$DISABLE_HTTPS" == "true" ]; then
+    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
         echo "Disabling https in nginx."
         mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
     fi
@@ -166,7 +166,7 @@ nginxConfiguration() {
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
-    if [ "$DISABLE_HTTPS" == "True" ] && [ "$DISABLE_HTTPS" == "true" ]; then
+    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
         echo "DISABLE_HTTPS is true. No certs required."
         return 0
     fi
