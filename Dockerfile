@@ -10,13 +10,14 @@ RUN apt-get -q update && \
     tar xfz /tmp/zulip-server.tar.gz -C /root/zulip --strip-components=1 && \
     rm -rf /tmp/zulip-server.tar.gz
 
-ADD custom_zulip_files/ /root/custom_zulip
+COPY custom_zulip_files/ /root/custom_zulip
 
 RUN cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" \
-    /root/zulip/scripts/setup/install && \
-    cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
+    /root/zulip/scripts/setup/install
+
+RUN cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
     deploy_path=$(/root/zulip/scripts/lib/zulip_tools.py make_deploy_path) && \
     mv /root/zulip "$deploy_path" && \
@@ -28,16 +29,16 @@ RUN cp -rf /root/custom_zulip/* /root/zulip && \
     cp -rT "$deploy_path"/prod-static/serve /home/zulip/prod-static && \
     chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py
 
-ADD includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
+COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 
 RUN chown zulip:zulip /opt/createZulipAdmin.sh && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD docker-entrypoint.sh /sbin/entrypoint.sh
-ADD setup_files/ /opt/files
-ADD includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
+COPY docker-entrypoint.sh /sbin/entrypoint.sh
+COPY setup_files/ /opt/files
+COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
