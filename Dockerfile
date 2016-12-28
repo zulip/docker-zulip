@@ -14,8 +14,9 @@ COPY custom_zulip_files/ /root/custom_zulip
 
 RUN cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" ADDITIONAL_PACKAGES="python-dev python-six python-pbs" VIRTUALENV_NEEDED="no" TRAVIS="yes" \
-    /root/zulip/scripts/setup/install || cat /var/log/zulip/install.log
+    PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
+    ADDITIONAL_PACKAGES="python-dev python-six python-pbs" VIRTUALENV_NEEDED="no" \
+    TRAVIS="yes" /root/zulip/scripts/setup/install
 
 RUN cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
