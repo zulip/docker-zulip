@@ -73,4 +73,3 @@ if [ "$DEPLOYMENT_TYPE" != "dockervoyager" ]; then
 fi
 
 echo "Database created"
-
