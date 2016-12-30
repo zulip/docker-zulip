@@ -3,6 +3,8 @@
 [![](https://images.microbadger.com/badges/image/galexrt/zulip.svg)](https://microbadger.com/images/galexrt/zulip "Get your own image badge on microbadger.com")
 
 [![Docker Repository on Quay.io](https://quay.io/repository/galexrt/zulip/status "Docker Repository on Quay.io")](https://quay.io/repository/galexrt/zulip)
+
+Image available from:
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
