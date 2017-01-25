@@ -8,7 +8,8 @@ Image available from:
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-Current Version: `1.4.2-3`
+Current Zulip version: `1.4.2`
+Current Docker image version: `1.4.2-3`
 
 ***
 
