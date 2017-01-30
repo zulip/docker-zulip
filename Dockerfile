@@ -1,12 +1,12 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.4.2" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.4.3" DATA_DIR="/data"
 
 RUN apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     mkdir -p "$DATA_DIR" /root/zulip && \
-    wget -q "https://www.zulip.com/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -O /tmp/zulip-server.tar.gz && \
+    wget -q "https://www.zulip.org/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -O /tmp/zulip-server.tar.gz && \
     tar xfz /tmp/zulip-server.tar.gz -C /root/zulip --strip-components=1 && \
     rm -rf /tmp/zulip-server.tar.gz
 
