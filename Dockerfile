@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.5.0" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.5.1" DATA_DIR="/data"
 
 RUN apt-get -q update && \
     apt-get -q dist-upgrade -y && \
