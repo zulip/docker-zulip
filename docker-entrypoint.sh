@@ -225,7 +225,7 @@ secretsConfiguration() {
     echo "Setting Zulip secrets ..."
     if [ ! -e "/etc/zulip/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
-        /root/zulip/scripts/setup/generate_secrets.py
+        /root/zulip/scripts/setup/generate_secrets.py --production
         echo "Secrets generation succeeded."
     else
         echo "Secrets already generated."
