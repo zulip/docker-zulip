@@ -1,30 +1,20 @@
 #!/bin/bash
 
-if [ ! -z "$ZULIP_USER_CREATION_ENABLED" ] && ([ -z "$ZULIP_USER_DOMAIN" ] || [ -z "$ZULIP_USER_EMAIL" ]); then
+if ([ "$ZULIP_USER_CREATION_ENABLED" == "True" ] && [ "$ZULIP_USER_CREATION_ENABLED" == "true" ]) && ([ -z "$ZULIP_USER_DOMAIN" ] || [ -z "$ZULIP_USER_EMAIL" ] || [ -z "$ZULIP_USER_FULLNAME" ]); then
     echo "No zulip user configuration given."
     exit 1
 fi
 set +e
 # Doing everything in python, even I never coded in python #YOLO
-su -c "/home/zulip/deployments/current/manage.py shell" zulip <<EOF
-from django.core.management.base import CommandError
-from zerver.lib.create_user import create_user
-from zerver.lib.actions import do_change_is_admin
-from zerver.models import Realm, get_realm, email_to_username
-from zerver.decorator import get_user_profile_by_email
-
-try:
-    realm = get_realm('$ZULIP_USER_DOMAIN')
-except Realm.DoesNotExist:
-    raise CommandError("Realm/Domain does not exist.")
-
-try:
-    create_user('$ZULIP_USER_EMAIL', '$ZULIP_USER_PASS', realm, '$ZULIP_USER_FULLNAME', email_to_username('$ZULIP_USER_EMAIL'))
-except:
-    pass
-
-User = get_user_profile_by_email(email='$ZULIP_USER_EMAIL')
-do_change_is_admin(User, True, 'administer')
-User.save()
-quit()
+sudo su zulip <<BASH
+/home/zulip/deployments/current/manage.py create_realm --string_id="$ZULIP_USER_DOMAIN" --name="$ZULIP_USER_DOMAIN" -d "$ZULIP_USER_DOMAIN"
+/home/zulip/deployments/current/manage.py create_user --this-user-has-accepted-the-tos --realm "$ZULIP_USER_DOMAIN" "$ZULIP_USER_EMAIL" "$ZULIP_USER_FULLNAME"
+/usr/bin/expect <<EOF
+spawn /home/zulip/deployments/current/manage.py changepassword "$ZULIP_USER_EMAIL"
+expect -re 'Password:.*'
+send "$ZULIP_USER_PASS";
+expect -re 'Password (again).*'
+send "$ZULIP_USER_PASS
 EOF
+/home/zulip/deployments/current/manage.py changepassword "$ZULIP_USER_EMAIL"
+BASH
