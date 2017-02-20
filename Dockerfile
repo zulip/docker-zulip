@@ -27,7 +27,6 @@ RUN apt-get -q update && \
     mkdir -p "$deploy_path"/prod-static/serve && \
     cp -rT "$deploy_path"/prod-static/serve /home/zulip/prod-static && \
     chown -R zulip:zulip /home/zulip /var/log/zulip /etc/zulip/settings.py && \
-    chown zulip:zulip /opt/createZulipAdmin.sh && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -36,6 +35,8 @@ COPY setup_files/ /opt/files
 COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
 COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 COPY docker-entrypoint.sh /sbin/entrypoint.sh
+
+RUN chown zulip:zulip /opt/createZulipAdmin.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
