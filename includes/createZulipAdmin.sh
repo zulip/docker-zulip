@@ -17,4 +17,5 @@ expect -re 'Password (again).*'
 send "$ZULIP_USER_PASS
 EOF
 /home/zulip/deployments/current/manage.py changepassword "$ZULIP_USER_EMAIL"
+/home/zulip/deployments/current/manage.py knight "$ZULIP_USER_EMAIL"
 BASH
