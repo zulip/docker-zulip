@@ -59,6 +59,19 @@ A Kubernetes pod file is in the `kubernetes/` folder. The command to run it woul
 
 ***
 
+## Troubleshooting
+### zulip-django exited
+The main reason for this to happen is that you are missing a config file named `uwsgi.ini`.
+The get this file run:
+```
+host$ docker run -it quay.io/galexrt/zulip:1.5.1 bash
+// In the container shell run
+container# cat /etc/zulip/uwsgi.ini
+// Copy the output of this command into your data volume
+// The location to copy the file uwsgi.ini to is in the data volume on the host is:
+// `YOUR_ZULIP_DATA_PATH/settings/etc-zulip`
+```
+
 ## Community
 
 * Chat with other docker-zulip users in the **IRC**. On the [IRC Freenode Webchat](https://webchat.freenode.net) or using a client [Join IRC channel](irc://chat.freenode.net:6697/#docker-zulip) server, in the #docker-zulip channel
