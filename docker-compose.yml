@@ -24,6 +24,9 @@ services:
       - "/opt/docker/zulip/redis:/var/lib/redis:rw"
   zulip:
     image: "quay.io/galexrt/zulip:1.5.1"
+    command:
+    - sleep
+    - "3600"
     ports:
       - "80:80"
       - "443:443"

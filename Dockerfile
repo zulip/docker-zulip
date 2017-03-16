@@ -14,7 +14,7 @@ RUN apt-get -q update && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
-    ADDITIONAL_PACKAGES="python-dev python-six python-pbs expect" VIRTUALENV_NEEDED="yes" \
+    ADDITIONAL_PACKAGES="python-dev python-six python-pbs python-crypto expect" \
     /root/zulip/scripts/setup/install && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
