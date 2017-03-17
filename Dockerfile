@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.5.1" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.5.1-3" DATA_DIR="/data"
 
 COPY custom_zulip_files/ /root/custom_zulip
 
@@ -14,7 +14,7 @@ RUN apt-get -q update && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
-    ADDITIONAL_PACKAGES="python-dev python-six python-pbs python-crypto expect" \
+    ADDITIONAL_PACKAGES="python-dev python-six python-pbs python-crypto rabbitmq-server expect" \
     /root/zulip/scripts/setup/install && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \

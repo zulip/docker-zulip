@@ -8,8 +8,8 @@ Image available from:
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-Current Zulip version: `1.5.1`
-Current Docker image version: `1.5.1`
+Current Zulip version: `1.5.1-3`
+Current Docker image version: `1.5.1-3`
 
 ***
 
@@ -30,9 +30,9 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ## How to get the container running
 ### To pull the image run
-`docker pull quay.io/galexrt/zulip:1.5.1`
+`docker pull quay.io/galexrt/zulip:1.5.1-3`
 or
-`docker pull galexrt/zulip:1.5.1`
+`docker pull galexrt/zulip:1.5.1-3`
 
 ### For the latest development image run
 `docker pull quay.io/galexrt/zulip:dev`
@@ -64,7 +64,7 @@ A Kubernetes pod file is in the `kubernetes/` folder. The command to run it woul
 The main reason for this to happen is that you are missing a config file named `uwsgi.ini`.
 The get this file run:
 ```
-host$ docker run -it quay.io/galexrt/zulip:1.5.1 bash
+host$ docker run -it quay.io/galexrt/zulip:1.5.1-3 bash
 // In the container shell run
 container# cat /etc/zulip/uwsgi.ini
 // Copy the output of this command into your data volume
