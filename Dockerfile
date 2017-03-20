@@ -31,7 +31,6 @@ RUN apt-get -q update && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY setup_files/ /opt/files
 COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
 COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 COPY docker-entrypoint.sh /sbin/entrypoint.sh
