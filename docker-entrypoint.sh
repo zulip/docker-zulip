@@ -383,9 +383,9 @@ bootstrapDatabase() {
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
     set +e
-    /root/zulip/scripts/setup/configure-rabbitmq
+    /root/zulip/scripts/setup/configure-rabbitmq | tail -n 16
     RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" != "True" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "true" ]); then
+    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" != "True" ] && [ "$IGNORE_RABBITMQ_ERRORS" != "true" ]); then
         echo "=> If you want to ignore RabbitMQ bootstrap errors, add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
         echo "Zulip RabbitMQ bootstrap failed in \"configure-rabbitmq\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
