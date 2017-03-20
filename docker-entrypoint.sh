@@ -32,7 +32,6 @@ if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
     SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
 fi
 # Nginx settings
-DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-24m}"
@@ -155,10 +154,6 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
-        echo "Disabling https in nginx."
-        mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
-    fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
     sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
@@ -166,10 +161,6 @@ nginxConfiguration() {
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
-        echo "DISABLE_HTTPS is true. No certs required."
-        return 0
-    fi
     case "$ZULIP_AUTO_GENERATE_CERTS" in
         [Tt][Rr][Uu][Ee])
             ZULIP_AUTO_GENERATE_CERTS="True"
