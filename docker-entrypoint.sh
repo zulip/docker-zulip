@@ -17,7 +17,7 @@ DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 unset DB_PASSWORD
 # RabbitMQ
-IGNORE_RABBITMQ_ERRORS="false"
+IGNORE_RABBITMQ_ERRORS="true"
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
 SETTING_RABBITMQ_USER="${SETTING_RABBITMQ_USER:-zulip}"
 SETTING_RABBITMQ_PASSWORD="${SETTING_RABBITMQ_PASSWORD:-zulip}"
@@ -126,7 +126,7 @@ setConfigurationValue() {
             [0-9]*)
             TYPE="integer"
             ;;
-            \(*\))
+            [\[\(]*[\]\)])
             TYPE="array"
             ;;
             *)
@@ -317,7 +317,7 @@ zulipConfiguration() {
            [[ "$setting_key" = "CSRF_"* ]] || [[ "$setting_key" = "ALLOWED_HOSTS" ]]; then
             type="array"
         fi
-        if [ -z "$SPECIAL_SETTING_DETECTION_MODE" ] && ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]); then
+        if [ ! -z "$SPECIAL_SETTING_DETECTION_MODE" ] && ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]); then
             type=""
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
@@ -482,12 +482,13 @@ bootstrappingEnvironment() {
     runPostSetupScripts
     echo "=== End Bootstrap Phase ==="
 }
-# END appRun functionss
+# END appRun functions
+# BEGIN app functions
 appRun() {
     initialConfiguration
     bootstrappingEnvironment
     echo "=== Begin Run Phase ==="
-    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" ..."
+    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" config ..."
     echo ""
     exec supervisord -n -c "/etc/supervisor/supervisord.conf"
 }
@@ -586,6 +587,7 @@ appVersion() {
     echo "> Checksum: $ZULIP_CHECKSUM"
     exit 0
 }
+# END app functions
 
 case "$1" in
     app:run)

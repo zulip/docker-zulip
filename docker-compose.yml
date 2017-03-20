@@ -1,11 +1,11 @@
 version: '2'
 services:
   database:
-    image: "quay.io/galexrt/zulip-postgresql-tsearchextras:latest"
+    image: "quay.io/galexrt/postgres-zulip-tsearchextras:latest"
     environment:
-      DB_NAME: zulip
-      DB_USER: zulip
-      DB_PASS: zulip
+      POSTGRES_DB: zulip
+      POSTGRES_USER: zulip
+      POSTGRES_PASSWORD: zulip
     volumes:
       - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql:rw"
   memcached:
@@ -23,10 +23,7 @@ services:
     volumes:
       - "/opt/docker/zulip/redis:/var/lib/redis:rw"
   zulip:
-    image: "quay.io/galexrt/zulip:1.5.1-2-3"
-#    command:
-#    - sleep
-#    - "3600"
+    image: "quay.io/galexrt/zulip:dev"
     ports:
       - "80:80"
       - "443:443"
