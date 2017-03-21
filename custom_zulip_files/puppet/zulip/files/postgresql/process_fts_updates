@@ -78,7 +78,7 @@ if remote_postgres_host != '':
         postgres_password = "password='%s'" % settings.DATABASES['default']['PASSWORD']
     postgres_user = 'user=zulip'
     if settings.DATABASES['default']['USER'] is not None:
-        postgres_password = "user='%s'" % settings.DATABASES['default']['USER']
+        postgres_user = "user='%s'" % settings.DATABASES['default']['USER']
     postgres_dbname = 'dbname=zulip'
     if settings.DATABASES['default']['NAME'] is not None:
         postgres_dbname = "dbname='%s'" % settings.DATABASES['default']['NAME']
