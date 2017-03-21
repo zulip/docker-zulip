@@ -66,7 +66,7 @@ The get this file run:
 ```
 // This command copy the output of file uwsgi.ini into your data volume on the host.
 // Replace `YOUR_ZULIP_DATA_PATH` with your path.
-host$ docker run --rm quay.io/galexrt/zulip:1.5.1 cat /etc/zulip/uwsgi.ini > YOUR_ZULIP_DATA_PATH/settings/etc-zulip/
+host$ docker run --rm quay.io/galexrt/zulip:1.5.1 cat /etc/zulip/uwsgi.ini > YOUR_ZULIP_DATA_PATH/settings/etc-zulip/uwsgi.ini
 ```
 
 ## Community
