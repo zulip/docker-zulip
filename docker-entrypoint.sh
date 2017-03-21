@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$DEBUG" == "true" ] || [ "$DEBUG" == "True" ]; then
+if [ "$DEBUG" = "true" ] || [ "$DEBUG" = "True" ]; then
     set -x
     set -o functrace
 fi
@@ -18,7 +18,7 @@ DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
 unset DB_PASSWORD
 # RabbitMQ
-IGNORE_RABBITMQ_ERRORS="true"
+IGNORE_RABBITMQ_ERRORS="${IGNORE_RABBITMQ_ERRORS:-true}"
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
 SETTING_RABBITMQ_USER="${SETTING_RABBITMQ_USER:-zulip}"
 SETTING_RABBITMQ_PASSWORD="${SETTING_RABBITMQ_PASSWORD:-zulip}"
@@ -91,7 +91,7 @@ prepareDirectories() {
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
     # Link settings folder
-    if [ "$LINK_SETTINGS_TO_DATA" == "True" ] || [ "$LINK_SETTINGS_TO_DATA" == "true" ]; then
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
         # Create settings directories
         if [ ! -d "$DATA_DIR/settings" ]; then
             mkdir -p "$DATA_DIR/settings"
@@ -175,7 +175,7 @@ configureCerts() {
         ;;
     esac
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && ([ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" == "true" ]); then
+        if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && ([ "$ZULIP_AUTO_GENERATE_CERTS" = "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" = "true" ]); then
             echo "No certs in \"$DATA_DIR/certs\"."
             echo "Autogenerating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
@@ -225,8 +225,8 @@ secretsConfiguration() {
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
-        local KEY="SECRETS_$SECRET_KEY"
-        local SECRET_VAR="${!KEY}"
+        local key="SECRETS_$SECRET_KEY"
+        local SECRET_VAR="${!key}"
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
             continue
@@ -241,7 +241,7 @@ secretsConfiguration() {
         fi
     done
     set -e
-    unset SECRET_KEY SECRET_VAR KEY
+    unset SECRET_KEY SECRET_VAR key
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
@@ -311,15 +311,15 @@ zulipConfiguration() {
            [[ "$setting_key" = "CSRF_"* ]] || [[ "$setting_key" = "ALLOWED_HOSTS" ]]; then
             type="array"
         fi
-        if [ ! -z "$SPECIAL_SETTING_DETECTION_MODE" ] && ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]); then
+        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]; then
             type=""
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
     done
-    unset setting_key setting_var KEY
+    unset setting_key setting_var
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
     if [[ $? != 0 ]]; then
-        echo "Error in Zulip configuration. Exiting."
+        echo "Error in the Zulip configuration. Exiting."
         exit 1
     fi
     echo "Zulip configuration succeeded."
@@ -339,7 +339,7 @@ initialConfiguration() {
     nginxConfiguration
     configureCerts
     databaseConfiguration
-    if [ "$MANUAL_CONFIGURATION" == "False" ] || [ "$MANUAL_CONFIGURATION" == "false" ]; then
+    if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
         secretsConfiguration
         authenticationBackends
         zulipConfiguration
@@ -390,8 +390,9 @@ bootstrapRabbitMQ() {
     set +e
     /root/zulip/scripts/setup/configure-rabbitmq | tail -n 16
     RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" != "True" ] && [ "$IGNORE_RABBITMQ_ERRORS" != "true" ]); then
-        echo "=> If you want to ignore RabbitMQ bootstrap errors, add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
+    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" = "False" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "false" ]); then
+        echo "=> In most cases you can completely ignore the RabbmitMQ bootstrap errors."
+        echo "=> If you want to ignore RabbitMQ bootstrap errors, (re)add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
         echo "Zulip RabbitMQ bootstrap failed in \"configure-rabbitmq\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
