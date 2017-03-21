@@ -33,4 +33,23 @@ class zulip::dockervoyager {
     mode => 644,
     source => "puppet:///modules/zulip/supervisor/conf.d/nginx.conf",
   }
+
+  # process_fts_updates installation
+  file { "/usr/local/bin/process_fts_updates":
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 755,
+    source => "puppet:///modules/zulip/postgresql/process_fts_updates",
+  }
+
+  file { "/etc/supervisor/conf.d/zulip_db.conf":
+    require => Package[supervisor],
+    ensure => file,
+    owner => "root",
+    group => "root",
+    mode => 644,
+    source => "puppet:///modules/zulip/supervisor/conf.d/zulip_db.conf",
+    notify => Service[supervisor],
+  }
 }

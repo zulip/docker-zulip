@@ -15,6 +15,7 @@ DB_USER="${DB_USER:-zulip}"
 DB_PASS="${DB_PASS:-zulip}"
 DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
+REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
 unset DB_PASSWORD
 # RabbitMQ
 IGNORE_RABBITMQ_ERRORS="true"
@@ -262,6 +263,8 @@ databaseConfiguration() {
   },
 }"
     setConfigurationValue "DATABASES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
+    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
+    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
     echo "Database configuration succeeded."
 }
 authenticationBackends() {
