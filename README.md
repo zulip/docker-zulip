@@ -64,12 +64,9 @@ A Kubernetes pod file is in the `kubernetes/` folder. The command to run it woul
 The main reason for this to happen is that you are missing a config file named `uwsgi.ini`.
 The get this file run:
 ```
-host$ docker run -it quay.io/galexrt/zulip:1.5.1 bash
-// In the container shell run
-container# cat /etc/zulip/uwsgi.ini
-// Copy the output of this command into your data volume
-// The location to copy the file uwsgi.ini to is in the data volume on the host is:
-// `YOUR_ZULIP_DATA_PATH/settings/etc-zulip`
+// This command copy the output of file uwsgi.ini into your data volume on the host.
+// Replace `YOUR_ZULIP_DATA_PATH` with your path.
+host$ docker run --rm quay.io/galexrt/zulip:1.5.1 cat /etc/zulip/uwsgi.ini > YOUR_ZULIP_DATA_PATH/settings/etc-zulip/
 ```
 
 ## Community
