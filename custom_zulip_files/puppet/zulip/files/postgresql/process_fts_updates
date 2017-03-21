@@ -87,7 +87,7 @@ if remote_postgres_host != '':
     else:
         postgres_sslmode = 'verify-full'
     conn = psycopg2.connect("%s %s host='%s' %s connect_timeout=600 sslmode='%s'" % (
-        postgres_user, postgres_password, remote_postgres_host, postgres_sslmode))
+        postgres_user, postgres_password, remote_postgres_host, postgres_dbname, postgres_sslmode))
 else:
     conn = psycopg2.connect("user=zulip")
 cursor = conn.cursor()
