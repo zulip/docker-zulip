@@ -45,6 +45,10 @@ services:
       SETTING_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
       SETTING_EMAIL_HOST: "smtp.example.com"
       SETTING_EMAIL_HOST_USER: "noreply@example.com"
+      SETTING_EMAIL_PORT: "587"
+      # It seems that the email server needs to use ssl or tls and can't be used without it
+      SETTING_EMAIL_USE_SSL: "False"
+      SETTING_EMAIL_USE_TLS: "True"
       SETTING_ALLOWED_HOSTS: "[ '*', '127.0.0.2' ]"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       ZULIP_USER_CREATION_ENABLED: "True"
