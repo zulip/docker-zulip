@@ -33,12 +33,12 @@ RUN apt-get -q update && \
 
 COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
 COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
-COPY docker-entrypoint.sh /entrypoint.sh
+COPY docker-entrypoint.sh /sbin/entrypoint.sh
 
 RUN chown zulip:zulip /opt/createZulipAdmin.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:run"]

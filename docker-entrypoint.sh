@@ -59,6 +59,8 @@ AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # Zulip configuration function specific variable(s)
 SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-True}"
+MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
+LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 SETTINGS_PY="/etc/zulip/settings.py"
@@ -88,21 +90,19 @@ prepareDirectories() {
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
-    # Create settings directories
-    if [ ! -d "$DATA_DIR/settings" ]; then
-        mkdir -p "$DATA_DIR/settings"
-    fi
     # Link settings folder
-    if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
-        cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
-    else
-        if [ -h "$DATA_DIR/settings/etc-zulip" ]; then
-            rm -rf "$DATA_DIR/settings/etc-zulip"
+    if [ "$LINK_SETTINGS_TO_DATA" == "True" ] || [ "$LINK_SETTINGS_TO_DATA" == "true" ]; then
+        # Create settings directories
+        if [ ! -d "$DATA_DIR/settings" ]; then
+            mkdir -p "$DATA_DIR/settings"
         fi
+        if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
+            cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
+        fi
+        # Link /etc/zulip/ settings folder
+        rm -rf /etc/zulip
+        ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
     fi
-    # Link /etc/zulip/ settings folder
-    rm -rf /etc/zulip
-    ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
     echo "Prepared and linked the uploads directory."
 }
 setConfigurationValue() {
@@ -338,10 +338,12 @@ initialConfiguration() {
     prepareDirectories
     nginxConfiguration
     configureCerts
-    secretsConfiguration
     databaseConfiguration
-    authenticationBackends
-    zulipConfiguration
+    if [ "$MANUAL_CONFIGURATION" == "False" ] || [ "$MANUAL_CONFIGURATION" == "false" ]; then
+        secretsConfiguration
+        authenticationBackends
+        zulipConfiguration
+    fi
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
 }
