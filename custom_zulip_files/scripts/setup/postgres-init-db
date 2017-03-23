@@ -8,7 +8,6 @@ DEPLOYMENT_TYPE="${DEPLOYMENT_TYPE:-voyager}"
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
 
 # Shut down all services to ensure a quiescent state.
-# Stop supervisord only if the socket exists, prevents problems with docker
 if [ -e "/var/run/supervisor.sock" ]; then
     supervisorctl stop all
 fi

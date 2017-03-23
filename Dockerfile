@@ -14,7 +14,7 @@ RUN apt-get -q update && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
-    ADDITIONAL_PACKAGES="python-dev python-six python-pbs python-crypto expect" \
+    ADDITIONAL_PACKAGES="python-dev python-six python-pbs python-crypto rabbitmq-server expect" \
     /root/zulip/scripts/setup/install && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
@@ -31,7 +31,6 @@ RUN apt-get -q update && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY setup_files/ /opt/files
 COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
 COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
 COPY docker-entrypoint.sh /sbin/entrypoint.sh

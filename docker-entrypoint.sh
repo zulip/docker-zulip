@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$DEBUG" == "true" ] || [ "$DEBUG" == "True" ]; then
+if [ "$DEBUG" = "true" ] || [ "$DEBUG" = "True" ]; then
     set -x
     set -o functrace
 fi
@@ -15,9 +15,10 @@ DB_USER="${DB_USER:-zulip}"
 DB_PASS="${DB_PASS:-zulip}"
 DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
+REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
 unset DB_PASSWORD
 # RabbitMQ
-IGNORE_RABBITMQ_ERRORS="false"
+IGNORE_RABBITMQ_ERRORS="${IGNORE_RABBITMQ_ERRORS:-true}"
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
 SETTING_RABBITMQ_USER="${SETTING_RABBITMQ_USER:-zulip}"
 SETTING_RABBITMQ_PASSWORD="${SETTING_RABBITMQ_PASSWORD:-zulip}"
@@ -32,7 +33,6 @@ if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
     SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
 fi
 # Nginx settings
-DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-24m}"
@@ -59,6 +59,8 @@ AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # Zulip configuration function specific variable(s)
 SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-True}"
+MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
+LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
 # entrypoint.sh specific variable(s)
 ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 SETTINGS_PY="/etc/zulip/settings.py"
@@ -88,21 +90,19 @@ prepareDirectories() {
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
-    # Create settings directories
-    if [ ! -d "$DATA_DIR/settings" ]; then
-        mkdir -p "$DATA_DIR/settings"
-    fi
     # Link settings folder
-    if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
-        cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
-    else
-        if [ -h "$DATA_DIR/settings/etc-zulip" ]; then
-            rm -rf "$DATA_DIR/settings/etc-zulip"
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
+        # Create settings directories
+        if [ ! -d "$DATA_DIR/settings" ]; then
+            mkdir -p "$DATA_DIR/settings"
         fi
+        if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
+            cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
+        fi
+        # Link /etc/zulip/ settings folder
+        rm -rf /etc/zulip
+        ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
     fi
-    # Link /etc/zulip/ settings folder
-    rm -rf /etc/zulip
-    ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
     echo "Prepared and linked the uploads directory."
 }
 setConfigurationValue() {
@@ -126,7 +126,7 @@ setConfigurationValue() {
             [0-9]*)
             TYPE="integer"
             ;;
-            \(*\))
+            [\[\(]*[\]\)])
             TYPE="array"
             ;;
             *)
@@ -155,10 +155,6 @@ setConfigurationValue() {
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
-        echo "Disabling https in nginx."
-        mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
-    fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
     sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
@@ -166,10 +162,6 @@ nginxConfiguration() {
 }
 configureCerts() {
     echo "Exectuing certificates configuration..."
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
-        echo "DISABLE_HTTPS is true. No certs required."
-        return 0
-    fi
     case "$ZULIP_AUTO_GENERATE_CERTS" in
         [Tt][Rr][Uu][Ee])
             ZULIP_AUTO_GENERATE_CERTS="True"
@@ -183,7 +175,7 @@ configureCerts() {
         ;;
     esac
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        if [ ! -z "$ZULIP_AUTO_GENERATE_CERTS" ] && ([ "$ZULIP_AUTO_GENERATE_CERTS" == "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" == "true" ]); then
+        if [ "$ZULIP_AUTO_GENERATE_CERTS" = "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" = "true" ]; then
             echo "No certs in \"$DATA_DIR/certs\"."
             echo "Autogenerating certificates ..."
             if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
@@ -233,8 +225,8 @@ secretsConfiguration() {
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
-        local KEY="SECRETS_$SECRET_KEY"
-        local SECRET_VAR="${!KEY}"
+        local key="SECRETS_$SECRET_KEY"
+        local SECRET_VAR="${!key}"
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
             continue
@@ -249,7 +241,7 @@ secretsConfiguration() {
         fi
     done
     set -e
-    unset SECRET_KEY SECRET_VAR KEY
+    unset SECRET_KEY SECRET_VAR key
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
@@ -271,6 +263,8 @@ databaseConfiguration() {
   },
 }"
     setConfigurationValue "DATABASES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
+    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
+    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
     echo "Database configuration succeeded."
 }
 authenticationBackends() {
@@ -317,15 +311,15 @@ zulipConfiguration() {
            [[ "$setting_key" = "CSRF_"* ]] || [[ "$setting_key" = "ALLOWED_HOSTS" ]]; then
             type="array"
         fi
-        if [ -z "$SPECIAL_SETTING_DETECTION_MODE" ] && ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]); then
+        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]; then
             type=""
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
     done
-    unset setting_key setting_var KEY
+    unset setting_key setting_var
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
     if [[ $? != 0 ]]; then
-        echo "Error in Zulip configuration. Exiting."
+        echo "Error in the Zulip configuration. Exiting."
         exit 1
     fi
     echo "Zulip configuration succeeded."
@@ -344,10 +338,12 @@ initialConfiguration() {
     prepareDirectories
     nginxConfiguration
     configureCerts
-    secretsConfiguration
     databaseConfiguration
-    authenticationBackends
-    zulipConfiguration
+    if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
+        secretsConfiguration
+        authenticationBackends
+        zulipConfiguration
+    fi
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
 }
@@ -392,10 +388,11 @@ bootstrapDatabase() {
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
     set +e
-    /root/zulip/scripts/setup/configure-rabbitmq
+    /root/zulip/scripts/setup/configure-rabbitmq | tail -n 16
     RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" != "True" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "true" ]); then
-        echo "=> If you want to ignore RabbitMQ bootstrap errors, add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
+    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" = "False" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "false" ]); then
+        echo "=> In most cases you can completely ignore the RabbmitMQ bootstrap errors."
+        echo "=> If you want to ignore RabbitMQ bootstrap errors, (re)add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
         echo "Zulip RabbitMQ bootstrap failed in \"configure-rabbitmq\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
@@ -482,12 +479,13 @@ bootstrappingEnvironment() {
     runPostSetupScripts
     echo "=== End Bootstrap Phase ==="
 }
-# END appRun functionss
+# END appRun functions
+# BEGIN app functions
 appRun() {
     initialConfiguration
     bootstrappingEnvironment
     echo "=== Begin Run Phase ==="
-    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" ..."
+    echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" config ..."
     echo ""
     exec supervisord -n -c "/etc/supervisor/supervisord.conf"
 }
@@ -586,6 +584,7 @@ appVersion() {
     echo "> Checksum: $ZULIP_CHECKSUM"
     exit 0
 }
+# END app functions
 
 case "$1" in
     app:run)

@@ -1,11 +1,11 @@
 version: '2'
 services:
   database:
-    image: "quay.io/galexrt/zulip-postgresql-tsearchextras:latest"
+    image: "quay.io/galexrt/postgres-zulip-tsearchextras:latest"
     environment:
-      DB_NAME: zulip
-      DB_USER: zulip
-      DB_PASS: zulip
+      POSTGRES_DB: zulip
+      POSTGRES_USER: zulip
+      POSTGRES_PASSWORD: zulip
     volumes:
       - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql:rw"
   memcached:
@@ -23,10 +23,7 @@ services:
     volumes:
       - "/opt/docker/zulip/redis:/var/lib/redis:rw"
   zulip:
-    image: "quay.io/galexrt/zulip:1.5.1"
-    command:
-    - sleep
-    - "3600"
+    image: "quay.io/galexrt/zulip:dev"
     ports:
       - "80:80"
       - "443:443"
@@ -48,6 +45,10 @@ services:
       SETTING_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
       SETTING_EMAIL_HOST: "smtp.example.com"
       SETTING_EMAIL_HOST_USER: "noreply@example.com"
+      SETTING_EMAIL_PORT: "587"
+      # It seems that the email server needs to use ssl or tls and can't be used without it
+      SETTING_EMAIL_USE_SSL: "False"
+      SETTING_EMAIL_USE_TLS: "True"
       SETTING_ALLOWED_HOSTS: "[ '*', '127.0.0.2' ]"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       ZULIP_USER_CREATION_ENABLED: "True"
