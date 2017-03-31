@@ -26,5 +26,5 @@ expect "$ "
 send -- "exit\r"
 expect eof
 EOF
-/home/zulip/deployments/current/manage.py knight "$ZULIP_USER_EMAIL"
+/home/zulip/deployments/current/manage.py knight "$ZULIP_USER_EMAIL" -f
 BASH
