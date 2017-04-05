@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: zulip
       POSTGRES_PASSWORD: zulip
     volumes:
-      - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql:rw"
+      - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw"
   memcached:
     image: "quay.io/sameersbn/memcached:latest"
     restart: always
@@ -23,7 +23,7 @@ services:
     volumes:
       - "/opt/docker/zulip/redis:/var/lib/redis:rw"
   zulip:
-    image: "quay.io/galexrt/zulip:1.5.1-4"
+    image: "quay.io/galexrt/zulip:1.5.1-5"
     ports:
       - "80:80"
       - "443:443"

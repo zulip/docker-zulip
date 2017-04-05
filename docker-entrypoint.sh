@@ -422,7 +422,7 @@ userCreationConfiguration() {
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
+    if [ -e "$DATA_DIR/.initiated" ] && ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]); then
         echo "First Start Init not needed. Continuing."
         return 0
     fi
