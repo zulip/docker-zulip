@@ -37,7 +37,7 @@ services:
       SETTING_REDIS_HOST: "redis"
       SECRETS_email_password: "123456789"
       SECRETS_rabbitmq_password: "zulip"
-      SECRETS_secret_key: "REPLCAE_WITH_SECURE_SECRET_KEY"
+      SECRETS_secret_key: "REPLACE_WITH_SECURE_SECRET_KEY"
       SETTING_EXTERNAL_HOST: "example.com"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
       SETTING_ADMIN_DOMAIN: "example.com"

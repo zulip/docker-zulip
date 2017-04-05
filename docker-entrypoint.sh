@@ -215,12 +215,15 @@ configureCerts() {
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
-    if [ ! -e "/etc/zulip/zulip-secrets.conf" ]; then
+    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
         /root/zulip/scripts/setup/generate_secrets.py --production
+        mv "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf" || {
+            echo "Couldn't move the generate zulip secrets to the data dir."; exit 1;
+        }
         echo "Secrets generation succeeded."
     else
-        echo "Secrets already generated."
+        echo "Secrets already generated/existing."
     fi
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
@@ -231,17 +234,26 @@ secretsConfiguration() {
             echo "Empty secret for key \"$SECRET_KEY\"."
             continue
         fi
-        grep -q "$SECRET_KEY" /etc/zulip/zulip-secrets.conf
+        grep -q "$SECRET_KEY" "$DATA_DIR/zulip-secrets.conf"
         if (($? > 0)); then
-            echo "$SECRET_KEY = $SECRET_VAR" >> /etc/zulip/zulip-secrets.conf
+            echo "$SECRET_KEY = $SECRET_VAR" >> "$DATA_DIR/zulip-secrets.conf"
             echo "Secret added for \"$SECRET_KEY\"."
         else
-            sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" /etc/zulip/zulip-secrets.conf
+            sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" "$DATA_DIR/zulip-secrets.conf"
             echo "Secret found for \"$SECRET_KEY\"."
         fi
     done
     set -e
     unset SECRET_KEY SECRET_VAR key
+    if [ -e "/etc/zulip/zulip-secrets.conf" ]; then
+        rm "/etc/zulip/zulip-secrets.conf"
+    fi
+    echo "Linking secrets from data dir to etc zulip  ..."
+    ln -s "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf" || {
+        echo "Couldn't link existing zulip secrets to etc zulip.";
+        exit 1;
+    }
+    echo "Linked existing secrets from data dir to etc zulip."
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
