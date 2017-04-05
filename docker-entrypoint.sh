@@ -48,7 +48,6 @@ ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Zulip user setup
-FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
 export ZULIP_USER_CREATION_ENABLED="${ZULIP_USER_CREATION_ENABLED:-True}"
 export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
 export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $SETTING_EXTERNAL_HOST)}"
@@ -420,28 +419,10 @@ userCreationConfiguration() {
     fi
     echo "Zulip user creation left enabled."
 }
-zulipFirstStartInit() {
-    echo "Executing Zulip first start init ..."
-    if ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
-        echo "First Start Init not needed. Continuing."
-        return 0
-    fi
-    local RETURN_CODE=0
-    set +e
-    su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
-    RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start database initi failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
-        exit $RETURN_CODE
-    fi
-    set -e
-    touch "$DATA_DIR/.initiated"
-    echo "Zulip first start init sucessful."
-}
 zulipMigration() {
     echo "Migrating Zulip to new version ..."
     set +e
-    su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
+    su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
     local RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
@@ -486,7 +467,6 @@ bootstrappingEnvironment() {
     bootstrapDatabase
     bootstrapRabbitMQ
     userCreationConfiguration
-    zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
     echo "=== End Bootstrap Phase ==="
