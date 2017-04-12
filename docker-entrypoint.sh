@@ -232,7 +232,6 @@ secretsConfiguration() {
         local SECRET_VAR="${!key}"
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
-            continue
         fi
         grep -q "$SECRET_KEY" "$DATA_DIR/zulip-secrets.conf"
         if (($? > 0)); then
