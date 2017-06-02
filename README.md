@@ -8,8 +8,8 @@ Image available from:
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
 * [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip)
 
-Current Zulip version: `1.5.1-5`
-Current Docker image version: `1.5.1-5`
+Current Zulip version: `1.5.2`
+Current Docker image version: `1.5.2-0`
 
 ***
 
@@ -30,9 +30,9 @@ See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configurati
 
 ## How to get the container running
 ### To pull the image run
-`docker pull quay.io/galexrt/zulip:1.5.1-5`
+`docker pull quay.io/galexrt/zulip:1.5.2-0`
 or
-`docker pull galexrt/zulip:1.5.1-5`
+`docker pull galexrt/zulip:1.5.2-0`
 
 ### For the latest development image run
 `docker pull quay.io/galexrt/zulip:dev`
@@ -66,7 +66,7 @@ The get this file run:
 ```
 // This command copy the output of file uwsgi.ini into your data volume on the host.
 // Replace `YOUR_ZULIP_DATA_PATH` with your path.
-host$ docker run --rm quay.io/galexrt/zulip:1.5.1 cat /etc/zulip/uwsgi.ini > YOUR_ZULIP_DATA_PATH/settings/etc-zulip/uwsgi.ini
+host$ docker run --rm quay.io/galexrt/zulip:1.5.2 cat /etc/zulip/uwsgi.ini > YOUR_ZULIP_DATA_PATH/settings/etc-zulip/uwsgi.ini
 ```
 
 ## Community
