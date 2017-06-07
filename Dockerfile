@@ -1,7 +1,7 @@
 FROM quay.io/sameersbn/ubuntu:latest
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.5.2" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.6.0" DATA_DIR="/data"
 
 COPY custom_zulip_files/ /root/custom_zulip
 
