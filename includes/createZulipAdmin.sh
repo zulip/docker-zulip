@@ -6,8 +6,8 @@ if ([ "$ZULIP_USER_CREATION_ENABLED" == "True" ] && [ "$ZULIP_USER_CREATION_ENAB
 fi
 set +e
 # Doing everything in python, even I never coded in python #YOLO
-sudo su zulip <<BASH
-/home/zulip/deployments/current/manage.py create_realm --string_id="$ZULIP_USER_DOMAIN" --name="$ZULIP_USER_DOMAIN" -d "$ZULIP_USER_DOMAIN"
+sudo -H -u zulip -g zulip bash <<BASH
+/home/zulip/deployments/current/manage.py create_realm --string_id="$ZULIP_USER_DOMAIN" --name="$ZULIP_USER_DOMAIN"
 /home/zulip/deployments/current/manage.py create_user --this-user-has-accepted-the-tos --realm "$ZULIP_USER_DOMAIN" "$ZULIP_USER_EMAIL" "$ZULIP_USER_FULLNAME"
 /usr/bin/expect <<EOF
 set timeout 5
