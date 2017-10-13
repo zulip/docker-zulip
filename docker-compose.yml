@@ -29,8 +29,8 @@ services:
       - "443:443"
     environment:
       DB_HOST: "database"
+      DB_HOST_PORT: "zulip"
       DB_USER: "zulip"
-      DB_PASS: "zulip"
       DB_PASS: "zulip"
       SETTING_MEMCACHED_LOCATION: "memcached:11211"
       SETTING_RABBITMQ_HOST: "rabbitmq"
