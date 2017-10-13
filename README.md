@@ -1,8 +1,8 @@
 # Welcome to docker-zulip!
 
 [![](https://images.microbadger.com/badges/image/galexrt/zulip.svg)](https://microbadger.com/images/galexrt/zulip "Get your own image badge on microbadger.com")
-
 [![Docker Repository on Quay.io](https://quay.io/repository/galexrt/zulip/status "Docker Repository on Quay.io")](https://quay.io/repository/galexrt/zulip)
+[![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
 
 Image available from:
 * [**Quay.io**](https://quay.io/repository/galexrt/zulip)
@@ -71,7 +71,8 @@ host$ docker run --rm quay.io/galexrt/zulip:1.5.2 cat /etc/zulip/uwsgi.ini > YOU
 
 ## Community
 
-* Chat with other docker-zulip users in the **IRC**. On the [IRC Freenode Webchat](https://webchat.freenode.net) or using a client [Join IRC channel](irc://chat.freenode.net:6697/#docker-zulip) server, in the #docker-zulip channel
+* Chat with other docker-zulip users in the [![docker topic]]
+**IRC**. On the [IRC Freenode Webchat](https://webchat.freenode.net) or using a client [Join IRC channel](irc://chat.freenode.net:6697/#docker-zulip) server, in the #docker-zulip channel
 
 ## Contributing
 
