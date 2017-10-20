@@ -29,7 +29,7 @@ services:
       - "443:443"
     environment:
       DB_HOST: "database"
-      DB_HOST_PORT: "zulip"
+      DB_HOST_PORT: "5432"
       DB_USER: "zulip"
       DB_PASS: "zulip"
       SETTING_MEMCACHED_LOCATION: "memcached:11211"
