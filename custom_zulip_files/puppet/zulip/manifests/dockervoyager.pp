@@ -16,7 +16,11 @@ class zulip::dockervoyager {
     }
   }
   safepackage { $appdb_packages: ensure => "installed" }
+
+  $ignoreSupervisorService = true
+
   include zulip::supervisor
+
   file { "/etc/supervisor/conf.d/cron.conf":
     require => Package[supervisor],
     ensure => file,
