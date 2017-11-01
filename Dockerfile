@@ -9,18 +9,19 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
-    apt-get -q install -y wget curl sudo ca-certificates apt-transport-https locales python3-pip python3-dev python3-setuptools && \
+    apt-get -q install -y wget curl sudo ca-certificates apt-transport-https locales && \
+    locale-gen en_US.UTF-8 && \
+    apt-get -q install -y python3-pip python3-dev python3-setuptools && \
     pip3 install --upgrade pip && \
     pip3 install virtualenv virtualenvwrapper && \
-    locale-gen en_US.UTF-8 && \
     mkdir -p "$DATA_DIR" /root/zulip && \
     wget -q "https://www.zulip.org/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -O /tmp/zulip-server.tar.gz && \
     tar xfz /tmp/zulip-server.tar.gz -C /root/zulip --strip-components=1 && \
     rm -rf /tmp/zulip-server.tar.gz && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
-    ADDITIONAL_PACKAGES="rabbitmq-server expect build-essential" \
+    export PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
+        ADDITIONAL_PACKAGES="rabbitmq-server expect build-essential" has_nginx="0" has_appserver="0" && \
     /root/zulip/scripts/setup/install && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
