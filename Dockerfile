@@ -1,12 +1,18 @@
-FROM quay.io/sameersbn/ubuntu:latest
+FROM ubuntu:xenial-20171006
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.7.0" DATA_DIR="/data"
+ENV ZULIP_VERSION="1.7.0" DATA_DIR="/data" LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
 
 COPY custom_zulip_files/ /root/custom_zulip
 
-RUN apt-get -q update && \
+RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+    echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+    apt-get -q update && \
     apt-get -q dist-upgrade -y && \
+    apt-get -q install -y wget curl sudo ca-certificates apt-transport-https locales python3-pip python3-dev python3-setuptools && \
+    pip3 install --upgrade pip && \
+    pip3 install virtualenv virtualenvwrapper && \
+    locale-gen en_US.UTF-8 && \
     mkdir -p "$DATA_DIR" /root/zulip && \
     wget -q "https://www.zulip.org/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -O /tmp/zulip-server.tar.gz && \
     tar xfz /tmp/zulip-server.tar.gz -C /root/zulip --strip-components=1 && \
@@ -14,7 +20,7 @@ RUN apt-get -q update && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
-    ADDITIONAL_PACKAGES="python-dev python-six python-crypto rabbitmq-server expect" \
+    ADDITIONAL_PACKAGES="rabbitmq-server expect build-essential" \
     /root/zulip/scripts/setup/install && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
