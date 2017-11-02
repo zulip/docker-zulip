@@ -4,6 +4,30 @@ class zulip::nginx {
                    ]
   package { $web_packages: ensure => "installed" }
 
+  if $ignoreNginxService != undef and $ignoreNginxService {
+    service { "nginx":
+      ensure     => running,
+      require    => [
+        File["/var/log/nginx"],
+        Package["nginx-full"],
+      ],
+      start      => "/bin/true",
+      stop       => "/bin/true",
+      hasstatus  => true,
+      status     => "/bin/true",
+      hasrestart => true,
+      restart    => "/bin/true"
+    }
+  } else {
+    service { "nginx":
+      ensure => running,
+      require    => [
+        File["/var/log/nginx"],
+        Package["nginx-full"],
+      ],
+    }
+  }
+
   file { "/etc/nginx/zulip-include/":
     require => Package["nginx-full"],
     recurse => true,
@@ -11,6 +35,7 @@ class zulip::nginx {
     group  => "root",
     mode => 644,
     source => "puppet:///modules/zulip/nginx/zulip-include-common/",
+    notify => Service["nginx"],
   }
 
   file { "/etc/nginx/nginx.conf":
@@ -19,6 +44,7 @@ class zulip::nginx {
     owner  => "root",
     group  => "root",
     mode => 644,
+    notify => Service["nginx"],
     source => "puppet:///modules/zulip/nginx/nginx.conf",
   }
 
@@ -28,6 +54,7 @@ class zulip::nginx {
     owner  => "root",
     group  => "root",
     mode => 644,
+    notify => Service["nginx"],
     source => "puppet:///modules/zulip/nginx/uwsgi_params",
   }
 
@@ -40,31 +67,5 @@ class zulip::nginx {
     owner      => "zulip",
     group      => "adm",
     mode       => 650
-  }
-
-  # Depending on the environment, ignoreNginxService is set, meaning we
-  # don't want/need supervisor to be started/stopped
-  # /bin/true is used as a decoy command, to maintain compatibility with other
-  # code using the supervisor service.
-  if $ignoreNginxService != undef and $ignoreNginxService {
-    service { "nginx":
-      ensure     => running,
-      require    => [
-        File["/var/log/nginx"],
-        Package["nginx-full"],
-      ],
-      hasstatus  => true,
-      status     => "/bin/true",
-      hasrestart => true,
-      restart => "/bin/true"
-    }
-  } else {
-    service { "supervisor":
-      ensure => running,
-      require    => [
-        File["/var/log/nginx"],
-        Package["nginx-full"],
-      ],
-    }
   }
 }
