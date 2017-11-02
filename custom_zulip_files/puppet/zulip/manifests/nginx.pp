@@ -41,4 +41,30 @@ class zulip::nginx {
     group      => "adm",
     mode       => 650
   }
+
+  # Depending on the environment, ignoreNginxService is set, meaning we
+  # don't want/need supervisor to be started/stopped
+  # /bin/true is used as a decoy command, to maintain compatibility with other
+  # code using the supervisor service.
+  if $ignoreNginxService != undef and $ignoreNginxService {
+    service { "nginx":
+      ensure     => running,
+      require    => [
+        File["/var/log/nginx"],
+        Package["nginx-full"],
+      ],
+      hasstatus  => true,
+      status     => "/bin/true",
+      hasrestart => true,
+      restart => "/bin/true"
+    }
+  } else {
+    service { "supervisor":
+      ensure => running,
+      require    => [
+        File["/var/log/nginx"],
+        Package["nginx-full"],
+      ],
+    }
+  }
 }
