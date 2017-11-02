@@ -17,7 +17,6 @@ class zulip::dockervoyager {
   }
   safepackage { $appdb_packages: ensure => "installed" }
 
-  $ignoreNginxService = true
   $ignoreSupervisorService = true
 
   include zulip::supervisor
