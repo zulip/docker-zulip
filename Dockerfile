@@ -44,7 +44,7 @@ COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zuli
 COPY includes/createZulipRealm.sh /opt/createZulipRealm.sh
 COPY entrypoint.sh /sbin/entrypoint.sh
 
-RUN chown zulip:zulip /opt/createZulipAdmin.sh
+RUN chown zulip:zulip /opt/createZulipRealm.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
