@@ -41,7 +41,7 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY includes/supervisor/conf.d/zulip_postsetup.conf /etc/supervisor/conf.d/zulip_postsetup.conf
-COPY includes/createZulipAdmin.sh /opt/createZulipAdmin.sh
+COPY includes/createZulipRealm.sh /opt/createZulipRealm.sh
 COPY entrypoint.sh /sbin/entrypoint.sh
 
 RUN chown zulip:zulip /opt/createZulipAdmin.sh

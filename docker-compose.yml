@@ -51,10 +51,5 @@ services:
       SETTING_EMAIL_USE_TLS: "True"
       SETTING_ALLOWED_HOSTS: "[ '*', '127.0.0.2' ]"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
-      ZULIP_USER_CREATION_ENABLED: "True"
-      ZULIP_USER_EMAIL: "example@example.com"
-      ZULIP_USER_PASS: "zulip"
-      ZULIP_USER_DOMAIN: "example.com"
-      ZULIP_USER_FULLNAME: "Zulip Example User"
     volumes:
       - "/opt/docker/zulip/zulip:/data:rw"

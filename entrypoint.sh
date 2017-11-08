@@ -50,11 +50,6 @@ ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Zulip user setup
 FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
-export ZULIP_USER_CREATION_ENABLED="${ZULIP_USER_CREATION_ENABLED:-True}"
-export ZULIP_USER_FULLNAME="${ZULIP_USER_FULLNAME:-Zulip Docker}"
-export ZULIP_USER_DOMAIN="${ZULIP_USER_DOMAIN:-$(echo $SETTING_EXTERNAL_HOST)}"
-export ZULIP_USER_EMAIL="${ZULIP_USER_EMAIL:-}"
-export ZULIP_USER_PASS="${ZULIP_USER_PASS:-zulip}"
 # Auto backup settings
 AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
@@ -411,15 +406,6 @@ bootstrapRabbitMQ() {
     set -e
     echo "RabbitMQ bootstrap succeeded."
 }
-userCreationConfiguration() {
-    echo "Executing Zulip user creation script ..."
-    if ([ "$ZULIP_USER_CREATION_ENABLED" != "True" ] && [ "$ZULIP_USER_CREATION_ENABLED" != "true" ]) && [ -e "$DATA_DIR/.initiated" ]; then
-        rm -f /etc/supervisor/conf.d/zulip_postsetup.conf
-        echo "Zulip user creation disabled."
-        return 0
-    fi
-    echo "Zulip user creation left enabled."
-}
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
     if [ -e "$DATA_DIR/.initiated" ] && ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]); then
@@ -485,7 +471,6 @@ bootstrappingEnvironment() {
     waitingForDatabase
     bootstrapDatabase
     bootstrapRabbitMQ
-    userCreationConfiguration
     zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
