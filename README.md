@@ -41,6 +41,7 @@ or
 
 ## **Configure your `docker-compose.yml`, before running the container!**
 **If you don't configure it, you'll end up with a misconfigured Zulip Instance!**
+**You need a working SMTP server for  Zulip to allow the creation of the first user!**
 
 Check the wiki page on how to configure the image, [here](https://github.com/galexrt/docker-zulip/wiki/Configuration). [Wiki Page](https://github.com/galexrt/docker-zulip/wiki/Configuration)
 
