@@ -3,17 +3,17 @@ kind: ReplicationController
 metadata:
   name: zulip-1
   labels:
-    version: 1.7.0-1
+    version: 1.7.0-2
     app: zulip
 spec:
   replicas: 1
   selector:
-    version: 1.7.0-1
+    version: 1.7.0-2
     app: zulip
   template:
     metadata:
       labels:
-        version: 1.7.0-1
+        version: 1.7.0-2
         app: zulip
     spec:
       containers:
@@ -59,7 +59,7 @@ spec:
           - name: postgresql-persistent-storage
             mountPath: /var/lib/postgresql
       - name: zulip
-        image: quay.io/galexrt/zulip:1.7.0-1
+        image: quay.io/galexrt/zulip:1.7.0-2
         resources:
           limits:
             cpu: 100m
