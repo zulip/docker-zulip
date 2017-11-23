@@ -1,7 +1,7 @@
 FROM ubuntu:xenial-20171006
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
-ENV ZULIP_VERSION="1.7.0" DATA_DIR="/data" LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
+ENV ZULIP_VERSION="1.7.1" DATA_DIR="/data" LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
 
 COPY custom_zulip_files/ /root/custom_zulip
 
