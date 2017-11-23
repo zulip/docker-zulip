@@ -1,4 +1,4 @@
-FROM ubuntu:xenial-20171006
+FROM ubuntu:xenial-20171114
 MAINTAINER Alexander Trost <galexrt@googlemail.com>
 
 ENV ZULIP_VERSION="1.7.1" DATA_DIR="/data" LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
