@@ -13,12 +13,12 @@ Current Docker image version: `1.7.1-0`
 
 ***
 
-This is a container image for [Zulip](https://zulip.org) from [Dropbox](https://blogs.dropbox.com/tech/2015/09/open-sourcing-zulip-a-dropbox-hack-week-project/)
+This is a container image for [Zulip](https://zulip.org).
 
 **Quote from [Zulip.Org](https://zulip.org)**:
 > Powerful open source group chat
 
-Thanks to dropbox for Open Sourcing Zulip! - [Zulip's Github](https://github.com/zulip/zulip)
+[Zulip's Github](https://github.com/zulip/zulip)
 
 ***
 
@@ -91,9 +91,7 @@ host$ docker run --rm quay.io/galexrt/zulip:1.5.2 cat /etc/zulip/uwsgi.ini > YOU
 ```
 
 ## Community
-
-* Chat with other docker-zulip users in the [![docker topic]]
-**IRC**. On the [IRC Freenode Webchat](https://webchat.freenode.net) or using a client [Join IRC channel](irc://chat.freenode.net:6697/#docker-zulip) server, in the #docker-zulip channel
+Chat with other docker-zulip users on the [chat.zulip.org](https://chat.zulip.org/). The stream/channel is [#production-help](https://chat.zulip.org/#narrow/stream/31-production-help).
 
 ## Contributing
 
