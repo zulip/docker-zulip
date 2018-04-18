@@ -23,7 +23,7 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     rm -rf /root/custom_zulip && \
     export PUPPET_CLASSES="zulip::dockervoyager" DEPLOYMENT_TYPE="dockervoyager" \
         ADDITIONAL_PACKAGES="rabbitmq-server expect build-essential" has_nginx="0" has_appserver="0" && \
-    /root/zulip/scripts/setup/install && \
+    /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" && \
     cp -a /root/zulip/zproject/prod_settings_template.py /etc/zulip/settings.py && \
     ln -nsf /etc/zulip/settings.py /root/zulip/zproject/prod_settings.py && \
     deploy_path=$(/root/zulip/scripts/lib/zulip_tools.py make_deploy_path) && \

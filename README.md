@@ -22,6 +22,9 @@ This is a container image for [Zulip](https://zulip.org).
 
 ***
 
+## Requirements
+Zulip recommends at least about 1.9GB RAM on the machine you are running on.
+
 ## How to configure the container
 
 See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configuration) Page for infos about configuring the container to suit your needs.
