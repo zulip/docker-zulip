@@ -14,7 +14,6 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     rm /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     apt-get -q install -y python3-pip python3-dev python3-setuptools && \
-    pip3 install --upgrade pip && \
     pip3 install virtualenv virtualenvwrapper && \
     mkdir -p "$DATA_DIR" /root/zulip && \
     wget -q "https://www.zulip.org/dist/releases/zulip-server-$ZULIP_VERSION.tar.gz" -O /tmp/zulip-server.tar.gz && \
