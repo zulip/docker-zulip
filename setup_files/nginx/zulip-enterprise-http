@@ -1,0 +1,22 @@
+
+include /etc/nginx/zulip-include/upstreams;
+
+server {
+    listen 80;
+
+    location /user_avatars {
+        add_header X-Content-Type-Options nosniff;
+        add_header Content-Security-Policy "default-src 'none' img-src 'self'";
+        include /etc/nginx/zulip-include/uploads.types;
+        alias /home/zulip/uploads/avatars;
+    }
+
+    location /local-static {
+        alias /home/zulip/local-static;
+    }
+
+    include /etc/nginx/zulip-include/certbot;
+    include /etc/nginx/zulip-include/app;
+    include /etc/nginx/zulip-include/uploads.route;
+}
+
