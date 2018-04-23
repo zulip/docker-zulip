@@ -41,6 +41,7 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
 
 COPY includes/createZulipRealm.sh /opt/createZulipRealm.sh
 COPY entrypoint.sh /sbin/entrypoint.sh
+ADD setup_files/ /opt/files
 
 RUN chown zulip:zulip /opt/createZulipRealm.sh
 
