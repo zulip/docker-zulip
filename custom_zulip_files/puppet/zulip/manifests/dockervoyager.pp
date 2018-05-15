@@ -7,6 +7,7 @@ class zulip::dockervoyager {
   # zulip::apt_repository must come after zulip::base
   include zulip::apt_repository
   include zulip::app_frontend
+  include zulip::static_asset_compiler
   $appdb_packages = [# Needed to run process_fts_updates
                      "python-psycopg2",
                      ]
