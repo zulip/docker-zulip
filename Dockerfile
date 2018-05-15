@@ -30,9 +30,8 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     export PUPPET_CLASSES="zulip::dockervoyager" \
            DEPLOYMENT_TYPE="dockervoyager" \
            ADDITIONAL_PACKAGES="rabbitmq-server expect build-essential" && \
-    /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db
-
-RUN apt-get -qq autoremove --purge -y && \
+    /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
+    apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
