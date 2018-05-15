@@ -327,7 +327,8 @@ zulipConfiguration() {
         if ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]) || [ "$type" = "string" ]; then
             type=""
         fi
-        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]; then
+        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
+             [ "$setting_key" = "EXTERNAL_HOST" ] || [ "$setting_key" = "ADMIN_DOMAIN" ]; then
             type="string"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
