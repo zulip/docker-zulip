@@ -67,7 +67,7 @@ A Kubernetes pod file is in the `kubernetes/` folder. The command to run it woul
 To be able to create a Zulip user, you create a Realm inside Zulip.
 To trigger creation of a Realm you can run:
 ```bash
-docker-compose exec zulip /opt/createZulipRealm.sh
+docker-compose exec zulip sudo -H -u zulip -g zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
 Follow the link you just got printed and follow the instructions to create an user account and a realm in Zulip.
 

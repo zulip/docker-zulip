@@ -35,11 +35,8 @@ RUN apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY includes/createZulipRealm.sh /opt/createZulipRealm.sh
 COPY entrypoint.sh /sbin/entrypoint.sh
 ADD setup_files/ /opt/files
-
-RUN chown zulip:zulip /opt/createZulipRealm.sh
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
