@@ -49,11 +49,11 @@ spec:
             cpu: 80m
             memory: 768Mi
         env:
-        - name: DB_NAME
+        - name: POSTGRES_DB
           value: zulip
-        - name: DB_USER
+        - name: POSTGRES_USER
           value: zulip
-        - name: DB_PASS
+        - name: POSTGRES_PASSWORD
           value: zulip
         volumeMounts:
           - name: postgresql-persistent-storage
@@ -67,13 +67,13 @@ spec:
         env:
         # Please take a look at the environment variables in docker-compose.yml for all required env variables!
         - name: DB_HOST
-          value: "database"
+          value: "localhost"
         - name: MEMCACHED_HOST
-          value: "memcached"
+          value: "localhost"
         - name: REDIS_HOST
-          value: "redis"
+          value: "localhost"
         - name: RABBITMQ_HOST
-          value: "rabbitmq"
+          value: "localhost"
         - name: ZULIP_AUTH_BACKENDS
           value: "EmailAuthBackend"
         - name: SECRETS_email_password
