@@ -43,7 +43,7 @@ spec:
         - name: RABBITMQ_DEFAULT_PASS
           value: "zulip"
       - name: postgresql
-        image: quay.io/galexrt/zulip-postgresql-tsearchextras:latest
+        image: zulip/zulip-postgresql
         resources:
           limits:
             cpu: 80m
