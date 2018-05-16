@@ -71,16 +71,6 @@ docker-compose exec zulip sudo -H -u zulip -g zulip /home/zulip/deployments/curr
 ```
 Follow the link you just got printed and follow the instructions to create an user account and a realm in Zulip.
 
-After creating an user and a realm in Zulip through the link, move on to [Adding User to Admins](#Adding-User-to-Admins) if you want to add an user to the admin group.
-
-### Adding User to Admins
-For adding the created user to the admins in the realm created in Zulip.
-You need to replace `REALM_ID` with the lowercase name of the Realm created and the `EMAIL_ADDRESS_OF_USER` with the email address of the user you created.
-```bash
-docker-compose exec zulip sudo -u zulip /home/zulip/deployments/current/manage.py knight -f -r REALM_ID EMAIL_ADDRESS_OF_USER
-```
-After this the user should be added to admins in the realm and you should see more settings after a reload of the Zulip webpage in your browser.
-
 ***
 
 ## Troubleshooting
