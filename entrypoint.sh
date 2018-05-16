@@ -382,26 +382,6 @@ waitingForDatabase() {
     done
     unset PGPASSWORD
 }
-bootstrapDatabase() {
-    echo "(Re)creating database structure ..."
-    if [ ! -z "$DB_ROOT_USER" ] && [ ! -z "$DB_ROOT_PASS" ]; then
-        echo "Setting up the database, schema and user ..."
-        export PGPASSWORD="$DB_ROOT_PASS"
-        echo """
-        CREATE USER $DB_USER;
-        ALTER ROLE $DB_USER SET search_path TO $DB_NAME,public;
-        CREATE DATABASE $DB_NAME OWNER=$DB_USER;
-        CREATE SCHEMA $DB_SCHEMA AUTHORIZATION $DB_USER;
-        """ | psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" || :
-        echo "Creating tsearch_extras extension ..."
-        echo "CREATE EXTENSION tsearch_extras SCHEMA $DB_SCHEMA;" | \
-        psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_ROOT_USER" "$DB_NAME" || :
-        unset PGPASSWORD
-        echo "Database structure recreated."
-    else
-        echo "No database root user nor password given. Not (re)creating database structure."
-    fi
-}
 bootstrapRabbitMQ() {
     echo "Bootstrapping RabbitMQ ..."
     set +e
@@ -479,7 +459,6 @@ runPostSetupScripts() {
 bootstrappingEnvironment() {
     echo "=== Begin Bootstrap Phase ==="
     waitingForDatabase
-    bootstrapDatabase
     bootstrapRabbitMQ
     zulipFirstStartInit
     zulipMigration

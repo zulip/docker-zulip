@@ -1,7 +1,7 @@
 version: '2'
 services:
   database:
-    image: "quay.io/galexrt/postgres-zulip-tsearchextras:latest"
+    image: "zulip/zulip-postgresql"
     environment:
       POSTGRES_DB: zulip
       POSTGRES_USER: zulip
