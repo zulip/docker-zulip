@@ -13,7 +13,8 @@ Current Docker image version: `1.8.1-0`
 
 ***
 
-This is a container image for [Zulip](https://zulip.org).
+This is a container image for running [Zulip](https://zulip.org) in
+[production](https://zulip.readthedocs.io/en/latest/production/overview.html).
 
 **Quote from [Zulip.Org](https://zulip.org)**:
 > Powerful open source group chat
@@ -22,12 +23,17 @@ This is a container image for [Zulip](https://zulip.org).
 
 ***
 
-## Requirements
-Zulip recommends at least about 1.9GB RAM on the machine you are running on.
+## Zulip requirements
+
+Zulip
+[recommends at least 2GB of RAM](https://zulip.readthedocs.io/en/latest/production/requirements.html)
+for running a production Zulip server.
 
 ## How to configure the container
 
-See the [Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configuration) Page for infos about configuring the container to suit your needs.
+See the
+[Configuration](https://github.com/Galexrt/docker-zulip/wiki/Configuration)
+page for information on configuring the container to suit your needs.
 
 ***
 
@@ -42,11 +48,15 @@ or
 
 ***
 
-## **Configure your `docker-compose.yml`, before running the container!**
-**If you don't configure it, you'll end up with a misconfigured Zulip Instance!**
-**You need a working SMTP server for  Zulip to allow the creation of the first user!**
+## Configure `docker-compose.yml`
 
-Check the wiki page on how to configure the image, [here](https://github.com/galexrt/docker-zulip/wiki/Configuration). [Wiki Page](https://github.com/galexrt/docker-zulip/wiki/Configuration)
+**Important: You must edit `docker-compose.yml` to provide various
+settings before starting the container.**  In particular, you'll want
+to set the hostname and potentially edit the default database password.
+
+See the
+[configuration documentation](https://github.com/galexrt/docker-zulip/wiki/Configuration)
+to learn how to configure the image.
 
 ***
 
@@ -63,13 +73,19 @@ A Kubernetes pod file is in the `kubernetes/` folder. The command to run it woul
 
 ***
 
-## Creating Zulip User
-To be able to create a Zulip user, you create a Realm inside Zulip.
-To trigger creation of a Realm you can run:
+## Creating an organization
+
+This step is the analog of
+[creating an organization in Zulip](https://zulip.readthedocs.io/en/latest/production/install.html#step-3-create-a-zulip-organization-and-log-in)
+in the main Zulip documentation.  To generate the one-time use link,
+you can use the following command:
+
 ```bash
 docker-compose exec zulip sudo -H -u zulip -g zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
-Follow the link you just got printed and follow the instructions to create an user account and a realm in Zulip.
+
+Follow the link you just got printed and follow the instructions to
+create your new organization (and first administrator account).
 
 ***
 
@@ -84,7 +100,10 @@ host$ docker run --rm quay.io/galexrt/zulip:1.5.2 cat /etc/zulip/uwsgi.ini > YOU
 ```
 
 ## Community
-Chat with other docker-zulip users on the [chat.zulip.org](https://chat.zulip.org/). The stream/channel is [#production-help](https://chat.zulip.org/#narrow/stream/31-production-help).
+
+Chat with other docker-zulip users on the
+[chat.zulip.org](https://chat.zulip.org/). The stream/channel is
+[#production-help](https://chat.zulip.org/#narrow/stream/31-production-help).
 
 ## Contributing
 
