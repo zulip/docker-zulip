@@ -382,20 +382,6 @@ waitingForDatabase() {
     done
     unset PGPASSWORD
 }
-bootstrapRabbitMQ() {
-    echo "Bootstrapping RabbitMQ ..."
-    set +e
-    /root/zulip/scripts/setup/configure-rabbitmq | tail -n 16
-    RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]] && ([ "$IGNORE_RABBITMQ_ERRORS" = "False" ] && [ "$IGNORE_RABBITMQ_ERRORS" = "false" ]); then
-        echo "=> In most cases you can completely ignore the RabbmitMQ bootstrap errors."
-        echo "=> If you want to ignore RabbitMQ bootstrap errors, (re)add the env var 'IGNORE_RABBITMQ_ERRORS' with 'true'."
-        echo "Zulip RabbitMQ bootstrap failed in \"configure-rabbitmq\" exit code $RETURN_CODE. Exiting."
-        exit $RETURN_CODE
-    fi
-    set -e
-    echo "RabbitMQ bootstrap succeeded."
-}
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
     if [ -e "$DATA_DIR/.initiated" ] && ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]); then
@@ -459,7 +445,6 @@ runPostSetupScripts() {
 bootstrappingEnvironment() {
     echo "=== Begin Bootstrap Phase ==="
     waitingForDatabase
-    bootstrapRabbitMQ
     zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
