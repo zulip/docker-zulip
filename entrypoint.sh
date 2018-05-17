@@ -59,7 +59,6 @@ SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-}"
 MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
 LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
 # entrypoint.sh specific variable(s)
-ZPROJECT_SETTINGS="/home/zulip/deployments/current/zproject/settings.py"
 SETTINGS_PY="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
@@ -258,25 +257,9 @@ secretsConfiguration() {
 }
 databaseConfiguration() {
     echo "Setting database configuration ..."
-    local VALUE="{
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': '$DB_NAME',
-    'USER': '$DB_USER',
-    'PASSWORD': '$DB_PASS',
-    'HOST': '$DB_HOST',
-    'PORT': '$DB_HOST_PORT',
-    'SCHEMA': '$DB_SCHEMA',
-    'CONN_MAX_AGE': 600,
-    'OPTIONS': {
-        'connection_factory': TimeTrackingConnection,
-        'sslmode': 'prefer',
-    },
-  },
-}"
-    setConfigurationValue "DATABASES" "$VALUE" "$ZPROJECT_SETTINGS" "array"
     setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
     setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
+    # The password will be set in secretsConfiguration
     echo "Database configuration succeeded."
 }
 authenticationBackends() {
@@ -296,13 +279,12 @@ authenticationBackends() {
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
     if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
-        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$ZPROJECT_SETTINGS"
+        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$SETTINGS_PY"
     fi
     local given_settings=($(env | sed -n -r "s/SETTING_([0-9A-Za-z_]*).*/\1/p"))
     for setting_key in "${given_settings[@]}"; do
         local key="SETTING_$setting_key"
         local setting_var="${!key}"
-        local file="$ZPROJECT_SETTINGS"
         local type="string"
         if [ -z "$setting_var" ]; then
             echo "Empty var for key \"$setting_key\"."
@@ -317,7 +299,6 @@ zulipConfiguration() {
             [ "$setting_key" = "DEFAULT_FROM_EMAIL" ] || [ "$setting_key" = "ALLOWED_HOSTS" ] || \
             [[ "$setting_key" = AUTH_* ]] || [[ "$setting_key" = LDAP_* ]] || \
             [[ "$setting_key" = EMAIL* ]] ; then
-            file="$SETTINGS_PY"
         fi
         if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
            ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) || [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
@@ -331,7 +312,7 @@ zulipConfiguration() {
              [ "$setting_key" = "EXTERNAL_HOST" ] || [ "$setting_key" = "ADMIN_DOMAIN" ]; then
             type="string"
         fi
-        setConfigurationValue "$setting_key" "$setting_var" "$file" "$type"
+        setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
     done
     unset setting_key setting_var
     su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
