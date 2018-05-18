@@ -67,8 +67,6 @@ RUN apt-get -q dist-upgrade -y && \
     apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full && \
     rm /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
-    apt-get -q install -y python3-pip python3-dev python3-setuptools && \
-    pip3 install virtualenv virtualenvwrapper && \
     mkdir -p "$DATA_DIR" && \
     cd /root && \
     tar -xf zulip-server-docker.tar.gz && \
