@@ -78,7 +78,7 @@ RUN apt-get -q dist-upgrade -y && \
     rm -rf /root/custom_zulip && \
     export PUPPET_CLASSES="zulip::dockervoyager" \
            DEPLOYMENT_TYPE="dockervoyager" \
-           ADDITIONAL_PACKAGES="expect build-essential" && \
+           ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
