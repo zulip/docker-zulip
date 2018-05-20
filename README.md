@@ -13,11 +13,8 @@ Current Docker image version: `1.8.1-0`
 
 ***
 
-This is a container image for running [Zulip](https://zulip.org) in
+This is a container image for running [Zulip](https://zulipchat.com) in
 [production](https://zulip.readthedocs.io/en/latest/production/overview.html).
-
-**Quote from [Zulip.Org](https://zulip.org)**:
-> Powerful open source group chat
 
 [Zulip's Github](https://github.com/zulip/zulip)
 
