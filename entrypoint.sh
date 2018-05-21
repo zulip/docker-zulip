@@ -12,7 +12,6 @@ DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_SCHEMA="${DB_SCHEMA:-zulip}"
 DB_USER="${DB_USER:-zulip}"
-DB_PASS="${DB_PASS:-zulip}"
 DB_ROOT_USER="${DB_ROOT_USER:-postgres}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(echo $DB_PASS)}"
 REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
@@ -329,7 +328,7 @@ initialConfiguration() {
 }
 # === bootstrappingEnvironment ===
 waitingForDatabase() {
-    export PGPASSWORD="$DB_PASS"
+    export PGPASSWORD="$SECRETS_postgres_password"
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
     while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
