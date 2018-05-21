@@ -39,13 +39,7 @@ NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-24m}"
 # Zulip certifcate parameters
-ZULIP_AUTO_GENERATE_CERTS="${ZULIP_AUTO_GENERATE_CERTS:-True}"
-ZULIP_CERTIFICATE_SUBJ="${ZULIP_CERTIFICATE_SUBJ:-}"
-ZULIP_CERTIFICATE_C="${ZULIP_CERTIFICATE_C:-US}"
-ZULIP_CERTIFICATE_ST="${ZULIP_CERTIFICATE_ST:-Denial}"
-ZULIP_CERTIFICATE_L="${ZULIP_CERTIFICATE_L:-Springfield}"
-ZULIP_CERTIFICATE_O="${ZULIP_CERTIFICATE_O:-Dis}"
-ZULIP_CERTIFICATE_CN="${ZULIP_CERTIFICATE_CN:-}"
+SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:self-signed}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
@@ -161,52 +155,49 @@ nginxConfiguration() {
     echo "Nginx configuration succeeded."
 }
 configureCerts() {
-    echo "Exectuing certificates configuration..."
-    case "$ZULIP_AUTO_GENERATE_CERTS" in
-        [Tt][Rr][Uu][Ee])
-            ZULIP_AUTO_GENERATE_CERTS="True"
-        ;;
-        [Ff][Aa][Ll][Ss][Ee])
-            ZULIP_AUTO_GENERATE_CERTS="False"
-        ;;
+    case "$SSL_CERTIFICATE_GENERATION" in
+        self-signed)
+            GENERATE_SELF_SIGNED_CERT="True"
+            GENERATE_CERTBOT_CERT="False"
+            ;;
+
+        certbot)
+            GENERATE_SELF_SIGNED_CERT="False"
+            GENERATE_CERTBOT_CERT="True"
+            ;;
         *)
-            echo "Defaulting \"ZULIP_AUTO_GENERATE_CERTS\" to \"True\". Couldn't parse if \"True\" or \"False\"."
-            ZULIP_AUTO_GENERATE_CERTS="True"
-        ;;
+            echo "Not requesting auto-generated self-signed certs."
+            GENERATE_CERTBOT_CERT="False"
+            GENERATE_SELF_SIGNED_CERT="False"
+            ;;
     esac
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        if [ "$ZULIP_AUTO_GENERATE_CERTS" = "True" ] || [ "$ZULIP_AUTO_GENERATE_CERTS" = "true" ]; then
-            echo "No certs in \"$DATA_DIR/certs\"."
-            echo "Autogenerating certificates ..."
-            if [ -z "$ZULIP_CERTIFICATE_SUBJ" ]; then
-                if [ -z "$ZULIP_CERTIFICATE_CN" ]; then
-                    if [ -z "$SETTING_EXTERNAL_HOST" ]; then
-                        echo "Certificates generation failed. \"ZULIP_CERTIFICATE_CN\" and as fallback \"SETTING_EXTERNAL_HOST\" not given."
-                        echo "Certificates configuration failed."
-                        exit 1
-                    fi
-                    ZULIP_CERTIFICATE_CN="$SETTING_EXTERNAL_HOST"
-                fi
-                ZULIP_CERTIFICATE_SUBJ="/C=$ZULIP_CERTIFICATE_C/ST=$ZULIP_CERTIFICATE_ST/L=$ZULIP_CERTIFICATE_L/O=$ZULIP_CERTIFICATE_O/CN=$ZULIP_CERTIFICATE_CN"
-            fi
-            openssl genrsa -des3 -passout pass:x -out /tmp/server.pass.key 4096
-            openssl rsa -passin pass:x -in /tmp/server.pass.key -out "$DATA_DIR/certs/zulip.key"
-            openssl req -new -nodes -subj "$ZULIP_CERTIFICATE_SUBJ" -key "$DATA_DIR/certs/zulip.key" -out /tmp/server.csr
-            openssl x509 -req -days 365 -in /tmp/server.csr -signkey "$DATA_DIR/certs/zulip.key" -out "$DATA_DIR/certs/zulip.combined-chain.crt"
-            rm -f /tmp/server.csr /tmp/server.pass.key
-            echo "Certificate autogeneration succeeded."
+        if [ "$GENERATE_CERTBOT_CERT" = "True" ]; then
+            echo "Certbot not yet supported"
+            exit 1
+            # TODO: Run setup-certbot and move /etc/letsencrypt to the data dir?
+            # /home/zulip/deployments/current/setup/setup-certbot "$SETTING_EXTERNAL_HOST"
+        elif [ "$GENERATE_SELF_SIGNED_CERT" = "True" ]; then
+            echo "Generating self-signed certificates ..."
+            mkdir -p "$DATA_DIR/certs"
+            /home/zulip/deployments/current/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
+            mv /etc/ssl/private/zulip.key "$DATA_DIR/certs/zulip.key"
+            mv /etc/ssl/certs/zulip.combined-chain.crt "$DATA_DIR/certs/zulip.combined-chain.crt"
+            echo "Self-signed certificate generation succeeded."
         else
             echo "Certificates already exist. No need to generate them. Continuing."
         fi
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
-        echo "No zulip.key given in $DATA_DIR."
+        echo "SSL private key zulip.key is not present in $DATA_DIR."
         echo "Certificates configuration failed."
+        echo "Consider setting ZULIP_AUTO_GENERATE_CERTS=True in the environment to auto-generate"
         exit 1
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        echo "No zulip.combined-chain.crt given in $DATA_DIR."
+        echo "SSL public key zulip.combined-chain.crt is not present in $DATA_DIR."
         echo "Certificates configuration failed."
+        echo "Consider setting ZULIP_AUTO_GENERATE_CERTS=True in the environment to auto-generate"
         exit 1
     fi
     ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
