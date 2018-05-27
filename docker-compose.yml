@@ -43,7 +43,7 @@ services:
       SECRETS_rabbitmq_password: "zulip"
       SECRETS_postgres_password: "zulip"
       SECRETS_secret_key: "REPLACE_WITH_SECURE_SECRET_KEY"
-      SETTING_EXTERNAL_HOST: "example.com"
+      SETTING_EXTERNAL_HOST: "localhost.localdomain"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
       SETTING_ADMIN_DOMAIN: "example.com"
       SETTING_NOREPLY_EMAIL_ADDRESS: "noreply@example.com"
