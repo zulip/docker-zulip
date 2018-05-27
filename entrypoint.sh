@@ -286,7 +286,7 @@ zulipConfiguration() {
             type=""
         fi
         if [ "$setting_key" = "EMAIL_HOST_USER"  ] || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
-             [ "$setting_key" = "EXTERNAL_HOST" ] || [ "$setting_key" = "ADMIN_DOMAIN" ]; then
+             [ "$setting_key" = "EXTERNAL_HOST" ]; then
             type="string"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"

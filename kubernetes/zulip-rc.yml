@@ -82,12 +82,6 @@ spec:
           value: "localhost"
         - name: SETTING_ZULIP_ADMINISTRATOR
           value: "admin@example.com"
-        - name: SETTING_ADMIN_DOMAIN
-          value: "zerbytes.net"
-        - name: SETTING_NOREPLY_EMAIL_ADDRESS
-          value: "noreply@example.com"
-        - name: SETTING_DEFAULT_FROM_EMAIL
-          value: "Zulip <noreply@example.com>"
         - name: SETTING_EMAIL_HOST
           value: "smtp.example.com"
         - name: SETTING_EMAIL_HOST_USER

@@ -45,16 +45,12 @@ services:
       SECRETS_secret_key: "REPLACE_WITH_SECURE_SECRET_KEY"
       SETTING_EXTERNAL_HOST: "localhost.localdomain"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
-      SETTING_ADMIN_DOMAIN: "example.com"
-      SETTING_NOREPLY_EMAIL_ADDRESS: "noreply@example.com"
-      SETTING_DEFAULT_FROM_EMAIL: "Zulip <noreply@example.com>"
       SETTING_EMAIL_HOST: "smtp.example.com"
       SETTING_EMAIL_HOST_USER: "noreply@example.com"
       SETTING_EMAIL_PORT: "587"
       # It seems that the email server needs to use ssl or tls and can't be used without it
       SETTING_EMAIL_USE_SSL: "False"
       SETTING_EMAIL_USE_TLS: "True"
-      SETTING_ALLOWED_HOSTS: "[ '*', '127.0.0.2' ]"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
     volumes:
       - "/opt/docker/zulip/zulip:/data:rw"
