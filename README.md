@@ -161,6 +161,13 @@ Reading the comments in the sample
 [Zulip's settings.py file][prod-settings-template]) is the best way to
 learn about the full set of Zulip's supported server-level settings.
 
+Most settings in Zulip are just strings, but some are lists (etc.)
+which you need to encode in the YAML file.  For example,
+
+* For `AUTHENTICATION_BACKENDS`, you enter `ZULIP_AUTH_BACKENDS` as a
+  comma-separated list of the backend names
+  (E.g. `"EmailAuthBackend,GitHubAuthBackend"`).
+
 **SSL Certificates**.  By default, the image will generate a
   self-signed cert.  We
   [will soon also support certbot](https://github.com/galexrt/docker-zulip/issues/120)
@@ -371,6 +378,19 @@ and the commit to use as `ZULIP_GIT_URL` and `ZULIP_GIT_REF`
    the specified Git version.
 
 Then stop and restart the container as described in the previous section.
+
+## Troubleshooting
+
+Common issues include:
+
+* Invalid configuration resulting in the `zulip` container not
+  starting; check `docker-compose ps` to see if it started, and then
+  read the logs for the Zulip container to see why it failed.
+* A new Zulip setting not being passed through the Docker
+  [entrypoint.sh script](/entrypoint.sh) properly.  If you
+  run into this sort of problem you can work around it by specifying a
+  `ZULIP_CUSTOM_SETTINGS` with one setting per line below, but please
+  report an issue so that we can fix this for everyone else.
 
 ## Community support
 
