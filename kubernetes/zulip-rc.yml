@@ -94,7 +94,7 @@ spec:
           value: "123456789"
         - name: SECRETS_secret_key
           value: "REPLCAE_WITH_SECURE_SECRET_KEY"
-        - name: SECRETS_postgrse_password
+        - name: SECRETS_postgres_password
           value: "zulip"
         - name: SSL_CERTIFICATE_GENERATION
           value: "self-signed"
