@@ -23,11 +23,9 @@ services:
     volumes:
       - "/opt/docker/zulip/redis:/var/lib/redis:rw"
   zulip:
-    # If you want to build the image via the Dockerfile in this
-    # repository uncomment out the following 2 lines.
-    # build:
-    #   context: .
     image: "quay.io/galexrt/zulip:1.8.1-0"
+    build:
+      context: .
     ports:
       - "80:80"
       - "443:443"
