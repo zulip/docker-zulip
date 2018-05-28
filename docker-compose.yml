@@ -50,5 +50,7 @@ services:
       SETTING_EMAIL_USE_SSL: "False"
       SETTING_EMAIL_USE_TLS: "True"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+      # Uncomment this when configuring the mobile push notifications service
+      # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
       - "/opt/docker/zulip/zulip:/data:rw"
