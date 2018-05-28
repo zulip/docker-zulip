@@ -175,7 +175,7 @@ configureCerts() {
         elif [ "$GENERATE_SELF_SIGNED_CERT" = "True" ]; then
             echo "Generating self-signed certificates ..."
             mkdir -p "$DATA_DIR/certs"
-            /home/zulip/deployments/current/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
+            /home/zulip/deployments/current/scripts/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
             mv /etc/ssl/private/zulip.key "$DATA_DIR/certs/zulip.key"
             mv /etc/ssl/certs/zulip.combined-chain.crt "$DATA_DIR/certs/zulip.combined-chain.crt"
             echo "Self-signed certificate generation succeeded."
