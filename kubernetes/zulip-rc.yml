@@ -83,7 +83,7 @@ spec:
         - name: SETTING_ZULIP_ADMINISTRATOR
           value: "admin@example.com"
         - name: SETTING_EMAIL_HOST
-          value: "smtp.example.com"
+          value: ""  # E.g. "smtp.example.com"
         - name: SETTING_EMAIL_HOST_USER
           value: "noreply@example.com"
         - name: ZULIP_USER_EMAIL
