@@ -411,7 +411,12 @@ PRs.  Some particularly useful ways to contribute right now are:
   confused you or submitting pull requests!
 * Reporting bugs or rough edges!
 
-**Huge thanks to everyone who has contributed!**
+## Credits
+
+Huge thanks to everyone who has contributed.  Special thanks to
+[Alexander Trost](http://github.com/galexrt/), who created
+`docker-zulip` and did a huge amount of the early work required to
+make a high-quality Docker image for Zulip possible.
 
 [install-normal]: https://zulip.readthedocs.io/en/latest/production/install.html#installer-options
 [outgoing-email]: https://zulip.readthedocs.io/en/latest/production/email.html
