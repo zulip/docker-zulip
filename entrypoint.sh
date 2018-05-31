@@ -313,8 +313,8 @@ initialConfiguration() {
     prepareDirectories
     nginxConfiguration
     configureCerts
-    databaseConfiguration
     if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
+        databaseConfiguration
         secretsConfiguration
         authenticationBackends
         zulipConfiguration
