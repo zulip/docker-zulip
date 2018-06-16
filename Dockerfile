@@ -13,9 +13,8 @@ RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     apt-get -q update && \
     apt-get -q install locales && \
-    locale-gen en_US.UTF-8
-
-ENV LANG="en_US.UTF-8" \
+    locale-gen en_US.UTF-8 && \
+    LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8"
 
@@ -23,9 +22,8 @@ ENV LANG="en_US.UTF-8" \
 RUN apt-get -q dist-upgrade -y && \
     apt-get -q install -y git sudo ca-certificates apt-transport-https python3 && \
     useradd -d /home/zulip -m zulip && \
-    echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
-
-RUN git clone "$ZULIP_GIT_URL" && \
+    echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+    git clone "$ZULIP_GIT_URL" && \
     (cd zulip && git checkout "$ZULIP_GIT_REF") && \
     chown -R zulip:zulip zulip && \
     mv zulip /home/zulip/zulip
@@ -34,8 +32,8 @@ USER zulip
 WORKDIR /home/zulip/zulip
 
 # Finally, we provision the development environment and build a release tarball
-RUN ./tools/provision --production-travis
-RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
+RUN ./tools/provision --production-travis && \
+    /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
     mv /tmp/tmp.*/zulip-server-docker.tar.gz /tmp/zulip-server-docker.tar.gz
 
 
