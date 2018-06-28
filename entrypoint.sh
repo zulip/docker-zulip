@@ -277,16 +277,22 @@ zulipConfiguration() {
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
-        if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
-           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) || [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
-           [[ "$setting_key" = "CSRF_"* ]] || [[ "$setting_key" = "ALLOWED_HOSTS" ]]; then
+        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
+           [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
+           [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
+           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) || \
+           [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
+           [[ "$setting_key" = "CSRF_"* ]] || \
+           [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
-        if ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]) || [ "$type" = "string" ]; then
+        if ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]) || \
+           [ "$type" = "string" ]; then
             type=""
         fi
-        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
-             [ "$setting_key" = "EXTERNAL_HOST" ]; then
+        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || \
+           [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
+           [ "$setting_key" = "EXTERNAL_HOST" ]; then
             type="string"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
