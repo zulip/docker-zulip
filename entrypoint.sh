@@ -141,8 +141,13 @@ setConfigurationValue() {
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
     if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
+      if [ -e /opt/files/nginx/zulip-enterprise-http ]
+      then
         echo "Disabling https in nginx."
         mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
+      else
+        echo "Https already disabled in nginx."
+      fi
     fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
