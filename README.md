@@ -316,6 +316,10 @@ the first time, it will run the necessary database migrations with
 If you ever find you need to downgrade your Zulip server, you'll need
 to use `manage.py migrate` to downgrade the database schema manually.
 
+If you are using the `quay.io/galexrt/postgres-zulip-tsearchextras:latest`
+Postgres image, refer to the [Upgrading from the old galexrt/docker-zulip](#upgrading-from-the-old-galexrtdocker-zulip)
+section.
+
 ### Using `docker-compose`
 
 0. (Optional) Upgrading does not delete your data, but it's generally
@@ -378,6 +382,60 @@ and the commit to use as `ZULIP_GIT_URL` and `ZULIP_GIT_REF`
    the specified Git version.
 
 Then stop and restart the container as described in the previous section.
+
+### Upgrading from the old galexrt/docker-zulip
+If you are using an earlier version of `galexrt/docker-zulip` which used the
+`quay.io/galexrt/postgres-zulip-tsearchextras:latest` Postgres image, you need
+to run manual steps to upgrade to the `zulip/zulip-postgresql` Postgres image.
+
+This assumes that you have not changed the default Postgres data path
+(`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`.
+If you have changed it, please replace all occurences of `/opt/docker/zulip/postgresql/data`
+with your path.
+
+1. Make a backup of your Zulip Postgres data dir.
+2. Stop all Zulip containers, except the postgres one (e.g. use `docker stop` and not `docker-compose stop`).
+3. Create a new Postgres container which uses a different data directory:
+```
+docker run -d \
+      --name postgresnew \
+      -e POSTGRES_DB=zulip \
+      -e POSTGRES_USER=zulip \
+      -e POSTGRES_PASSWORD=zulip \
+      -v /opt/docker/zulip/postgresql/new:/var/lib/postgresql/data:rw \
+      zulip/zulip-postgresql:latest
+```
+4. Use `pg_dumpall` to dump all data from the existing Postgres container to
+the new Postgres container (replace `ZULIP_DATABASE_CONTAINER_NAME` with the
+name of the old Postgres container):
+```
+docker exec \
+    ZULIP_DATABASE_CONTAINER_NAME pg_dumpall -U postgres | \
+    docker exec -i postgresnew psql -U postgres
+```
+5. Stop and remove both Postgres containers:
+```
+docker stop ZULIP_DATABASE_CONTAINER_NAME postgresnew
+docker rm ZULIP_DATABASE_CONTAINER_NAME postgresnew
+```
+6. Edit your `docker-compose.yml` to use the `zulip/zulip-postgresql:latest`
+image for the `database` container.
+7. Replace old Postgres data directory with upgraded data directory:
+```
+mv /opt/docker/zulip/postgresql/data /opt/docker/zulip/postgresql/old
+mv /opt/docker/zulip/postgresql/new /opt/docker/zulip/postgresql/data
+```
+8. Delete the old existing containers:
+```
+docker-compose rm
+```
+9. Start Zulip up again:
+```
+docker-compose up
+```
+
+That should be it. Your Postgres data has now been updated to use the
+`zulip/zulip-postgresql` image.
 
 ## Troubleshooting
 
