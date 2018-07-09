@@ -84,7 +84,6 @@ RUN apt-get -q dist-upgrade -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
-ADD setup_files/ /opt/files
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443
