@@ -106,7 +106,7 @@ To use this project, we recommend starting by cloning the repo (since
 you'll want to edit the `docker-compose.yml` file in this project):
 
 ```
-git clone https://github.com/galexrt/docker-zulip.git
+git clone https://github.com/zulip/docker-zulip.git
 cd docker-zulip
 # Edit `docker-compose.yml` to configure; see docs below
 ```
