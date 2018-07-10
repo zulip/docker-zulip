@@ -65,6 +65,7 @@ COPY custom_zulip_files/ /root/custom_zulip
 
 RUN apt-get -q dist-upgrade -y && \
     apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full && \
+    # Make sure Nginx is started by Supervisor.
     rm /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     mkdir -p "$DATA_DIR" && \
@@ -80,10 +81,9 @@ RUN apt-get -q dist-upgrade -y && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
-    rm -rf /root/zulip/puppet/ /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
-ADD setup_files/ /opt/files
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 80 443

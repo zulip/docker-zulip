@@ -142,11 +142,12 @@ nginxConfiguration() {
     echo "Executing nginx configuration ..."
     if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
         echo "Disabling https in nginx."
-        mv -f /opt/files/nginx/zulip-enterprise-http /etc/nginx/sites-enabled/zulip-enterprise
+        crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
     sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
+    /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
     echo "Nginx configuration succeeded."
 }
 configureCerts() {
