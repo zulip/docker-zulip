@@ -168,12 +168,18 @@ configureCerts() {
             ;;
     esac
     if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
+
         if [ "$GENERATE_CERTBOT_CERT" = "True" ]; then
-            echo "Certbot not yet supported"
-            exit 1
-            # TODO: Run setup-certbot and move /etc/letsencrypt to the data dir?
-            # /home/zulip/deployments/current/setup/setup-certbot "$SETTING_EXTERNAL_HOST"
-        elif [ "$GENERATE_SELF_SIGNED_CERT" = "True" ]; then
+            # Zulip isn't yet running, so the certbot's challenge can't be met.
+            # We'll schedule this for later.
+            echo "Scheduling LetsEncrypt cert generation ..."
+            GENERATE_CERTBOT_CERT_SCHEDULED=True
+
+            # Generate self-signed certs just to get Zulip going.
+            GENERATE_SELF_SIGNED_CERT=True
+        fi
+
+        if [ "$GENERATE_SELF_SIGNED_CERT" = "True" ]; then
             echo "Generating self-signed certificates ..."
             mkdir -p "$DATA_DIR/certs"
             /home/zulip/deployments/current/scripts/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
@@ -407,12 +413,38 @@ runPostSetupScripts() {
     set -e
     echo "Post setup scripts execution succeeded."
 }
+function runCertbotAsNeeded() {
+    if [ ! "$GENERATE_CERTBOT_CERT_SCHEDULED" = "True" ]; then
+        echo "No scheduled cert creation."
+        return
+    fi
+
+    echo "Waiting for Zulip to come online to generate cert ..."
+    while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
+        sleep 1;
+    done
+
+    echo "Generating LetsEncrypt cert ..."
+
+    # Remove the self-signed certs which were only needed to get Zulip going.
+    rm -f "$DATA_DIR"/certs/zulip.key "$DATA_DIR"/certs/zulip.combined-chain.crt
+
+    # Accept the terms of service automatically.
+    /home/zulip/deployments/current/scripts/setup/setup-certbot \
+        --agree-tos \
+        --hostname="$SETTING_EXTERNAL_HOST" \
+        --email="$SETTING_ZULIP_ADMINISTRATOR" \
+        --deploy-hook "$ZULIP_CERTBOT_DEPLOY_HOOK"
+
+    echo "LetsEncrypt cert generated."
+}
 bootstrappingEnvironment() {
     echo "=== Begin Bootstrap Phase ==="
     waitingForDatabase
     zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
+    runCertbotAsNeeded &
     echo "=== End Bootstrap Phase ==="
 }
 # END appRun functions
