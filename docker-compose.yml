@@ -34,6 +34,7 @@ services:
       DB_HOST_PORT: "5432"
       DB_USER: "zulip"
       SSL_CERTIFICATE_GENERATION: "self-signed"
+      ZULIP_CERTBOT_DEPLOY_HOOK: /sbin/certbot-deploy-hook
       SETTING_MEMCACHED_LOCATION: "memcached:11211"
       SETTING_RABBITMQ_HOST: "rabbitmq"
       SETTING_REDIS_HOST: "redis"

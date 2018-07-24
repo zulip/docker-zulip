@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+backup() {
+    if [ -e "$1" ]; then
+        # If the user is setting up our automatic certbot-management on a
+        # system that already has certs for Zulip, use some extra caution
+        # to keep the old certs available. This naming is consistent with Zulip's
+        # own setup-certbot backups.
+        mv -f --backup=numbered "$1" "$1".setup-certbot || true
+    fi
+}
+
+source_cert_dir=/etc/letsencrypt/live/"$SETTING_EXTERNAL_HOST"
+dest_cert_dir="$DATA_DIR"/certs
+
+# Persist the certs to the data directory.
+backup "$dest_cert_dir"/zulip.key
+backup "$dest_cert_dir"/zulip.combined-chain.crt
+cp -f "$source_cert_dir"/privkey.pem "$dest_cert_dir"/zulip.key
+cp -f "$source_cert_dir"/fullchain.pem "$dest_cert_dir"/zulip.combined-chain.crt
+
+# Ensure nginx can find them.
+ln -nsf "$dest_cert_dir"/zulip.key /etc/ssl/private/zulip.key
+ln -nsf "$dest_cert_dir"/zulip.combined-chain.crt /etc/ssl/certs/zulip.combined-chain.crt
+
+# Restart various services so the new certs can be used.
+supervisorctl restart nginx

@@ -168,11 +168,11 @@ which you need to encode in the YAML file.  For example,
   comma-separated list of the backend names
   (E.g. `"EmailAuthBackend,GitHubAuthBackend"`).
 
-**SSL Certificates**.  By default, the image will generate a
-  self-signed cert.  We
-  [will soon also support certbot](https://github.com/zulip/docker-zulip/issues/120)
-  for this, just like we do in normal Zulip installations
-  (contributions welcome!).
+**SSL Certificates**.  By default, the image will generate a self-signed cert.
+You can set `SSL_CERTIFICATE_GENERATION: "certbot"` within `docker-compose.yml`
+to enable automatically-renewed Let's Encrypt certificates.  By using certbot
+here, you are agreeing to the [Let's Encrypt
+ToS](https://community.letsencrypt.org/tos).
 
 You can also provide an SSL certificate for your Zulip server by
 putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
