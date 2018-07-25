@@ -208,16 +208,11 @@ configureCerts() {
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
-    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
-        echo "Generating Zulip secrets ..."
-        /root/zulip/scripts/setup/generate_secrets.py --production
-        mv "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf" || {
-            echo "Couldn't move the generate zulip secrets to the data dir."; exit 1;
-        }
-        echo "Secrets generation succeeded."
-    else
-        echo "Secrets already generated/existing."
-    fi
+    echo "Generating Zulip secrets ..."
+    secrets_conf=/etc/zulip/zulip-secrets.conf
+    rm -f "$secrets_conf"
+    /root/zulip/scripts/setup/generate_secrets.py --production
+    echo "Secrets generation succeeded."
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
@@ -226,26 +221,18 @@ secretsConfiguration() {
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
         fi
-        grep -q "$SECRET_KEY" "$DATA_DIR/zulip-secrets.conf"
-        if (($? > 0)); then
-            echo "$SECRET_KEY = $SECRET_VAR" >> "$DATA_DIR/zulip-secrets.conf"
-            echo "Secret added for \"$SECRET_KEY\"."
-        else
-            sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" "$DATA_DIR/zulip-secrets.conf"
+        # If the secret exists already, with any value, delete it and append the new value.
+        assignment_regex="#?\s*$SECRET_KEY\s*=.*"
+        grep -qE "$assignment_regex" "$secrets_conf"
+        if (($? == 0)); then
+            sed -i -r "/$assignment_regex/d" "$secrets_conf"
             echo "Secret found for \"$SECRET_KEY\"."
         fi
+        echo "$SECRET_KEY = $SECRET_VAR" >> "$secrets_conf"
+        echo "Secret added for \"$SECRET_KEY\"."
     done
     set -e
     unset SECRET_KEY SECRET_VAR key
-    if [ -e "/etc/zulip/zulip-secrets.conf" ]; then
-        rm "/etc/zulip/zulip-secrets.conf"
-    fi
-    echo "Linking secrets from data dir to etc zulip  ..."
-    ln -s "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf" || {
-        echo "Couldn't link existing zulip secrets to etc zulip.";
-        exit 1;
-    }
-    echo "Linked existing secrets from data dir to etc zulip."
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
