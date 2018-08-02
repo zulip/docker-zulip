@@ -196,6 +196,7 @@ can provide a `settings.py` file and a `zulip-secrets.conf` file in
 You can boot your Zulip installation with:
 
 ```
+docker-compose pull
 docker-compose up
 ```
 
@@ -217,6 +218,10 @@ directory first).
 If you hit `Ctrl-C`, that will stop your Zulip server cluster.  If
 you'd prefer to have the containers run in the background, you can use
 `docker-compose up -d`.
+
+If you want to build the Zulip image yourself, you can do that by
+running `docker-compose build`; see also
+[the documentation on building a custom Git version version](#upgrading-from-a-git-repository).
 
 ### Connecting to your Zulip server
 
