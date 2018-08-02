@@ -12,7 +12,7 @@ services:
     image: "quay.io/sameersbn/memcached:latest"
     restart: always
   rabbitmq:
-    image: "rabbitmq:3.5.5"
+    image: "rabbitmq:3.7.7"
     hostname: zulip-rabbit
     restart: always
     environment:
