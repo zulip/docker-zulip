@@ -26,6 +26,12 @@ services:
     image: "quay.io/galexrt/zulip:1.8.1-0"
     build:
       context: .
+      args:
+        # Use these if you want to download zulip from a different repo/branch
+        # ZULIP_GIT_URL:
+        # ZULIP_GIT_REF:
+        # Set this up if you plan to use your own CA certificate bundle for building
+        # CUSTOM_CA_CERTIFICATES:
     ports:
       - "80:80"
       - "443:443"
