@@ -18,6 +18,8 @@ services:
     environment:
         RABBITMQ_DEFAULT_USER: "zulip"
         RABBITMQ_DEFAULT_PASS: "zulip"
+    volumes:
+      - "/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw"
   redis:
     image: "quay.io/sameersbn/redis:latest"
     volumes:

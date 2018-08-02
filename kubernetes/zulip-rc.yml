@@ -42,6 +42,9 @@ spec:
           value: "zulip"
         - name: RABBITMQ_DEFAULT_PASS
           value: "zulip"
+        volumeMounts:
+          - name: rabbitmq-persistent-storage
+            mountPath: /var/lib/rabbitmq
       - name: postgresql
         image: zulip/zulip-postgresql
         resources:
@@ -122,6 +125,9 @@ spec:
       - name: redis-persistent-storage
         hostPath:
           path: /opt/docker/zulip/redis
+      - name: rabbitmq-persistent-storage
+        hostPath:
+          path: /opt/docker/zulip/rabbitmq
       - name: postgresql-persistent-storage
         hostPath:
           path: /opt/docker/zulip/postgresql
