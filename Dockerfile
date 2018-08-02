@@ -5,8 +5,11 @@
 FROM ubuntu:xenial-20171114
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 
-ENV ZULIP_GIT_URL="https://github.com/zulip/zulip.git" \
-    ZULIP_GIT_REF="master"
+ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
+ARG ZULIP_GIT_REF=master
+ARG CUSTOM_CA_CERTIFICATES=
+
+SHELL ["/bin/sh", "-xc"]
 
 # First, we setup working locales
 RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
@@ -43,6 +46,7 @@ RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-relea
 FROM ubuntu:xenial-20171114
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 
+ARG CUSTOM_CA_CERTIFICATES=
 ENV DATA_DIR="/data" \
     LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
