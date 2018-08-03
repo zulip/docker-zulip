@@ -367,21 +367,27 @@ you can find using `docker ps`)
 
 ### Upgrading from a Git repository
 
-1. Edit `Dockerfile` in this directory to specify the Git repository
-and the commit to use as `ZULIP_GIT_URL` and `ZULIP_GIT_REF`
-(e.g. `master` or `1.8.1` or
-`445932cc8613c77ced023125248c8b966b3b7528`).
-
-2. Edit your `docker-compose.yml` to comment out the `image` line, e.g.:
+1. Edit `docker-compose.yml` to comment out the `image` line, and
+  specify the Git commit you'd like to build the zulip container from.
+  E.g.:
 
 ```
   zulip:
     # image: "quay.io/galexrt/zulip:1.8.1-0"
     build:
       context: .
+      args:
+        # Change these if you want to build zulip from a different repo/branch
+        ZULIP_GIT_URL: https://github.com/zulip/zulip.git
+        ZULIP_GIT_REF: master
 ```
 
-3. Run `docker-compose build zulip` to build a Zulip Docker image from
+You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git
+repository, and `ZULIP_GIT_REF` to be any ref name in that repository
+(e.g. `master` or `1.8.1` or
+`445932cc8613c77ced023125248c8b966b3b7528`).
+
+2. Run `docker-compose build zulip` to build a Zulip Docker image from
    the specified Git version.
 
 Then stop and restart the container as described in the previous section.
