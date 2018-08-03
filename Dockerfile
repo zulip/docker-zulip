@@ -9,6 +9,7 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 #   docker build --build-args "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=1.9.0-rc1
+ARG CUSTOM_CA_CERTIFICATES=
 
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 
@@ -47,6 +48,8 @@ RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-relea
 # In the second stage, we build the production image from the release tarball
 FROM ubuntu:xenial-20171114
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
+
+ARG CUSTOM_CA_CERTIFICATES=
 
 SHELL ["/bin/sh", "-xc"]
 

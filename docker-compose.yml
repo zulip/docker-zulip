@@ -32,6 +32,8 @@ services:
         # Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
         ZULIP_GIT_REF: 1.9.0-rc1
+        # Set this up if you plan to use your own CA certificate bundle for building
+        # CUSTOM_CA_CERTIFICATES:
     ports:
       - "80:80"
       - "443:443"
