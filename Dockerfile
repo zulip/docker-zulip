@@ -5,8 +5,8 @@
 FROM ubuntu:xenial-20171114
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 
-ENV ZULIP_GIT_URL="https://github.com/zulip/zulip.git" \
-    ZULIP_GIT_REF="master"
+ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
+ARG ZULIP_GIT_REF=master
 
 # First, we setup working locales
 RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
