@@ -8,6 +8,8 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 ENV ZULIP_GIT_URL="https://github.com/zulip/zulip.git" \
     ZULIP_GIT_REF="master"
 
+SHELL ["/bin/sh", "-xc"]
+
 # First, we setup working locales
 RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
@@ -42,6 +44,8 @@ RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-relea
 # In the second stage, we build the production image from the release tarball
 FROM ubuntu:xenial-20171114
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
+
+SHELL ["/bin/sh", "-xc"]
 
 ENV DATA_DIR="/data" \
     LANG="en_US.UTF-8" \
