@@ -309,6 +309,12 @@ See also the
 [proxy-wiki-page]: https://github.com/zulip/docker-zulip/wiki/Proxying-via-nginx-on-host-machine
 [reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/deployment.html#putting-the-zulip-application-behind-a-reverse-proxy
 
+By default, Zulip will only interact with user traffic over HTTPS.
+However, if your networking environment is such that the Zulip server
+is behind a load balancer and you need the Zulip server to respond
+over HTTP, you can configure that via setting `DISABLE_HTTPS: "True"`
+in the Docker environment (`docker-compose.yml`).
+
 ## Upgrading the Zulip container
 
 You can upgrade your Zulip installation to any newer version of Zulip
