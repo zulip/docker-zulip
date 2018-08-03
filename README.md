@@ -303,7 +303,11 @@ Zulip container behind an HTTP proxy.
 [This wiki page][proxy-wiki-page] documents how to do this correctly
 with `nginx`.
 
+See also the
+[Zulip documentation on reverse proxies][reverse-proxy-docs]
+
 [proxy-wiki-page]: https://github.com/zulip/docker-zulip/wiki/Proxying-via-nginx-on-host-machine
+[reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/deployment.html#putting-the-zulip-application-behind-a-reverse-proxy
 
 ## Upgrading the Zulip container
 
