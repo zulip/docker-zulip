@@ -12,6 +12,8 @@ ARG ZULIP_GIT_REF=master
 
 SHELL ["/bin/sh", "-xc"]
 
+SHELL ["/bin/sh", "-xc"]
+
 # First, we setup working locales
 RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
