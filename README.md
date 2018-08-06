@@ -256,6 +256,25 @@ Since that process for running management commands is a pain, we recommend
 
 [wrapper-tool]: https://github.com/zulip/docker-zulip/wiki/Running-Management-Commands
 
+### Using a custom certificate bundle for outgoing HTTP connections
+
+If you are sitting behind a custom CA and want to build the Zulip
+image yourself special care is required.
+
+Zulip installs packages via `yarn` and `pip` and these need to be
+configured to use these certificates. You will need to get your
+certificate bundle into the docker image, either by adding a `COPY`
+somewhere or by replacing the `FROM`s with your custom ubuntu image
+that includes your bundle. The recommended way is to have your own
+base image which has your bundle ready at the default
+`/etc/ssl/certs/ca-certificates.crt`.
+
+The next and last step is to set up the `CUSTOM_CA_CERTIFICATES`
+argument in `docker-compose.yml` to point to your CA bundle, e.g.
+to `/etc/ssl/certs/ca-certificates.crt`.
+
+At this point you are ready to build Zulip.
+
 ## Running a Zulip server with Kubernetes
 
 A Kubernetes pod file is in the `kubernetes/` folder; you can run it
