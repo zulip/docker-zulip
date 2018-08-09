@@ -8,11 +8,11 @@ This is a container image for running [Zulip](https://zulipchat.com)
 ([Github](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Quay.io**](https://quay.io/repository/galexrt/zulip) (`docker pull quay.io/galexrt/zulip:1.8.1-0`)
-* [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip) (`docker pull galexrt/zulip:1.8.1-0`)
+* [**Quay.io**](https://quay.io/repository/galexrt/zulip) (`docker pull quay.io/galexrt/zulip:1.9.0-rc1-0`)
+* [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip) (`docker pull galexrt/zulip:1.9.0-rc1-0`)
 
-Current Zulip version: `1.8.1`
-Current Docker image version: `1.8.1-0`
+Current Zulip version: `1.9.0-rc1`
+Current Docker image version: `1.9.0-rc1-0`
 
 ## Overview
 
@@ -343,14 +343,14 @@ section.
    `volumes` lines in `docker-compose.yml`
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
-1. Pull the new image version, e.g. for `v1.8.1` run: `docker pull
-quay.io/galexrt/zulip:v1.8.1`.
+1. Pull the new image version, e.g. for `1.9.0-rc1` run: `docker pull
+quay.io/galexrt/zulip:v1.9.0-rc1-0`.
 
 2. Edit your `docker-compose.yml` to point to the new image version,
 e.g.:
 ```yml
 zulip:
-  image: "quay.io/galexrt/zulip:1.8.1-0"
+  image: "quay.io/galexrt/zulip:1.9.0-rc1-0"
 ```
 
 3. You can execute the upgrade by running:
@@ -383,7 +383,7 @@ you can find using `docker ps`)
 
 ```
   zulip:
-    # image: "quay.io/galexrt/zulip:1.8.1-0"
+    # image: "quay.io/galexrt/zulip:1.9.0-rc1-0"
     build:
       context: .
       args:
@@ -394,7 +394,7 @@ you can find using `docker ps`)
 
 You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git
 repository, and `ZULIP_GIT_REF` to be any ref name in that repository
-(e.g. `master` or `1.8.1` or
+(e.g. `master` or `1.9.0-rc1` or
 `445932cc8613c77ced023125248c8b966b3b7528`).
 
 2. Run `docker-compose build zulip` to build a Zulip Docker image from
