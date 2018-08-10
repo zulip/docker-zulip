@@ -1,15 +1,12 @@
 # Welcome to docker-zulip!
 
-[![](https://images.microbadger.com/badges/image/galexrt/zulip.svg)](https://microbadger.com/images/galexrt/zulip "Get your own image badge on microbadger.com")
-[![Docker Repository on Quay.io](https://quay.io/repository/galexrt/zulip/status "Docker Repository on Quay.io")](https://quay.io/repository/galexrt/zulip)
-[![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
+[![](https://images.microbadger.com/badges/image/zulip/docker-zulip.svg)](https://microbadger.com/images/zulip/docker-zulip "Get your own image badge on microbadger.com") [![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
 
 This is a container image for running [Zulip](https://zulipchat.com)
 ([Github](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Quay.io**](https://quay.io/repository/galexrt/zulip) (`docker pull quay.io/galexrt/zulip:1.9.0-rc1-0`)
-* [**Docker Hub**](https://hub.docker.com/r/galexrt/zulip) (`docker pull galexrt/zulip:1.9.0-rc1-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:1.9.0-rc1-0`)
 
 Current Zulip version: `1.9.0-rc1`
 Current Docker image version: `1.9.0-rc1-0`
@@ -344,13 +341,13 @@ section.
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
 1. Pull the new image version, e.g. for `1.9.0-rc1` run: `docker pull
-quay.io/galexrt/zulip:v1.9.0-rc1-0`.
+zulip/docker-zulip:v1.9.0-rc1-0`.
 
 2. Edit your `docker-compose.yml` to point to the new image version,
 e.g.:
 ```yml
 zulip:
-  image: "quay.io/galexrt/zulip:1.9.0-rc1-0"
+  image: "zulip/docker-zulip:1.9.0-rc1-0"
 ```
 
 3. You can execute the upgrade by running:
@@ -383,7 +380,7 @@ you can find using `docker ps`)
 
 ```
   zulip:
-    # image: "quay.io/galexrt/zulip:1.9.0-rc1-0"
+    # image: "zulip/docker-zulip:1.9.0-rc1-0"
     build:
       context: .
       args:
