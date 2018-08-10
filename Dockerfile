@@ -24,7 +24,8 @@ ENV LANG="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8"
 
 # Next, we upgrade the base image and add a zulip user
-RUN apt-get -q dist-upgrade -y && \
+RUN apt-get -q update && \
+    apt-get -q dist-upgrade -y && \
     apt-get -q install -y git sudo ca-certificates apt-transport-https python3 && \
     useradd -d /home/zulip -m zulip && \
     echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
@@ -69,7 +70,8 @@ ENV LANG="en_US.UTF-8" \
 COPY --from=0 /tmp/zulip-server-docker.tar.gz /root/
 COPY custom_zulip_files/ /root/custom_zulip
 
-RUN apt-get -q dist-upgrade -y && \
+RUN apt-get -q update && \
+    apt-get -q dist-upgrade -y && \
     apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full && \
     # Make sure Nginx is started by Supervisor.
     rm /etc/init.d/nginx && \
