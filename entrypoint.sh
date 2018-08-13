@@ -5,6 +5,7 @@ if [ "$DEBUG" = "true" ] || [ "$DEBUG" = "True" ]; then
     set -o functrace
 fi
 set -e
+shopt -s extglob
 
 # DB aka Database
 DB_HOST="${DB_HOST:-127.0.0.1}"
@@ -108,7 +109,7 @@ setConfigurationValue() {
             [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
             TYPE="bool"
             ;;
-            [0-9]*)
+            +([0-9]))
             TYPE="integer"
             ;;
             [\[\(]*[\]\)])
