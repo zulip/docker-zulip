@@ -10,7 +10,7 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=1.9.0-rc1
 
-SHELL ["/bin/sh", "-xc"]
+SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 
 # First, we setup working locales
 RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
