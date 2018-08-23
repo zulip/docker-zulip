@@ -50,24 +50,7 @@ SETTINGS_PY="/etc/zulip/settings.py"
 # BEGIN appRun functions
 # === initialConfiguration ===
 prepareDirectories() {
-    if [ ! -d "$DATA_DIR" ]; then
-        mkdir -p "$DATA_DIR"
-    fi
-    if [ ! -d "$DATA_DIR/backups" ]; then
-        echo "Creating backups folder ..."
-        mkdir -p "$DATA_DIR/backups"
-        echo "Created backups folder."
-    fi
-    if [ ! -d "$DATA_DIR/certs" ]; then
-        echo "Creating certs folder ..."
-        mkdir -p "$DATA_DIR/certs"
-        echo "Created certs folder."
-    fi
-    if [ ! -d "$DATA_DIR/uploads" ]; then
-        echo "Creating uploads folder ..."
-        mkdir -p "$DATA_DIR/uploads"
-        echo "Created uploads folder."
-    fi
+    mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/certs" "$DATA_DIR/uploads"
     echo "Preparing and linking the uploads folder ..."
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
