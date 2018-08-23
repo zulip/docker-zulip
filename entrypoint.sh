@@ -173,13 +173,13 @@ configureCerts() {
     if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
         echo "SSL private key zulip.key is not present in $DATA_DIR."
         echo "Certificates configuration failed."
-        echo "Consider setting ZULIP_AUTO_GENERATE_CERTS=True in the environment to auto-generate"
+        echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
         exit 1
     fi
     if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
         echo "SSL public key zulip.combined-chain.crt is not present in $DATA_DIR."
         echo "Certificates configuration failed."
-        echo "Consider setting ZULIP_AUTO_GENERATE_CERTS=True in the environment to auto-generate"
+        echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
         exit 1
     fi
     ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
