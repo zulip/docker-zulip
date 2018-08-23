@@ -227,26 +227,14 @@ secretsConfiguration() {
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
         fi
-        grep -q "$SECRET_KEY" "$DATA_DIR/zulip-secrets.conf"
-        if (($? > 0)); then
-            echo "$SECRET_KEY = $SECRET_VAR" >> "$DATA_DIR/zulip-secrets.conf"
-            echo "Secret added for \"$SECRET_KEY\"."
-        else
-            sed -i -r "s~#?$SECRET_KEY[ ]*=.*~$SECRET_KEY = $SECRET_VAR~g" "$DATA_DIR/zulip-secrets.conf"
-            echo "Secret found for \"$SECRET_KEY\"."
-        fi
+        crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
     set -e
-    unset SECRET_KEY SECRET_VAR key
-    if [ -e "/etc/zulip/zulip-secrets.conf" ]; then
-        rm "/etc/zulip/zulip-secrets.conf"
-    fi
-    echo "Linking secrets from data dir to etc zulip  ..."
-    ln -s "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf" || {
+    unset SECRET_KEY SECRET_VAR key SECRETS
+    ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf" || {
         echo "Couldn't link existing zulip secrets to etc zulip.";
         exit 1;
     }
-    echo "Linked existing secrets from data dir to etc zulip."
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
