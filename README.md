@@ -11,6 +11,11 @@ This is a container image for running [Zulip](https://zulipchat.com)
 Current Zulip version: `1.9.0-rc1`
 Current Docker image version: `1.9.0-rc1-0`
 
+Project status: **Experimental**.  The core Zulip community recently
+adopted this project, and hasn't yet cleaned it up to our
+satisfaction.  We recommend using the normal Zulip installer for
+production usage.
+
 ## Overview
 
 This project defines a Docker image for a Zulip server, as well as
