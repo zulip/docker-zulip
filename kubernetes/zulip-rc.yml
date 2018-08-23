@@ -70,37 +70,37 @@ spec:
         env:
         # Please take a look at the environment variables in docker-compose.yml for all required env variables!
         - name: DB_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: MEMCACHED_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: REDIS_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: RABBITMQ_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: ZULIP_AUTH_BACKENDS
-          value: "EmailAuthBackend"
+          value: 'EmailAuthBackend'
         - name: SECRETS_email_password
-          value: "123456789"
+          value: '123456789'
         - name: SETTING_EXTERNAL_HOST
-          value: "localhost"
+          value: 'localhost'
         - name: SETTING_ZULIP_ADMINISTRATOR
-          value: "admin@example.com"
+          value: 'admin@example.com'
         - name: SETTING_EMAIL_HOST
-          value: ""  # E.g. "smtp.example.com"
+          value: ''  # E.g. 'smtp.example.com'
         - name: SETTING_EMAIL_HOST_USER
-          value: "noreply@example.com"
+          value: 'noreply@example.com'
         - name: ZULIP_USER_EMAIL
-          value: "example@example.com"
+          value: 'example@example.com'
         - name: ZULIP_USER_DOMAIN
-          value: "example.com"
+          value: 'example.com'
         - name: ZULIP_USER_PASS
-          value: "123456789"
+          value: '123456789'
         - name: SECRETS_secret_key
-          value: "REPLCAE_WITH_SECURE_SECRET_KEY"
+          value: 'REPLCAE_WITH_SECURE_SECRET_KEY'
         - name: SECRETS_postgres_password
-          value: "zulip"
+          value: 'zulip'
         - name: SSL_CERTIFICATE_GENERATION
-          value: "self-signed"
+          value: 'self-signed'
         # Uncomment this when configuring the mobile push notifications service
         # - name: PUSH_NOTIFICATION_BOUNCER_URL
         # value: 'https://push.zulipchat.com'

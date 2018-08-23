@@ -1,31 +1,31 @@
 version: '2'
 services:
   database:
-    image: "zulip/zulip-postgresql"
+    image: 'zulip/zulip-postgresql'
     environment:
       POSTGRES_DB: zulip
       POSTGRES_USER: zulip
       POSTGRES_PASSWORD: zulip
     volumes:
-      - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw"
+      - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
   memcached:
-    image: "quay.io/sameersbn/memcached:latest"
+    image: 'quay.io/sameersbn/memcached:latest'
     restart: always
   rabbitmq:
-    image: "rabbitmq:3.7.7"
+    image: 'rabbitmq:3.7.7'
     hostname: zulip-rabbit
     restart: always
     environment:
-        RABBITMQ_DEFAULT_USER: "zulip"
-        RABBITMQ_DEFAULT_PASS: "zulip"
+        RABBITMQ_DEFAULT_USER: 'zulip'
+        RABBITMQ_DEFAULT_PASS: 'zulip'
     volumes:
-      - "/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw"
+      - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
   redis:
-    image: "quay.io/sameersbn/redis:latest"
+    image: 'quay.io/sameersbn/redis:latest'
     volumes:
-      - "/opt/docker/zulip/redis:/var/lib/redis:rw"
+      - '/opt/docker/zulip/redis:/var/lib/redis:rw'
   zulip:
-    image: "zulip/docker-zulip:1.9.0-rc1-1"
+    image: 'zulip/docker-zulip:1.9.0-rc1-1'
     build:
       context: .
       args:
@@ -35,30 +35,30 @@ services:
         # Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     environment:
-      DB_HOST: "database"
-      DB_HOST_PORT: "5432"
-      DB_USER: "zulip"
-      SSL_CERTIFICATE_GENERATION: "self-signed"
-      SETTING_MEMCACHED_LOCATION: "memcached:11211"
-      SETTING_RABBITMQ_HOST: "rabbitmq"
-      SETTING_REDIS_HOST: "redis"
-      SECRETS_email_password: "123456789"
-      SECRETS_rabbitmq_password: "zulip"
-      SECRETS_postgres_password: "zulip"
-      SECRETS_secret_key: "REPLACE_WITH_SECURE_SECRET_KEY"
-      SETTING_EXTERNAL_HOST: "localhost.localdomain"
-      SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
-      SETTING_EMAIL_HOST: ""  # e.g. smtp.example.com
-      SETTING_EMAIL_HOST_USER: "noreply@example.com"
-      SETTING_EMAIL_PORT: "587"
+      DB_HOST: 'database'
+      DB_HOST_PORT: '5432'
+      DB_USER: 'zulip'
+      SSL_CERTIFICATE_GENERATION: 'self-signed'
+      SETTING_MEMCACHED_LOCATION: 'memcached:11211'
+      SETTING_RABBITMQ_HOST: 'rabbitmq'
+      SETTING_REDIS_HOST: 'redis'
+      SECRETS_email_password: '123456789'
+      SECRETS_rabbitmq_password: 'zulip'
+      SECRETS_postgres_password: 'zulip'
+      SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
+      SETTING_EXTERNAL_HOST: 'localhost.localdomain'
+      SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+      SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+      SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+      SETTING_EMAIL_PORT: '587'
       # It seems that the email server needs to use ssl or tls and can't be used without it
-      SETTING_EMAIL_USE_SSL: "False"
-      SETTING_EMAIL_USE_TLS: "True"
-      ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+      SETTING_EMAIL_USE_SSL: 'False'
+      SETTING_EMAIL_USE_TLS: 'True'
+      ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
-      - "/opt/docker/zulip/zulip:/data:rw"
+      - '/opt/docker/zulip/zulip:/data:rw'
