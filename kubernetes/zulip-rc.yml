@@ -62,7 +62,7 @@ spec:
           - name: postgresql-persistent-storage
             mountPath: /var/lib/postgresql
       - name: zulip
-        image: quay.io/galexrt/zulip:1.9.0-rc1-1
+        image: zulip/docker-zulip:1.9.0-rc1-2
         resources:
           limits:
             cpu: 100m
