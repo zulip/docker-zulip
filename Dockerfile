@@ -27,7 +27,7 @@ ENV LANG="en_US.UTF-8" \
 # Next, we upgrade the base image and add a zulip user
 RUN apt-get -q update && \
     apt-get -q dist-upgrade -y && \
-    apt-get -q install -y git sudo ca-certificates apt-transport-https python3 && \
+    apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini && \
     useradd -d /home/zulip -m zulip && \
     echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
