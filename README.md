@@ -75,7 +75,7 @@ cluster.
 
 What this means is that if you're using `docker-zulip` in production
 with `docker-compose`, you'll want to configure your backup system to
-do backups on the `/opt/zulip/docker` directory, in order to ensure
+do backups on the `/opt/docker/zulip` directory, in order to ensure
 you don't lose data.
 
 [persistent-data]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
