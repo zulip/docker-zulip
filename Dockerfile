@@ -51,7 +51,7 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 
 ARG CUSTOM_CA_CERTIFICATES=
 
-SHELL ["/bin/sh", "-xc"]
+SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 
 ENV DATA_DIR="/data" \
     LANG="en_US.UTF-8" \
