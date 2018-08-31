@@ -295,6 +295,8 @@ initialConfiguration() {
     nginxConfiguration
     configureCerts
     if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
+        # Start with the settings template file.
+        cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
         databaseConfiguration
         secretsConfiguration
         authenticationBackends
