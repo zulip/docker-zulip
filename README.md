@@ -139,15 +139,24 @@ production traffic, you need to also set these:
 * `POSTGRES_PASSWORD` and `SECRETS_postgres_password` should both be a
   password for the Zulip container to authenticate to the Postgres
   container.  Since you won't use this directly, you just want a long,
-  randomly generated string.  You can rotate these by just restarting
-  the container.
+  randomly generated string.  While `SECRETS_postgres_password` is
+  synced to the Zulip container on every boot, `POSTGRES_PASSWORD` is
+  only accessed by the postgres container on first boot, so if you
+  later want to change your postgres password after booting the
+  container, you'll need to either do an
+  [ALTER ROLE][postgres-alter-role] query inside the `postgres`
+  container or rebuild the postgres database (only if you don't need
+  your data!).
 * `RABBITMQ_DEFAULT_PASS` and `SECRETS_rabbitmq_password` are similar,
   just for the RabbitMQ container.
 * `SECRETS_secret_key` should be a long (e.g. 50 characters), random
   string.  This value is important to keep secret and constant over
-  time, since it is used to (among other things) sign login cookies.
+  time, since it is used to (among other things) sign login cookies
+  (so if you change this, all your users will be forcibly logged out).
 * `SETTINGS_EMAIL_*`: Where you configure Zulip's ability to send
   [outgoing email][outgoing-email].
+
+[postgres-alter-role]: https://www.postgresql.org/docs/9.3/static/sql-alterrole.html
 
 **Other settings**. If an environment variable name doesn't start with
 `SETTINGS` or `SECRETS` in `docker-compose.yml`, it is specific to the
