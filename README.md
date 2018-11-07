@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulipchat.com)
 ([Github](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:1.9.0-rc2-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:1.9.0-0`)
 
-Current Zulip version: `1.9.0-rc2`
-Current Docker image version: `1.9.0-rc2-0`
+Current Zulip version: `1.9.0`
+Current Docker image version: `1.9.0-0`
 
 Project status: **Experimental**.  The core Zulip community recently
 adopted this project, and hasn't yet cleaned it up to our
@@ -378,14 +378,14 @@ section.
    `volumes` lines in `docker-compose.yml`
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
-1. Pull the new image version, e.g. for `1.9.0-rc2` run: `docker pull
-zulip/docker-zulip:v1.9.0-rc2-0`.
+1. Pull the new image version, e.g. for `1.9.0` run: `docker pull
+zulip/docker-zulip:v1.9.0-0`.
 
 2. Edit your `docker-compose.yml` to point to the new image version,
 e.g.:
 ```yml
 zulip:
-  image: "zulip/docker-zulip:1.9.0-rc2-0"
+  image: "zulip/docker-zulip:1.9.0-0"
 ```
 
 3. You can execute the upgrade by running:
@@ -418,7 +418,7 @@ you can find using `docker ps`)
 
 ```
   zulip:
-    # image: "zulip/docker-zulip:1.9.0-rc1-0"
+    # image: "zulip/docker-zulip:1.9.0-0"
     build:
       context: .
       args:
@@ -429,7 +429,7 @@ you can find using `docker ps`)
 
 You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git
 repository, and `ZULIP_GIT_REF` to be any ref name in that repository
-(e.g. `master` or `1.9.0-rc2` or
+(e.g. `master` or `1.9.0` or
 `445932cc8613c77ced023125248c8b966b3b7528`).
 
 2. Run `docker-compose build zulip` to build a Zulip Docker image from

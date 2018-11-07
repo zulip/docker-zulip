@@ -25,13 +25,13 @@ services:
     volumes:
       - '/opt/docker/zulip/redis:/var/lib/redis:rw'
   zulip:
-    image: 'zulip/docker-zulip:1.9.0-rc2-0'
+    image: 'zulip/docker-zulip:1.9.0'
     build:
       context: .
       args:
         # Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: 1.9.0-rc2
+        ZULIP_GIT_REF: 1.9.0
         # Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:
