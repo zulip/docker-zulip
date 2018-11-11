@@ -1,4 +1,4 @@
-version: '2'
+version: '3.0'
 services:
   database:
     image: 'zulip/zulip-postgresql'
@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: zulip
       POSTGRES_PASSWORD: zulip
     volumes:
-      - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
+      - 'postgres-vol:/var/lib/postgresql/data:rw'
   memcached:
     image: 'quay.io/sameersbn/memcached:latest'
     restart: always
@@ -19,11 +19,11 @@ services:
         RABBITMQ_DEFAULT_USER: 'zulip'
         RABBITMQ_DEFAULT_PASS: 'zulip'
     volumes:
-      - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
+      - 'rabbitmq-vol:/var/lib/rabbitmq:rw'
   redis:
     image: 'quay.io/sameersbn/redis:latest'
     volumes:
-      - '/opt/docker/zulip/redis:/var/lib/redis:rw'
+      - 'redis-vol:/var/lib/redis:rw'
   zulip:
     image: 'zulip/docker-zulip:1.9.0-0'
     build:
@@ -61,4 +61,9 @@ services:
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
-      - '/opt/docker/zulip/zulip:/data:rw'
+      - 'zulip-vol:/data:rw'
+volumes:
+  redis-vol:
+  zulip-vol:
+  postgres-vol:
+  rabbitmq-vol:
