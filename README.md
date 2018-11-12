@@ -379,7 +379,7 @@ section.
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
 1. Pull the new image version, e.g. for `1.9.0` run: `docker pull
-zulip/docker-zulip:v1.9.0-0`.
+zulip/docker-zulip:1.9.0-0`.
 
 2. Edit your `docker-compose.yml` to point to the new image version,
 e.g.:
