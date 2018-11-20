@@ -296,7 +296,7 @@ At this point you are ready to build Zulip.
 A Kubernetes pod file is in the `kubernetes/` folder; you can run it
 with `kubectl create -f ./kubernetes/`.
 
-You should read the `docker-compsoe` section above to understand how
+You should read the `docker-compose` section above to understand how
 this works, since it's a very similar setup.  You'll want to to clone
 this repository, and edit the `zulip-rc.yml` to configure the image, etc.
 
