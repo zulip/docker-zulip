@@ -62,3 +62,7 @@ services:
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
       - '/opt/docker/zulip/zulip:/data:rw'
+    ulimits:
+      nofile:
+        soft: 40000
+        hard: 50000
