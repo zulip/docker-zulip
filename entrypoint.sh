@@ -191,13 +191,14 @@ secretsConfiguration() {
     if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
         echo "Generating Zulip secrets ..."
         /root/zulip/scripts/setup/generate_secrets.py --production
-        mv "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf" || {
-            echo "Couldn't move the generate zulip secrets to the data dir."; exit 1;
-        }
-        echo "Secrets generation succeeded."
+        mv "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf"
+        ln -ns "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
     else
-        echo "Secrets already generated/existing."
+        ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+        echo "Generating Zulip secrets ..."
+        /root/zulip/scripts/setup/generate_secrets.py --production
     fi
+    echo "Secrets generation succeeded."
     set +e
     local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
     for SECRET_KEY in "${SECRETS[@]}"; do
@@ -210,10 +211,6 @@ secretsConfiguration() {
     done
     set -e
     unset SECRET_KEY SECRET_VAR key SECRETS
-    ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf" || {
-        echo "Couldn't link existing zulip secrets to etc zulip.";
-        exit 1;
-    }
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
