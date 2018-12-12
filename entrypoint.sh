@@ -199,18 +199,16 @@ secretsConfiguration() {
         /root/zulip/scripts/setup/generate_secrets.py --production
     fi
     echo "Secrets generation succeeded."
-    set +e
-    local SECRETS=($(env | sed -nr "s/SECRETS_([0-9A-Z_a-z-]*).*/\1/p"))
-    for SECRET_KEY in "${SECRETS[@]}"; do
-        local key="SECRETS_$SECRET_KEY"
+    local key
+    for key in "${!SECRETS_@}"; do
+        [[ "$key" == SECRETS_*([0-9A-Z_a-z-]) ]] || continue
+        local SECRET_KEY="${key#SECRETS_}"
         local SECRET_VAR="${!key}"
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
         fi
         crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
-    set -e
-    unset SECRET_KEY SECRET_VAR key SECRETS
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
@@ -223,7 +221,9 @@ databaseConfiguration() {
 authenticationBackends() {
     echo "Activating authentication backends ..."
     local FIRST=true
-    echo "$ZULIP_AUTH_BACKENDS" | sed -n 1'p' | tr ',' '\n' | while read AUTH_BACKEND; do
+    local auth_backends
+    IFS=, read -r -a auth_backends <<< "$ZULIP_AUTH_BACKENDS"
+    for AUTH_BACKEND in "${auth_backends[@]}"; do
         if [ "$FIRST" = true ]; then
             setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
             FIRST=false
@@ -236,12 +236,13 @@ authenticationBackends() {
 }
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
-    if [ ! -z "$ZULIP_CUSTOM_SETTINGS" ]; then
+    if [ -n "$ZULIP_CUSTOM_SETTINGS" ]; then
         echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$SETTINGS_PY"
     fi
-    local given_settings=($(env | sed -n -r "s/SETTING_([0-9A-Za-z_]*).*/\1/p"))
-    for setting_key in "${given_settings[@]}"; do
-        local key="SETTING_$setting_key"
+    local key
+    for key in "${!SETTING_@}"; do
+        [[ "$key" == SETTING_*([0-9A-Za-z_]) ]] || continue
+        local setting_key="${key#SETTING_}"
         local setting_var="${!key}"
         local type="string"
         if [ -z "$setting_var" ]; then
@@ -252,13 +253,13 @@ zulipConfiguration() {
         if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
-           ([ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]) || \
+           { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
            [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
            [[ "$setting_key" = "CSRF_"* ]] || \
            [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
-        if ([ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ]) || \
+        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ] || \
            [ "$type" = "string" ]; then
             type=""
         fi
@@ -269,16 +270,14 @@ zulipConfiguration() {
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
     done
-    unset setting_key setting_var
-    su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"
-    if [[ $? != 0 ]]; then
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
         echo "Error in the Zulip configuration. Exiting."
         exit 1
     fi
     echo "Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
-    if ([ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]); then
+    if [ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
         rm -f /etc/cron.d/autobackup
         echo "Auto backup is disabled. Continuing."
         return 0
@@ -304,25 +303,21 @@ initialConfiguration() {
 }
 # === bootstrappingEnvironment ===
 waitingForDatabase() {
-    export PGPASSWORD="$SECRETS_postgres_password"
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
-        TIMEOUT=$(expr $TIMEOUT - 1)
-        if [[ $TIMEOUT -eq 0 ]]; then
+        if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
-            unset PGPASSWORD
             exit 1
         fi
         echo -n "."
         sleep 1
     done
-    unset PGPASSWORD
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if [ -e "$DATA_DIR/.initiated" ] && ([ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]); then
+    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]; then
         echo "First Start Init not needed. Continuing."
         return 0
     fi
@@ -354,7 +349,7 @@ zulipMigration() {
 }
 runPostSetupScripts() {
     echo "Post setup scripts execution ..."
-    if ([ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] && [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]); then
+    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] && [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
         echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
         return 0
     fi
@@ -367,7 +362,7 @@ runPostSetupScripts() {
         return 0
     fi
     set +e
-    for file in $DATA_DIR/post-setup.d/*; do
+    for file in "$DATA_DIR"/post-setup.d/*; do
         if [ -x "$file" ]; then
             echo "Executing \"$file\" ..."
             bash -c "$file"
@@ -438,7 +433,7 @@ appManagePy() {
     fi
     echo "Running manage.py ..."
     set +e
-    exec su zulip -c "/home/zulip/deployments/current/manage.py $COMMAND $*"
+    exec su zulip -c "/home/zulip/deployments/current/manage.py $(printf '%q ' "$COMMAND" "$@")"
 }
 appBackup() {
     echo "Starting backup process ..."
@@ -465,9 +460,10 @@ appRestore() {
         exit 1
     fi
     while true; do
-        ls "$DATA_DIR/backups/" | awk '{print "|-> " $1}'
+        local backups=("$DATA_DIR"/backups/*)
+        printf '|-> %s\n' "${backups[@]#"$DATA_DIR"/backups/}"
         echo "Please enter backup filename (full filename with extension): "
-        read BACKUP_FILE
+        read -r BACKUP_FILE
         if [ -z "$BACKUP_FILE" ]; then
             echo "Empty filename given. Please try again."
             echo ""
@@ -487,12 +483,8 @@ appRestore() {
     echo "!! WARNING !! Waiting 10 seconds before continuing ..."
     echo "==============================================================="
     echo ""
-    local TIMEOUT=11
-    while true; do
-        TIMEOUT=$(expr $TIMEOUT - 1)
-        if [[ $TIMEOUT -eq 0 ]]; then
-            break
-        fi
+    local TIMEOUT
+    for TIMEOUT in {10..1}; do
         echo "$TIMEOUT"
         sleep 1
     done
@@ -550,16 +542,6 @@ case "$1" in
         appVersion
     ;;
     *)
-        if [[ -x $1 ]]; then
-            $1
-        else
-            COMMAND="$1"
-            if [[ -n $(which $COMMAND) ]] ; then
-                shift 1
-                exec "$(which $COMMAND)" "$@"
-            else
-                appHelp
-            fi
-        fi
+        exec "$@" || appHelp
     ;;
 esac
