@@ -283,7 +283,7 @@ autoBackupConfiguration() {
         echo "Auto backup is disabled. Continuing."
         return 0
     fi
-    echo "MAILTO=""\n$AUTO_BACKUP_INTERVAL cd /;/entrypoint.sh app:backup" > /etc/cron.d/autobackup
+    printf 'MAILTO=""\n%s cd /;/entrypoint.sh app:backup' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
     echo "Auto backup enabled."
 }
 initialConfiguration() {
