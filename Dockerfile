@@ -7,8 +7,8 @@ SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    apt-get -q update && \
-    apt-get -q install locales && \
+    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
     locale-gen en_US.UTF-8
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
