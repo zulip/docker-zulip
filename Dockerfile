@@ -4,7 +4,8 @@ ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=master
 ARG CUSTOM_CA_CERTIFICATES=
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
-RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+RUN \
+    echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     apt-get -q update && \
     apt-get -q install locales && \
@@ -13,7 +14,8 @@ ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8" \
     TZ=Etc/UTC
-RUN DEBIAN_FRONTEND=noninteractive apt-get -q update && \
+RUN \
+    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini gnupg && \
     useradd -d /home/zulip -m zulip && \
@@ -29,7 +31,8 @@ RUN \
 USER zulip
 WORKDIR /home/zulip/zulip
 RUN ./tools/provision --production-travis
-RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
+RUN \
+    /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
     mv /tmp/tmp.*/zulip-server-docker.tar.gz /tmp/zulip-server-docker.tar.gz && \
     mkdir -p /home/zulip/buildzone/zulip-unarchived && \
     mv /tmp/zulip-server-docker.tar.gz /home/zulip/buildzone/zulip-server-docker.tar.gz && \
@@ -44,7 +47,8 @@ ENV DATA_DIR="/data" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8" \
     TZ=Etc/UTC
-RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+RUN \
+    echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
@@ -58,7 +62,8 @@ COPY --from=0 /home/zulip/buildzone/zulip-unarchived/zulip-server-docker/ /root/
 COPY custom_zulip_files/ /root/custom_zulip
 
 
-RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+RUN \
+    echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
