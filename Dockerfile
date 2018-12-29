@@ -1,25 +1,37 @@
+# This is a 2-stage Docker build.  In the first stage, we build a
+# Zulip development environment image and use
+# tools/build-release-tarball to generate a production release tarball
+# from the provided Git ref.
 FROM ubuntu:bionic
 LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
+# You can specify these in docker-compose.yml or with
+#   docker build --build-args "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=master
 ARG CUSTOM_CA_CERTIFICATES=
+
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
+# First, we setup, and generate working locales
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
     locale-gen en_US.UTF-8
+# Set locale, and set timezone to Etc/UTC    
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8" \
     TZ=Etc/UTC
+
+# Next, we upgrade the base image and add a zulip user
 RUN \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini gnupg && \
     useradd -d /home/zulip -m zulip && \
     echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
+    
 RUN \
     git clone "$ZULIP_GIT_URL" && \
     (cd zulip && git checkout "$ZULIP_GIT_REF") && \
@@ -30,6 +42,8 @@ RUN \
 
 USER zulip
 WORKDIR /home/zulip/zulip
+# Finally, we provision the development environment and build a release tarball
+# And since were trying to also make use of same build procedure to generate release tarball and work with Docker, were unpack same tarball to save some space
 RUN ./tools/provision --production-travis
 RUN \
     /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
@@ -38,35 +52,42 @@ RUN \
     mv /tmp/zulip-server-docker.tar.gz /home/zulip/buildzone/zulip-server-docker.tar.gz && \
     tar xfvz /home/zulip/buildzone/zulip-server-docker.tar.gz -C /home/zulip/buildzone/zulip-unarchived/
 
+# In the second stage, we build the production image from the unpacked release tarball
 
 FROM ubuntu:bionic
 ARG CUSTOM_CA_CERTIFICATES=
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
+# Set locales and timezone
 ENV DATA_DIR="/data" \
     LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8" \
     TZ=Etc/UTC
+
+# generate locales
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
     locale-gen en_US.UTF-8
-
+# We setup these environments twice, probably squash them, later
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8"
-
+# Copy unpacked tar from build-tarball stage
+# Way to improve, and not hold them as layers -- download in second phase and do in chain before land removal/move,
+# not copy from one layer to another
 COPY --from=0 /home/zulip/buildzone/zulip-unarchived/zulip-server-docker/ /root/zulip-server-docker/
 COPY custom_zulip_files/ /root/custom_zulip
 
-
+# Then, with a second image, we install the production release tarball.
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     DEBIAN_FRONTEND=noninteractive apt-get -q update && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
+# locale-gen second call, probably would squash them, later
     locale-gen en_US.UTF-8 && \
     DEBIAN_FRONTEND=noninteractive apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full gnupg && \
@@ -86,7 +107,7 @@ RUN \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq autoremove --purge -y && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq clean && \
-    #    usermod -aG tty zulip && \
+#    usermod -aG tty zulip && \
 #    chmod o+w /dev/stdout && \
 #    ln -sf /dev/stdout /var/log/nginx/access.log && \
 #    ln -sf /dev/stderr /var/log/nginx/error.log && \
