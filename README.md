@@ -153,7 +153,7 @@ production traffic, you need to also set these:
   string.  This value is important to keep secret and constant over
   time, since it is used to (among other things) sign login cookies
   (so if you change this, all your users will be forcibly logged out).
-* `SETTINGS_EMAIL_*`: Where you configure Zulip's ability to send
+* `SETTING_EMAIL_*`: Where you configure Zulip's ability to send
   [outgoing email][outgoing-email].
 
 [postgres-alter-role]: https://www.postgresql.org/docs/9.3/static/sql-alterrole.html
