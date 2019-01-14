@@ -163,7 +163,7 @@ production traffic, you need to also set these:
 Docker environment.  Standard [Zulip server settings][server-settings]
 are secrets are set using the following syntax:
 
-* `SETTINGS_MY_SETTING` will become `MY_SETTING` in
+* `SETTING_MY_SETTING` will become `MY_SETTING` in
   `/etc/zulip/settings.py`
 * `SECRETS_my_secret` will become `my_secret` in
   `/etc/zulip/zulip-secrets.conf`.
