@@ -9,14 +9,15 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=master
 ARG CUSTOM_CA_CERTIFICATES=
+ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 # First, we setup, and generate working locales
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
+    apt-get -q update && \
+    apt-get -q install locales && \
     locale-gen en_US.UTF-8
 # Set locale, and set timezone to Etc/UTC    
 ENV LANG="en_US.UTF-8" \
@@ -26,9 +27,9 @@ ENV LANG="en_US.UTF-8" \
 
 # Next, we upgrade the base image and add a zulip user
 RUN \
-    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q dist-upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini gnupg && \
+    apt-get -q update && \
+    apt-get -q dist-upgrade -y && \
+    apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini gnupg && \
     useradd -d /home/zulip -m zulip && \
     echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
     
@@ -38,7 +39,7 @@ RUN \
     chown -R zulip:zulip zulip && \
     mv zulip /home/zulip/zulip && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install -y tzdata
+    apt-get -q install -y tzdata
 
 USER zulip
 WORKDIR /home/zulip/zulip
@@ -56,6 +57,7 @@ RUN \
 
 FROM ubuntu:bionic
 ARG CUSTOM_CA_CERTIFICATES=
+ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
 # Set locales and timezone
 ENV DATA_DIR="/data" \
@@ -68,8 +70,8 @@ ENV DATA_DIR="/data" \
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
+    apt-get -q update && \
+    apt-get -q install locales && \
     locale-gen en_US.UTF-8
 # We setup these environments twice, probably squash them, later
 ENV LANG="en_US.UTF-8" \
@@ -85,14 +87,14 @@ COPY custom_zulip_files/ /root/custom_zulip
 RUN \
     echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install locales && \
+    apt-get -q update && \
+    apt-get -q install locales && \
 # locale-gen second call, probably would squash them, later
     locale-gen en_US.UTF-8 && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q dist-upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full gnupg && \
+    apt-get -q dist-upgrade -y && \
+    apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full gnupg && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    DEBIAN_FRONTEND=noninteractive apt-get -q install -y tzdata && \
+    apt-get -q install -y tzdata && \
     rm /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     mkdir -p "$DATA_DIR" && \
@@ -105,8 +107,8 @@ RUN \
            ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
-    DEBIAN_FRONTEND=noninteractive apt-get -qq autoremove --purge -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get -qq clean && \
+    apt-get -qq autoremove --purge -y && \
+    apt-get -qq clean && \
 #    usermod -aG tty zulip && \
 #    chmod o+w /dev/stdout && \
 #    ln -sf /dev/stdout /var/log/nginx/access.log && \
