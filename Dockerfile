@@ -66,17 +66,13 @@ ENV DATA_DIR="/data" \
     LC_ALL="en_US.UTF-8" \
     TZ=Etc/UTC
 
-# generate locales
-RUN \
-    echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    apt-get -q update && \
-    apt-get -q install locales && \
-    locale-gen en_US.UTF-8
 # We setup these environments twice, probably squash them, later
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8"
+ENV PUPPET_CLASSES="zulip::dockervoyager" \
+    DEPLOYMENT_TYPE="dockervoyager" \
+    ADDITIONAL_PACKAGES="expect"
 # Copy unpacked tar from build-tarball stage
 # Way to improve, and not hold them as layers -- download in second phase and do in chain before land removal/move,
 # not copy from one layer to another
@@ -89,7 +85,6 @@ RUN \
     echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
     apt-get -q update && \
     apt-get -q install locales && \
-# locale-gen second call, probably would squash them, later
     locale-gen en_US.UTF-8 && \
     apt-get -q dist-upgrade -y && \
     apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full gnupg && \
@@ -102,9 +97,6 @@ RUN \
     mv zulip-server-docker zulip && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    export PUPPET_CLASSES="zulip::dockervoyager" \
-           DEPLOYMENT_TYPE="dockervoyager" \
-           ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
