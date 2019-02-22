@@ -50,7 +50,8 @@ SETTINGS_PY="/etc/zulip/settings.py"
 # BEGIN appRun functions
 # === initialConfiguration ===
 prepareDirectories() {
-    mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/certs" "$DATA_DIR/uploads"
+    mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/certs" "$DATA_DIR/letsencrypt" "$DATA_DIR/uploads"
+    [ -e /etc/letsencrypt ] || ln -ns "$DATA_DIR/letsencrypt" /etc/letsencrypt
     echo "Preparing and linking the uploads folder ..."
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
