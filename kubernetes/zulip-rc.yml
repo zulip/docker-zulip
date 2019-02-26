@@ -41,7 +41,7 @@ spec:
         - name: RABBITMQ_DEFAULT_USER
           value: "zulip"
         - name: RABBITMQ_DEFAULT_PASS
-          value: "zulip"
+          value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
         volumeMounts:
           - name: rabbitmq-persistent-storage
             mountPath: /var/lib/rabbitmq
@@ -57,7 +57,7 @@ spec:
         - name: POSTGRES_USER
           value: zulip
         - name: POSTGRES_PASSWORD
-          value: zulip
+          value: REPLACE_WITH_SECURE_POSTGRES_PASSWORD
         volumeMounts:
           - name: postgresql-persistent-storage
             mountPath: /var/lib/postgresql
@@ -97,8 +97,11 @@ spec:
           value: '123456789'
         - name: SECRETS_secret_key
           value: 'REPLCAE_WITH_SECURE_SECRET_KEY'
+        # These should match the passwords configured above
         - name: SECRETS_postgres_password
-          value: 'zulip'
+          value: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
+        - name: SECRETS_rabbitmq_password
+          value: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
         - name: SSL_CERTIFICATE_GENERATION
           value: 'self-signed'
         # Uncomment this when configuring the mobile push notifications service

@@ -3,12 +3,12 @@ services:
   database:
     image: 'zulip/zulip-postgresql'
     environment:
-      POSTGRES_DB: zulip
-      POSTGRES_USER: zulip
+      POSTGRES_DB: 'zulip'
+      POSTGRES_USER: 'zulip'
       # Note that you need to do a manual `ALTER ROLE` query if you
       # change this on a system after booting the postgres container
       # the first time on a host.  Instructions are available in README.md.
-      POSTGRES_PASSWORD: zulip
+      POSTGRES_PASSWORD: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
     volumes:
       - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
   memcached:
@@ -20,7 +20,7 @@ services:
     restart: always
     environment:
         RABBITMQ_DEFAULT_USER: 'zulip'
-        RABBITMQ_DEFAULT_PASS: 'zulip'
+        RABBITMQ_DEFAULT_PASS: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
     volumes:
       - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
   redis:
@@ -50,8 +50,8 @@ services:
       SETTING_REDIS_HOST: 'redis'
       SECRETS_email_password: '123456789'
       # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
-      SECRETS_rabbitmq_password: 'zulip'
-      SECRETS_postgres_password: 'zulip'
+      SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+      SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
       SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
       SETTING_EXTERNAL_HOST: 'localhost.localdomain'
       SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
