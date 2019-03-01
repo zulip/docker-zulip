@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulipchat.com)
 ([Github](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:1.9.0-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:2.0.0-0`)
 
-Current Zulip version: `1.9.0`
-Current Docker image version: `1.9.0-0`
+Current Zulip version: `2.0.0`
+Current Docker image version: `2.0.0-0`
 
 Project status: **Experimental**.  The core Zulip community recently
 adopted this project, and hasn't yet cleaned it up to our
@@ -378,14 +378,14 @@ section.
    `volumes` lines in `docker-compose.yml`
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
-1. Pull the new image version, e.g. for `1.9.0` run: `docker pull
-zulip/docker-zulip:1.9.0-0`.
+1. Pull the new image version, e.g. for `2.0.0` run: `docker pull
+zulip/docker-zulip:2.0.0-0`.
 
 2. Edit your `docker-compose.yml` to point to the new image version,
 e.g.:
 ```yml
 zulip:
-  image: "zulip/docker-zulip:1.9.0-0"
+  image: "zulip/docker-zulip:2.0.0-0"
 ```
 
 3. You can execute the upgrade by running:
@@ -418,7 +418,7 @@ you can find using `docker ps`)
 
 ```
   zulip:
-    # image: "zulip/docker-zulip:1.9.0-0"
+    # image: "zulip/docker-zulip:2.0.0-0"
     build:
       context: .
       args:
