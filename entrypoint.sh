@@ -397,9 +397,10 @@ function runCertbotAsNeeded() {
     # Accept the terms of service automatically.
     /home/zulip/deployments/current/scripts/setup/setup-certbot \
         --agree-tos \
-        --hostname="$SETTING_EXTERNAL_HOST" \
         --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        --deploy-hook "$ZULIP_CERTBOT_DEPLOY_HOOK"
+        --deploy-hook "$ZULIP_CERTBOT_DEPLOY_HOOK" \
+        -- \
+        "$SETTING_EXTERNAL_HOST"
 
     echo "LetsEncrypt cert generated."
 }
