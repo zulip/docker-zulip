@@ -8,7 +8,7 @@ LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
 # You can specify these in docker-compose.yml or with
 #   docker build --build-args "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
-ARG ZULIP_GIT_REF=2.0.0
+ARG ZULIP_GIT_REF=2.0.1
 ARG CUSTOM_CA_CERTIFICATES=
 
 SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
