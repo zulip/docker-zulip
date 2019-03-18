@@ -87,15 +87,15 @@ To use `docker-zulip`, you need the following:
 * An installation of [Docker][install-docker] and
   [Docker Compose][install-docker-compose] or a Kubernetes runtime
   engine.
-* At least ~1GB of available RAM.  For running the Zulip system
-  (including databases, etc.) on a single VM not using Docker, we
-  [recommend at least 2GB of available RAM][prod-requirements] for
-  running a production Zulip server.  But if you're just testing
-  and/or aren't expecting a lot of users/messages, you can get away
-  with significantly less, because Docker makes it easy to sharply
-  limit the RAM allocated to the services Zulip depends on, like
-  redis, memcached, and postgresql (at the cost of potential
-  performance issues).
+* We [recommend at least 2GB of available RAM][prod-requirements] for
+  running a production Zulip server; you'll want 4GB if you're
+  building the container (rather than using the prebuilt images).  If
+  you're just testing and/or aren't expecting a lot of users/messages,
+  you can get away with significantly less especially for the
+  `postgres`, `memcached`, etc. containers, because Docker makes it
+  easy to sharply limit the RAM allocated to the services Zulip
+  depends on, like redis, memcached, and postgresql (at the cost of
+  potential performance issues).
 
 [install-docker]: https://docs.docker.com/install/
 [install-docker-compose]: https://docs.docker.com/compose/install/
