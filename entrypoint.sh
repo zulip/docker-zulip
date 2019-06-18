@@ -456,7 +456,7 @@ appBackup() {
 }
 appRestore() {
     echo "Starting restore process ..."
-    if [ -z "$(ls -A $DATA_DIR/backups)" ]; then
+    if [ -z "$(ls -A "$DATA_DIR/backups/")" ]; then
         echo "No backups to restore found in \"$DATA_DIR/backups/\"."
         echo "Restore process failed. Exiting."
         exit 1
