@@ -116,6 +116,11 @@ setConfigurationValue() {
         VALUE="$KEY = '${2//\'/\'}'"
         ;;
     esac
+    if [ "$KEY" = "AUTH_LDAP_GROUP_TYPE" ]; then
+        local group_type
+        group_type=$(echo "$2" | cut -d'(' -f1)
+        echo "from django_auth_ldap.config import $group_type" >> "$FILE"
+    fi
     echo "$VALUE" >> "$FILE"
     echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
 }
@@ -254,6 +259,9 @@ zulipConfiguration() {
         if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
+           [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] || \
+           [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] || \
+           [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] || \
            { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
            [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
            [[ "$setting_key" = "CSRF_"* ]] || \
