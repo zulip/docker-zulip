@@ -2,82 +2,63 @@
 # Zulip development environment image and use
 # tools/build-release-tarball to generate a production release tarball
 # from the provided Git ref.
-FROM ubuntu:xenial-20171114
-LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
+FROM ubuntu:18.04 as base
+
+# Set up working locales and upgrade the base image
+ENV LANG="C.UTF-8"
+
+ARG UBUNTU_MIRROR
+
+RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/ubuntu/\? |$UBUNTU_MIRROR |" /etc/apt/sources.list; } && \
+    apt-get -q update && \
+    apt-get -q dist-upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive \
+        apt-get -q install --no-install-recommends -y ca-certificates git locales lsb-release python3 sudo tzdata
+
+
+FROM base as build
+
+# Add a zulip user
+RUN useradd -d /home/zulip -m zulip && \
+    echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+USER zulip
+WORKDIR /home/zulip
 
 # You can specify these in docker-compose.yml or with
 #   docker build --build-args "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=2.0.4
-ARG CUSTOM_CA_CERTIFICATES=
-
-SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
-
-# First, we setup working locales
-RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    apt-get -q update && \
-    apt-get -q install locales && \
-    locale-gen en_US.UTF-8
-
-ENV LANG="en_US.UTF-8" \
-    LANGUAGE="en_US:en" \
-    LC_ALL="en_US.UTF-8"
-
-# Next, we upgrade the base image and add a zulip user
-RUN apt-get -q update && \
-    apt-get -q dist-upgrade -y && \
-    apt-get -q install -y git sudo ca-certificates apt-transport-https python3 crudini && \
-    useradd -d /home/zulip -m zulip && \
-    echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN git clone "$ZULIP_GIT_URL" && \
-    (cd zulip && git checkout "$ZULIP_GIT_REF") && \
-    chown -R zulip:zulip zulip && \
-    mv zulip /home/zulip/zulip
+    cd zulip && \
+    git checkout -b current "$ZULIP_GIT_REF"
 
-USER zulip
 WORKDIR /home/zulip/zulip
+
+ARG CUSTOM_CA_CERTIFICATES
 
 # Finally, we provision the development environment and build a release tarball
 RUN ./tools/provision --production-travis
-RUN /bin/bash -c "source /srv/zulip-py3-venv/bin/activate && ./tools/build-release-tarball docker" && \
+RUN . /srv/zulip-py3-venv/bin/activate && \
+    ./tools/build-release-tarball docker && \
     mv /tmp/tmp.*/zulip-server-docker.tar.gz /tmp/zulip-server-docker.tar.gz
 
 
 # In the second stage, we build the production image from the release tarball
-FROM ubuntu:xenial-20171114
-LABEL maintainer="Alexander Trost <galexrt@googlemail.com>"
+FROM base
 
-ARG CUSTOM_CA_CERTIFICATES=
-
-SHELL ["/bin/bash", "-xuo", "pipefail", "-c"]
-
-ENV DATA_DIR="/data" \
-    LANG="en_US.UTF-8" \
-    LANGUAGE="en_US:en" \
-    LC_ALL="en_US.UTF-8"
+ENV DATA_DIR="/data"
 
 # Then, with a second image, we install the production release tarball.
-
-RUN echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-    apt-get -q update && \
-    apt-get -q install locales && \
-    locale-gen en_US.UTF-8
-
-ENV LANG="en_US.UTF-8" \
-    LANGUAGE="en_US:en" \
-    LC_ALL="en_US.UTF-8"
-
-COPY --from=0 /tmp/zulip-server-docker.tar.gz /root/
+COPY --from=build /tmp/zulip-server-docker.tar.gz /root/
 COPY custom_zulip_files/ /root/custom_zulip
 
-RUN apt-get -q update && \
-    apt-get -q dist-upgrade -y && \
-    apt-get -q install -y sudo ca-certificates apt-transport-https nginx-full && \
+ARG CUSTOM_CA_CERTIFICATES
+
+RUN \
     # Make sure Nginx is started by Supervisor.
-    rm /etc/init.d/nginx && \
+    dpkg-divert --add --rename /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     mkdir -p "$DATA_DIR" && \
     cd /root && \
