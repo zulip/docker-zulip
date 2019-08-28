@@ -1,7 +1,7 @@
 version: '2'
 services:
   database:
-    image: 'zulip/zulip-postgresql'
+    image: 'zulip/zulip-postgresql:10'
     environment:
       POSTGRES_DB: 'zulip'
       POSTGRES_USER: 'zulip'
