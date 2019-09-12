@@ -1,32 +1,36 @@
 version: '2'
 services:
-  database:
+  postgres:
+    container_name: zulip-postgresql
     image: 'zulip/zulip-postgresql:10'
     environment:
-      POSTGRES_DB: 'zulip'
-      POSTGRES_USER: 'zulip'
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
       # Note that you need to do a manual `ALTER ROLE` query if you
       # change this on a system after booting the postgres container
       # the first time on a host.  Instructions are available in README.md.
-      POSTGRES_PASSWORD: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
+      POSTGRES_PASSWORD: ${PG_PASS}
     volumes:
-      - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
+      - '/opt/sw-docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
   memcached:
+    container_name: zulip-memcached
     image: 'quay.io/sameersbn/memcached:latest'
     restart: always
   rabbitmq:
+    container_name: zulip-rabbitmq
     image: 'rabbitmq:3.7.7'
     hostname: zulip-rabbit
     restart: always
     environment:
-        RABBITMQ_DEFAULT_USER: 'zulip'
-        RABBITMQ_DEFAULT_PASS: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
-      - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
+      - '/opt/sw-docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
   redis:
+    container_name: zulip-redis
     image: 'quay.io/sameersbn/redis:latest'
     volumes:
-      - '/opt/docker/zulip/redis:/var/lib/redis:rw'
+      - '/opt/sw-docker/zulip/redis:/var/lib/redis:rw'
   zulip:
     image: 'zulip/docker-zulip:2.0.5-0'
     build:
@@ -37,36 +41,41 @@ services:
         ZULIP_GIT_REF: 2.0.5
         # Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
-    ports:
-      - '80:80'
-      - '443:443'
     environment:
-      DB_HOST: 'database'
-      DB_HOST_PORT: '5432'
-      DB_USER: 'zulip'
+      DB_HOST: 'postgres'
+      DB_HOST_PORT: 5432
+      DB_USER: ${PG_USER}
       SSL_CERTIFICATE_GENERATION: 'self-signed'
       SETTING_MEMCACHED_LOCATION: 'memcached:11211'
       SETTING_RABBITMQ_HOST: 'rabbitmq'
       SETTING_REDIS_HOST: 'redis'
-      SECRETS_email_password: '123456789'
+      SECRETS_email_password: ${ZULIP_EMAIL_PASSWORD}
       # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
-      SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
-      SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
-      SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
-      SETTING_EXTERNAL_HOST: 'localhost.localdomain'
-      SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
-      SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
-      SETTING_EMAIL_HOST_USER: 'noreply@example.com'
-      SETTING_EMAIL_PORT: '587'
+      SECRETS_rabbitmq_password: ${RABBITMQ_DEFAULT_PASS}
+      SECRETS_postgres_password: ${PG_PASS}
+      SECRETS_secret_key: ${ZULIP_SECRETS_KEY}
+      SETTING_EXTERNAL_HOST: ${ZULIP_HOST}
+      SETTING_ZULIP_ADMINISTRATOR: ${ZULIP_ADMIN}
+      SETTING_EMAIL_HOST: ${ZULIP_EMAIL_HOST} 
+      SETTING_EMAIL_HOST_USER: ${ZULIP_EMAIL_HOST_USER}
+      SETTING_EMAIL_PORT: ${ZULIP_EMAIL_PORT}
       # It seems that the email server needs to use ssl or tls and can't be used without it
-      SETTING_EMAIL_USE_SSL: 'False'
-      SETTING_EMAIL_USE_TLS: 'True'
-      ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+      SETTING_EMAIL_USE_SSL: ${ZULIP_EMAIL_USE_SSL}
+      SETTING_EMAIL_USE_TLS: ${ZULIP_EMAIL_USE_TLS}
+      ZULIP_AUTH_BACKENDS: ${ZULIP_AUTH_BACKENDS}
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
-      - '/opt/docker/zulip/zulip:/data:rw'
+      - '/opt/sw-docker/zulip/zulip:/data:rw'
     ulimits:
       nofile:
         soft: 40000
         hard: 50000
+    networks:
+      - default
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external:
+      name: nginx-proxy
