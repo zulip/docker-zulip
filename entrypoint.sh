@@ -307,7 +307,7 @@ initialConfiguration() {
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
+    while ! PGPASSWORD="${SECRETS_postgres_password}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
     do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
