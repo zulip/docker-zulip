@@ -67,7 +67,7 @@ RUN \
     mv zulip-server-docker zulip && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    export PUPPET_CLASSES="zulip::dockervoyager" \
+    export PUPPET_CLASSES="zulip::dockervoyager, zulip::postfix_localmail" \
            DEPLOYMENT_TYPE="dockervoyager" \
            ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
@@ -80,7 +80,7 @@ COPY entrypoint.sh /sbin/entrypoint.sh
 COPY certbot-deploy-hook /sbin/certbot-deploy-hook
 
 VOLUME ["$DATA_DIR"]
-EXPOSE 80 443
+EXPOSE 80 443 25
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:run"]
