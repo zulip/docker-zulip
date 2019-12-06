@@ -1,2 +1,5 @@
 docker-compose-dev.yml
 kubernetes/*-dev.yml
+
+# Emacs
+*~

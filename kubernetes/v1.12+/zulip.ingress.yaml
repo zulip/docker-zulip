@@ -1,0 +1,24 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: zulip
+  namespace: zulip
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/limit-rps: "20"
+    ingress.kubernetes.io/proxy-body-size: "25m"
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  tls:
+  - hosts:
+      - zulip.vadosware.io
+    secretName: zulip-tls
+  rules:
+  - host: zulip.vadosware.io
+    http:
+      paths:
+      - backend:
+          serviceName: zulip
+          servicePort: 80

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zulip-postgres-entrypoint
+  namespace: zulip
+  labels:
+    app: zulip
+data:
+  setup.sql:
+    |
+      ALTER ROLE zulip SET search_path TO zulip,public;
+      CREATE SCHEMA zulip AUTHORIZATION zulip;
+      CREATE EXTENSION pgroonga;
+      GRANT USAGE ON SCHEMA pgroonga TO zulip;

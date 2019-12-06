@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zulip-postgres-command
+  namespace: zulip
+  labels:
+    app: zulip
+data:
+  start.sh:
+    |
+      echo "=> hacking around missing dictionary files..."
+      touch /usr/local/share/postgresql/tsearch_data/english.stop && \
+      touch /usr/local/share/postgresql/tsearch_data/en_us.dict && \
+      touch /usr/local/share/postgresql/tsearch_data/en_us.affix && \
+
+      wget https://raw.githubusercontent.com/zulip/zulip/master/puppet/zulip/files/postgresql/zulip_english.stop -O /usr/local/share/postgresql/tsearch_data/zulip_english.stop
+
+      echo "=> running docker-entrypoint..."
+      exec /docker-entrypoint.sh postgres
