@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zulip-memcached-data
+  namespace: zulip
+  labels:
+    app: zulip
+    tier: data
+spec:
+  storageClassName: ${STORAGE_CLASS_NAME}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi

@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zulip-rabbitmq
+  namespace: zulip
+  labels:
+    app: zulip
+spec:
+  selector:
+    app: zulip
+    component: rabbitmq
+  ports:
+  - name: rabbitmq
+    port: 5672
+    targetPort: 5672
+    protocol: TCP

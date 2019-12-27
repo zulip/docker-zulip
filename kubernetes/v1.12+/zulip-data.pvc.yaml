@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zulip-data
+  namespace: zulip
+  labels:
+    app: zulip
+    component: app
+spec:
+  storageClassName: ${STORAGE_CLASS}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi

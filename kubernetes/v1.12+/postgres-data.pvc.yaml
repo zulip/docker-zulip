@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zulip-postgres-data
+  namespace: zulip
+  labels:
+    app: zulip
+    tier: data
+spec:
+  storageClassName: openebs-jiva-non-ha
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi

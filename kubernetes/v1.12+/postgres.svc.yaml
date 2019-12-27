@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zulip-postgres
+  namespace: zulip
+  labels:
+    app: zulip
+spec:
+  selector:
+    app: zulip
+    component: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
