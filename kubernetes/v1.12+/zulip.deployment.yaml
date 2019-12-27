@@ -1,0 +1,113 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zulip
+  namespace: zulip
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cowork-chat
+      component: zulip
+  template:
+    metadata:
+      labels:
+        app: cowork-chat
+        component: zulip
+    spec:
+      containers:
+      - name: zulip
+        image: zulip/docker-zulip:2.1.1-0
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+        env:
+        # Postgres
+        - name: DB_HOST
+          value: 'zulip-postgres'
+
+        # Memcached
+        - name: SETTING_MEMCACHED_LOCATION
+          value: 'zulip-memcached:11211'
+
+        # Redis
+        - name: SETTING_REDIS_HOST
+          value: 'zulip-redis'
+
+        # RabbitMQ
+        - name: SETTING_RABBITMQ_HOST
+          value: 'zulip-rabbitmq'
+        - name: SETTING_RABBITMQ_USERNAME
+          value: 'zulip'
+        - name: SETTING_RABBITMQ_PASSWORD
+          value: '${ZULIP_RABBITMQ_PASSWORD}'
+
+        # Zulip email settings
+        - name: SETTING_EMAIL_HOST
+          value: 'mail.domain.tld'  # E.g. 'smtp.example.com'
+        - name: SETTING_EMAIL_USE_TLS
+          value: 'True'
+        - name: SETTING_EMAIL_PORT
+          value: '587'
+        - name: SETTING_EMAIL_HOST_USER
+          value: '${USER}'
+        - name: SETTING_NOREPLY_EMAIL_ADDRESS
+          value: 'zulip-noreply@domain.tld'
+        - name: SETTING_TOKENIZED_NOREPLY_EMAIL_ADDRESS
+          value: 'zulip-noreply-{token}@domain.tld'
+
+        # Zulip settings
+        - name: SETTING_EXTERNAL_HOST
+          value: 'cowork-chat.domain.tld'
+        - name: SETTING_ZULIP_ADMINISTRATOR
+          value: '${USER}@domain.tld'
+        - name: ZULIP_AUTH_BACKENDS
+          value: 'EmailAuthBackend'
+        - name: ZULIP_USER_EMAIL
+          value: '${USER}@domain.tld'
+        - name: ZULIP_USER_DOMAIN
+          value: 'domain.tld'
+        - name: ZULIP_USER_PASS
+          value: '${ZULIP_USER_PASSWORD}'
+        - name: DISABLE_HTTPS # SSL termination @ the proxy
+          value: 'True'
+        - name: SSL_CERTIFICATE_GENERATION
+          value: 'self-signed'
+
+        # Secrets
+        - name: SECRETS_email_password
+          value: '${SMTP_PASSWORD}'
+        - name: SECRETS_secret_key
+          value: '${ZULIP_SECRET_KEY}'
+        - name: SECRETS_postgres_password
+          value: '${ZULIP_POSTGRES_PASSWORD}'
+        - name: SECRETS_rabbitmq_password
+          value: '${ZULIP_RABBITMQ_PASSWORD}'
+
+        # Uncomment this when configuring the mobile push notifications service
+        # - name: PUSH_NOTIFICATION_BOUNCER_URL
+        # value: 'https://push.zulipchat.com'
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        volumeMounts:
+          - name: data
+            mountPath: /data
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 80
+        #     scheme: HTTP
+        #   initialDelaySeconds: 120
+        #   timeoutSeconds: 12
+        #   timeoutSeconds: 12
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: zulip-data

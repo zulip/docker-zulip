@@ -14,7 +14,7 @@ data:
       touch /usr/local/share/postgresql/tsearch_data/en_us.dict && \
       touch /usr/local/share/postgresql/tsearch_data/en_us.affix && \
 
-      wget https://raw.githubusercontent.com/zulip/zulip/master/puppet/zulip/files/postgresql/zulip_english.stop -O /usr/local/share/postgresql/tsearch_data/zulip_english.stop
+      wget 'https://raw.githubusercontent.com/zulip/zulip/master/puppet/zulip/files/postgresql/zulip_english.stop' -O /usr/local/share/postgresql/tsearch_data/zulip_english.stop
 
       echo "=> running docker-entrypoint..."
       exec /docker-entrypoint.sh postgres
