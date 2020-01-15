@@ -149,6 +149,8 @@ production traffic, you need to also set these:
   your data!).
 * `RABBITMQ_DEFAULT_PASS` and `SECRETS_rabbitmq_password` are similar,
   just for the RabbitMQ container.
+* `MEMCACHED_PASSWORD` and `SECRETS_memcached_password` are similar,
+  just for the memcached container.
 * `SECRETS_secret_key` should be a long (e.g. 50 characters), random
   string.  This value is important to keep secret and constant over
   time, since it is used to (among other things) sign login cookies

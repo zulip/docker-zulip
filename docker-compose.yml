@@ -12,7 +12,18 @@ services:
     volumes:
       - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
   memcached:
-    image: 'quay.io/sameersbn/memcached:latest'
+    image: 'memcached:alpine'
+    command:
+      - 'sh'
+      - '-euc'
+      - |
+        echo 'mech_list: plain' > "$$SASL_CONF_PATH"
+        echo "zulip@$$HOSTNAME:$$MEMCACHED_PASSWORD" > "$$MEMCACHED_SASL_PWDB"
+        exec memcached -S
+    environment:
+      SASL_CONF_PATH: '/home/memcache/memcached.conf'
+      MEMCACHED_SASL_PWDB: '/home/memcache/memcached-sasl-db'
+      MEMCACHED_PASSWORD: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
     restart: always
   rabbitmq:
     image: 'rabbitmq:3.7.7'
@@ -49,9 +60,11 @@ services:
       SETTING_RABBITMQ_HOST: 'rabbitmq'
       SETTING_REDIS_HOST: 'redis'
       SECRETS_email_password: '123456789'
-      # These should match POSTGRES_PASSWORD and RABBITMQ_DEFAULT_PASS.
+      # These should match RABBITMQ_DEFAULT_PASS, POSTGRES_PASSWORD,
+      # and MEMCACHED_PASSWORD above.
       SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
       SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
+      SECRETS_memcached_password: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
       SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
       SETTING_EXTERNAL_HOST: 'localhost.localdomain'
       SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
