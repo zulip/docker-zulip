@@ -35,9 +35,17 @@ services:
     volumes:
       - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
   redis:
-    image: 'quay.io/sameersbn/redis:latest'
+    image: 'redis:alpine'
+    command:
+      - 'sh'
+      - '-euc'
+      - |
+        echo "requirepass '$$REDIS_PASSWORD'" > /etc/redis.conf
+        exec redis-server /etc/redis.conf
+    environment:
+      REDIS_PASSWORD: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
     volumes:
-      - '/opt/docker/zulip/redis:/var/lib/redis:rw'
+      - '/opt/docker/zulip/redis:/data:rw'
   zulip:
     image: 'zulip/docker-zulip:2.1.2-0'
     build:
@@ -61,10 +69,11 @@ services:
       SETTING_REDIS_HOST: 'redis'
       SECRETS_email_password: '123456789'
       # These should match RABBITMQ_DEFAULT_PASS, POSTGRES_PASSWORD,
-      # and MEMCACHED_PASSWORD above.
+      # MEMCACHED_PASSWORD, and REDIS_PASSWORD above.
       SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
       SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
       SECRETS_memcached_password: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
+      SECRETS_redis_password: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
       SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
       SETTING_EXTERNAL_HOST: 'localhost.localdomain'
       SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
