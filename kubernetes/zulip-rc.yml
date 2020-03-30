@@ -3,36 +3,50 @@ kind: ReplicationController
 metadata:
   name: zulip-1
   labels:
-    version: 1.8.1-0
+    version: 2.1.2-0
     app: zulip
 spec:
   replicas: 1
   selector:
-    version: 1.8.1-0
+    version: 2.1.2-0
     app: zulip
   template:
     metadata:
       labels:
-        version: 1.8.1-0
+        version: 2.1.2-0
         app: zulip
     spec:
       containers:
       - name: redis
-        image: quay.io/sameersbn/redis:latest
+        image: redis:alpine
         resources:
           limits:
             cpu: 50m
+        command: ["/bin/sh"]
+        args: ["-c", "echo requirepass $REDIS_PASSWORD > /etc/redis.conf; exec redis-server /etc/redis.conf"]
+        env:
+        - name: REDIS_PASSWORD
+          value: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
         volumeMounts:
-          - name: redis-persistent-storage
-            mountPath: /var/lib/redis
+          - name: redis-pv
+            mountPath: /data
       - name: memcached
-        image: quay.io/sameersbn/memcached:latest
+        image: memcached:alpine
         resources:
           limits:
             cpu: 75m
             memory: 768Mi
+        command: ["/bin/sh"]
+        args: ["-c", "echo mech_list: plain > $SASL_CONF_PATH; echo zulip@$HOSTNAME:$MEMCACHED_PASSWORD > $MEMCACHED_SASL_PWDB; exec memcached -S"]
+        env:
+        - name: SASL_CONF_PATH
+          value: '/home/memcache/memcached.conf'
+        - name: MEMCACHED_SASL_PWDB
+          value: '/home/memcache/memcached-sasl-db'
+        - name: MEMCACHED_PASSWORD
+          value: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
       - name: rabbitmq
-        image: rabbitmq:3.7.7
+        image: rabbitmq:alpine
         resources:
           limits:
             cpu: 75m
@@ -43,24 +57,17 @@ spec:
         - name: RABBITMQ_DEFAULT_PASS
           value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
         volumeMounts:
-          - name: rabbitmq-persistent-storage
+          - name: rabbitmq-pv
             mountPath: /var/lib/rabbitmq
       - name: postgresql
-        image: zulip/zulip-postgresql
+        image: zulip/zulip-postgresql:latest
         resources:
           limits:
             cpu: 80m
             memory: 768Mi
-        env:
-        - name: POSTGRES_DB
-          value: zulip
-        - name: POSTGRES_USER
-          value: zulip
-        - name: POSTGRES_PASSWORD
-          value: REPLACE_WITH_SECURE_POSTGRES_PASSWORD
         volumeMounts:
-          - name: postgresql-persistent-storage
-            mountPath: /var/lib/postgresql
+          - name: postgresql-pv
+            mountPath: /var/lib/postgresql/data
       - name: zulip
         image: zulip/docker-zulip:2.1.2-0
         resources:
@@ -96,16 +103,21 @@ spec:
         - name: ZULIP_USER_PASS
           value: '123456789'
         - name: SECRETS_secret_key
-          value: 'REPLCAE_WITH_SECURE_SECRET_KEY'
+          value: 'REPLACE_WITH_SECURE_SECRET_KEY'
         # These should match the passwords configured above
+        # except for Postgres pass which is set during 'zulip-postgresql' image build.
         - name: SECRETS_postgres_password
-          value: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
+          value: 'zulip'
         - name: SECRETS_rabbitmq_password
           value: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+        - name: SECRETS_memcached_password
+          value: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
+        - name: SECRETS_redis_password
+          value: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
         - name: SSL_CERTIFICATE_GENERATION
           value: 'self-signed'
         # Uncomment this when configuring the mobile push notifications service
-        # - name: PUSH_NOTIFICATION_BOUNCER_URL
+        # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL
         # value: 'https://push.zulipchat.com'
         ports:
         - containerPort: 80
@@ -115,7 +127,7 @@ spec:
           name: https
           protocol: TCP
         volumeMounts:
-          - name: zulip-persistent-storage
+          - name: zulip-pv
             mountPath: /data
 #        livenessProbe:
 #          httpGet:
@@ -125,15 +137,15 @@ spec:
 #          initialDelaySeconds: 120
 #          timeoutSeconds: 12
       volumes:
-      - name: redis-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/redis
-      - name: rabbitmq-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/rabbitmq
-      - name: postgresql-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/postgresql
-      - name: zulip-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/zulip
+      - name: redis-pv
+        persistentVolumeClaim:
+          claimName: redis-pv-claim
+      - name: rabbitmq-pv
+        persistentVolumeClaim:
+          claimName: rabbitmq-pv-claim
+      - name: postgresql-pv
+        persistentVolumeClaim:
+          claimName: postgresql-pv-claim
+      - name: zulip-pv
+        persistentVolumeClaim:
+          claimName: zulip-pv-claim
