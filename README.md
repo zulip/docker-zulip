@@ -265,10 +265,10 @@ The following are helpful examples:
 
 ```bash
 # Get a (root) shell in the container so you can access logs
-docker-compose exec zulip /bin/bash
+docker-compose exec zulip bash
 # Create the initial Zulip organization
-docker-compose exec zulip sudo -H -u zulip -g zulip \
-                          /home/zulip/deployments/current/manage.py generate_realm_creation_link
+docker-compose exec -u zulip zulip \
+    /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
 
 Since that process for running management commands is a pain, we recommend
@@ -407,12 +407,8 @@ That's it! Zulip is now running the updated version.
 You can confirm you're running the latest version by running:
 
 ```bash
-docker exec -it YOUR_ZULIP_CONTAINER_ID_HERE su -- zulip -c "cat
-/home/zulip/deployments/current/version.py"
+docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.py
 ```
-
-(Replace `YOUR_ZULIP_CONTAINER_ID_HERE` with your container id, which
-you can find using `docker ps`)
 
 ### Upgrading from a Git repository
 
@@ -471,18 +467,16 @@ docker run -d \
 ```
 
 4. Use `pg_dumpall` to dump all data from the existing Postgres container to
-the new Postgres container (replace `ZULIP_DATABASE_CONTAINER_NAME` with the
-name of the old Postgres container):
+the new Postgres container:
 ```
-docker exec \
-    ZULIP_DATABASE_CONTAINER_NAME pg_dumpall -U postgres | \
+docker-compose exec database pg_dumpall -U postgres | \
     docker exec -i postgresnew psql -U postgres
 ```
 
 5. Stop and remove both Postgres containers:
 ```
-docker stop ZULIP_DATABASE_CONTAINER_NAME postgresnew
-docker rm ZULIP_DATABASE_CONTAINER_NAME postgresnew
+docker-compose rm --stop database
+docker rm --stop postgresnew
 ```
 
 6. Edit your `docker-compose.yml` to use the
