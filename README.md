@@ -205,7 +205,7 @@ only need to edit the `docker-compose.yml` file to configure your
 Zulip server's settings.
 
 An alternative approach is to set `MANUAL_CONFIGURATION: "True"` and
-`LINK_SETTINGS_TO_DATA` in `docker-compose.yml`.  If you do that, you
+`LINK_SETTINGS_TO_DATA: "True"` in `docker-compose.yml`.  If you do that, you
 can provide a `settings.py` file and a `zulip-secrets.conf` file in
 `/opt/docker/zulip/zulip/`, and the container will use those.
 
