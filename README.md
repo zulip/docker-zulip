@@ -3,7 +3,7 @@
 [![](https://images.microbadger.com/badges/image/zulip/docker-zulip.svg)](https://microbadger.com/images/zulip/docker-zulip "Get your own image badge on microbadger.com") [![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
 
 This is a container image for running [Zulip](https://zulipchat.com)
-([Github](https://github.com/zulip/zulip)) in
+([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
 * [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:2.1.4-0`)
