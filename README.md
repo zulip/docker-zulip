@@ -2,7 +2,7 @@
 
 [![](https://images.microbadger.com/badges/image/zulip/docker-zulip.svg)](https://microbadger.com/images/zulip/docker-zulip "Get your own image badge on microbadger.com") [![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
 
-This is a container image for running [Zulip](https://zulipchat.com)
+This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
@@ -333,7 +333,7 @@ the `zulip` application server container (and you need to know a lot
 about Zulip to do this sort of thing successfully).  If you're
 interested in running a high-availablity Zulip installation, your best
 bet is to get in touch with the Zulip support team at
-`support@zulipchat.com`.
+`support@zulip.com`.
 
 ## Networking and reverse proxy configuration
 
