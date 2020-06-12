@@ -258,6 +258,7 @@ zulipConfiguration() {
            { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
            [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
            [[ "$setting_key" = "CSRF_"* ]] || \
+           [ "$setting_key" = "REALM_HOSTS" ] || \
            [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
