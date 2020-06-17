@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:2.1.6-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:2.1.6-1`)
 
 Current Zulip version: `2.1.6`
-Current Docker image version: `2.1.6-0`
+Current Docker image version: `2.1.6-1`
 
 Project status: **Experimental**.  The core Zulip community recently
 adopted this project, and hasn't yet cleaned it up to our
