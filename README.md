@@ -11,10 +11,14 @@ This is a container image for running [Zulip](https://zulip.com)
 Current Zulip version: `2.1.7`
 Current Docker image version: `2.1.7-0`
 
-Project status: **Experimental**.  The core Zulip community recently
-adopted this project, and hasn't yet cleaned it up to our
-satisfaction.  We recommend using the normal Zulip installer for
-production usage.
+Project status: **Alpha**.  While this project works and is
+used by many sites in production, configuring is substantially more
+error-prone than the [normal Zulip installer][normal-install] (which
+Just Works).  We recommend this project if you want to host Zulip
+using Docker, but both setting up and maintaining a Zulip server is
+simpler and less error-prone with the normal installer than with Docker.
+
+[normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 
 ## Overview
 
