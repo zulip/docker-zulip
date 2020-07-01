@@ -100,6 +100,10 @@ To use `docker-zulip`, you need the following:
   easy to sharply limit the RAM allocated to the services Zulip
   depends on, like redis, memcached, and postgresql (at the cost of
   potential performance issues).
+* This project doesn't support `docker-rootless`; Zulip needs root
+  access to set properties like the maximum number of open file
+  descriptions via `ulimit` (which is important for it to handle
+  thousands of connected clients).
 
 [install-docker]: https://docs.docker.com/install/
 [install-docker-compose]: https://docs.docker.com/compose/install/
