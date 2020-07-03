@@ -37,9 +37,6 @@ ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
 # Zulip user setup
 FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
-# Auto backup settings
-AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
-AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # Zulip configuration function specific variable(s)
 SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-}"
 MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
@@ -56,6 +53,7 @@ prepareDirectories() {
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
+    chown zulip:zulip -R "$DATA_DIR/backups"
     # Link settings folder
     if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
         # Create settings directories
@@ -279,15 +277,6 @@ zulipConfiguration() {
     fi
     echo "Zulip configuration succeeded."
 }
-autoBackupConfiguration() {
-    if [ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
-        rm -f /etc/cron.d/autobackup
-        echo "Auto backup is disabled. Continuing."
-        return 0
-    fi
-    printf 'MAILTO=""\n%s cd /;/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
-    echo "Auto backup enabled."
-}
 initialConfiguration() {
     echo "=== Begin Initial Configuration Phase ==="
     prepareDirectories
@@ -301,7 +290,6 @@ initialConfiguration() {
         authenticationBackends
         zulipConfiguration
     fi
-    autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
 }
 # === bootstrappingEnvironment ===
@@ -439,67 +427,6 @@ appManagePy() {
     set +e
     exec su zulip -c "/home/zulip/deployments/current/manage.py $(printf '%q ' "$COMMAND" "$@")"
 }
-appBackup() {
-    echo "Starting backup process ..."
-    if [ -d "/tmp/backup-$(date "%D-%H-%M-%S")" ]; then
-        echo "Temporary backup folder for \"$(date "%D-%H-%M-%S")\" already exists. Aborting."
-        echo "Backup process failed. Exiting."
-        exit 1
-    fi
-    local BACKUP_FOLDER
-    BACKUP_FOLDER="/tmp/backup-$(date "%D-%H-%M-%S")"
-    mkdir -p "$BACKUP_FOLDER"
-    waitingForDatabase
-    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
-    tar -zcvf "$DATA_DIR/backups/backup-$(date "%D-%H-%M-%S").tar.gz" "$BACKUP_FOLDER/"
-    rm -r "${BACKUP_FOLDER:?}/"
-    echo "Backup process succeeded."
-    exit 0
-}
-appRestore() {
-    echo "Starting restore process ..."
-    if [ -z "$(ls -A "$DATA_DIR/backups/")" ]; then
-        echo "No backups to restore found in \"$DATA_DIR/backups/\"."
-        echo "Restore process failed. Exiting."
-        exit 1
-    fi
-    while true; do
-        local backups=("$DATA_DIR"/backups/*)
-        printf '|-> %s\n' "${backups[@]#"$DATA_DIR"/backups/}"
-        echo "Please enter backup filename (full filename with extension): "
-        read -r BACKUP_FILE
-        if [ -z "$BACKUP_FILE" ]; then
-            echo "Empty filename given. Please try again."
-            echo ""
-            continue
-        fi
-        if [ ! -e "$DATA_DIR/backups/$BACKUP_FILE" ]; then
-            echo "File \"$BACKUP_FILE\" not found. Please try again."
-            echo ""
-        fi
-        break
-    done
-    echo "File \"$BACKUP_FILE\" found."
-    echo ""
-    echo "==============================================================="
-    echo "!! WARNING !! Your current data will be deleted!"
-    echo "!! WARNING !! YOU HAVE BEEN WARNED! You can abort with \"CTRL+C\"."
-    echo "!! WARNING !! Waiting 10 seconds before continuing ..."
-    echo "==============================================================="
-    echo ""
-    local TIMEOUT
-    for TIMEOUT in {10..1}; do
-        echo "$TIMEOUT"
-        sleep 1
-    done
-    echo "!! WARNING !! Starting restore process ... !! WARNING !!"
-    waitingForDatabase
-    tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
-    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
-    rm -r "/tmp/$(basename  | cut -d. -f1)/"
-    echo "Restore process succeeded. Exiting."
-    exit 0
-}
 appCerts() {
     configureCerts
 }
@@ -508,8 +435,6 @@ appHelp() {
     echo "> app:help     - Show this help menu and exit"
     echo "> app:version  - Container Zulip server version"
     echo "> app:managepy - Run Zulip's manage.py script (defaults to \"shell\")"
-    echo "> app:backup   - Create backups of Zulip instances"
-    echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:certs    - Create self-signed certificates"
     echo "> app:run      - Run the Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
@@ -529,12 +454,6 @@ case "$1" in
     app:managepy)
         shift 1
         appManagePy "$@"
-    ;;
-    app:backup)
-        appBackup
-    ;;
-    app:restore)
-        appRestore
     ;;
     app:certs)
         appCerts

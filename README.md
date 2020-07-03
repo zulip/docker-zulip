@@ -303,6 +303,32 @@ to `/etc/ssl/certs/ca-certificates.crt`.
 
 At this point you are ready to build Zulip.
 
+### Backups and restore
+
+Zulip has built in support for creating and restoring backups. Do read
+the [Backups, export and import][backups-export-import] documentation first
+before continuing.
+
+Here is an example on how you can run the backup command using docker-compose.
+```
+docker-compose exec -u zulip zulip /home/zulip/deployments/current/manage.py backup --output /data/backups/backup-file-name.tar.gz
+```
+The backup file in above example is stored in /data/backups directory. Since backups
+directory is present inside the docker volume, the backup export can be accessed
+from the host machine and is unaffected if the container is destroyed. The `/data/backups`
+directory is automatically created during the container creation.
+
+The backup can be restored using `scripts/setup/restore-backup` script. For example
+```
+docker-compose exec zulip /home/zulip/deployments/current/scripts/setup/restore-backup /data/backups/backup-file-name.tar.gz
+```
+
+You can restore the backup which you created in another docker-compose installation
+by copying the backup file to `backups` directory in zulip server's volume storage directory
+(eg `/opt/docker/zulip/zulip/backups`) in your host machine and running the command above.
+
+[backups-export-import]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
+
 ## Running a Zulip server with Kubernetes
 
 A Kubernetes pod file is in the `kubernetes/` folder; you can run it
