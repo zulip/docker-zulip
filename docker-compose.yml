@@ -91,5 +91,5 @@ services:
       - '/opt/docker/zulip/zulip:/data:rw'
     ulimits:
       nofile:
-        soft: 40000
-        hard: 50000
+        soft: 1000000
+        hard: 1048576
