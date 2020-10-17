@@ -390,17 +390,25 @@ section.
    `volumes` lines in `docker-compose.yml`
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
-1. Pull the new image version, e.g. for `2.0.1` run: `docker pull
-zulip/docker-zulip:2.0.1-0`.
+1. Pull the new image version, e.g. for `2.0.8` run: `docker pull
+zulip/docker-zulip:2.0.8-0`.  We recommend always upgrading to the
+latest minor release within a major release series.
 
-2. Edit your `docker-compose.yml` to point to the new image version,
+2. Update this project to the corresponding `docker-zulip` version and
+   resolve any merge conflicts in `docker-compose.yml`.
+   This is important as new Zulip releases may require additional
+   settings to be specified in `docker-compose.yml`
+   (E.g. authentication settings for `memcached` became mandatory in
+   the `2.1.2` release).
+
+3. Verify that your updated `docker-compose.yml` points to the desired image version,
 e.g.:
 ```yml
 zulip:
   image: "zulip/docker-zulip:2.0.1-0"
 ```
 
-3. You can execute the upgrade by running:
+4. You can execute the upgrade by running:
 
 ```
 # Stops the old zulip container; this beings your downtime
