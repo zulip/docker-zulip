@@ -390,6 +390,9 @@ section.
    `volumes` lines in `docker-compose.yml`
    e.g. `/opt/docker/zulip/postgresql/data/`.
 
+   Note that `docker-zulip` did not support for Zulip's built-in
+   `restore-backup` tool before Zulip 3.0.
+
 1. Pull the new image version, e.g. for `2.0.8` run: `docker pull
 zulip/docker-zulip:2.0.8-0`.  We recommend always upgrading to the
 latest minor release within a major release series.
