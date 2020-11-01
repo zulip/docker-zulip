@@ -215,6 +215,7 @@ secretsConfiguration() {
 databaseConfiguration() {
     echo "Setting database configuration ..."
     setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
+    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "$SETTINGS_PY" "string"
     setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
     # The password will be set in secretsConfiguration
     echo "Database configuration succeeded."
