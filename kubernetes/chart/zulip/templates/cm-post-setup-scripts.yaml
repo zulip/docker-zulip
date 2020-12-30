@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-post-setup-scripts"
+  labels:
+    {{- include "zulip.labels" . | nindent 4 }}
+data:
+  {{- range $scriptName, $scriptContents := .Values.postSetup.scripts }}
+  {{ $scriptName }}: |
+    {{- $scriptContents | nindent 4 }}
+  {{- end }}
+
