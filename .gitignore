@@ -1,2 +1,13 @@
+# OS
+.DS_Store
+
+# Various IDEs
+.project
+.idea/
+*.tmproj
+
+# dev files
 docker-compose-dev.yml
 kubernetes/*-dev.yml
+kubernetes/chart/zulip/values-local.yaml
+kubernetes/chart/zulip/charts/

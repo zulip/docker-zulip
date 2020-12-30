@@ -1,0 +1,27 @@
+{{- if .Values.zulip.persistence.enabled -}}
+{{- if not .Values.zulip.persistence.existingClaim -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "zulip.fullname" . }}-data
+  labels:
+    {{- include "zulip.labels" . | nindent 4 }}
+{{- if .Values.zulip.persistence.annotations }}
+  annotations:
+{{ toYaml .Values.zulip.persistence.annotations | indent 4 }}
+{{- end }}
+spec:
+  accessModes:
+    - {{ .Values.zulip.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.zulip.persistence.size | quote }}
+{{- if .Values.zulip.persistence.storageClass }}
+{{- if (eq "-" .Values.zulip.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.zulip.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,50 @@
+# Replace each occurrence of "set-secure-password" with a different random
+# password and uncomment it.
+# Replace each occurrence of "zulip.example.com" with the domain you want Zulip
+# to be reached on.
+
+memcached:
+  # memcachedPassword: set-secure-password
+
+rabbitmq:
+  auth:
+    # password: set-secure-password
+    # erlangCookie: set-secure-password
+
+redis:
+  auth:
+    # password: set-secure-password
+
+postgresql:
+  # postgresqlPassword: set-secure-password
+
+service:
+  type: NodePort
+  port: 8080
+
+zulip:
+  # password: set-secure-password
+
+  # Add any other environment variables you want to configure here.
+  # based on; https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
+  # these values will be merged with db secrets and hosts/ports
+  environment:
+    # Set the URI scheme for scripts and styles to http://
+    SETTING_EXTERNAL_URI_SCHEME: "http://"
+    # Set the hostname used for loading to localhost:8080. Note you'll need a
+    # kubectl port-forward as suggested in the post installation instructions.
+    SETTING_EXTERNAL_HOST: localhost:8080
+    ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+
+    # SMTP settings, configure these if you want Zulip to be able to send emails
+    # SECRETS_email_password: '123456789'
+    # SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+    # SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+    # SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+    # SETTING_EMAIL_PORT: '587'
+    # # It seems that the email server needs to use ssl or tls and can't be used without it
+    # SETTING_EMAIL_USE_SSL: 'False'
+    # SETTING_EMAIL_USE_TLS: 'True'
+
+ingress:
+  enabled: false
