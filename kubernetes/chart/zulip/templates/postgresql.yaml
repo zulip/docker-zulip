@@ -1,0 +1,23 @@
+
+{{- define "zulip.postgresql.subvalues" -}}
+{{- with .Values.postgresql }}
+{{- toYaml . }}
+{{- end }}
+serviceType: ClusterIP
+port: 5432
+env:
+  - name: POSTGRES_DB
+    value: "zulip"
+  - name: POSTGRES_USER
+    value: "zulip"
+  - name: POSTGRES_PASSWORD
+    value: {{ .Values.postgresql.password }}
+{{- end }}
+
+{{- $subvalues := (include "zulip.postgresql.subvalues" .) | fromYaml }}
+
+{{- $data := dict "name" "postgresql" "subvalues" $subvalues "root" . -}}
+
+{{- include "zulip.template.deployment" $data }}
+{{- include "zulip.template.service" $data }}
+{{- include "zulip.template.pvc" $data }}

@@ -1,0 +1,15 @@
+1. Zulip should now be available on:
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  http://{{ . }}
+{{- end }}
+{{- else }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "zulip.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl port-forward $POD_NAME 8080:80
+{{- end }}
+
+2. To create a realm so you can sign in:
+
+  kubectl -n {{ .Release.Namespace }} exec -it $(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "zulip.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}") -c zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
+
