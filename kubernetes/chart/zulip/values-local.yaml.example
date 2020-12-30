@@ -1,0 +1,60 @@
+# Replace each occurrence of "set-secure-password" with a different random
+# password and uncomment it.
+# Replace each occurrence of "zulip.example.com" with the domain you want Zulip
+# to be reached on.
+
+zulip:
+  # password: set-secure-password
+
+  # Add any other environment variables you want to configure here.
+  # based on; https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
+  # these values will be merged with db secrets and hosts/ports
+  environment:
+    # Domain
+    SETTING_EXTERNAL_HOST: zulip.example.com
+    ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+
+    # SMTP settings
+    SECRETS_email_password: '123456789'
+    SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+    SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+    SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+    SETTING_EMAIL_PORT: '587'
+    SETTING_EMAIL_USE_SSL: 'False'
+    SETTING_EMAIL_USE_TLS: 'True'
+
+ingress:
+  enabled: true
+  annotations:
+    # Get certificates with cert-manager
+    kubernetes.io/tls-acme: "true"
+    # Uncomment this to use the cert-manager you added to Minikube
+    # cert-manager.io/cluster-issuer: selfsigned
+  hosts:
+    - host: zulip.example.com
+      paths:
+      - path: /
+  tls:
+    - secretName: zulip-tls-secret
+      hosts:
+        - zulip.example.com
+
+memcached:
+  # memcachedPassword: set-secure-password
+
+rabbitmq:
+  auth:
+    # password: set-secure-password
+    # erlangCookie: set-secure-password
+
+redis:
+  auth:
+    # password: set-secure-password
+
+postgresql:
+  auth:
+    # # postgres admin user password
+    # postgresqlPassword: set-secure-password
+    # # postgres zulip user password
+    # password: set-secure-password
+
