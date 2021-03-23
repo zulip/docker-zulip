@@ -2,7 +2,7 @@
 # Zulip development environment image and use
 # tools/build-release-tarball to generate a production release tarball
 # from the provided Git ref.
-FROM ubuntu:18.04 as base
+FROM ubuntu:20.04 as base
 
 # Set up working locales and upgrade the base image
 ENV LANG="C.UTF-8"
