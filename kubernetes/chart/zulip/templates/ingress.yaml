@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled -}}
+{{- $data := dict "name" "zulip" "subvalues" .Values.zulip "root" . -}}
+{{- $serviceName := (include "zulip.fullname.withName" $data) -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "zulip.fullname" . }}
+  labels:
+    {{- include "zulip.labels.withName" $data | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $host := .Values.ingress.hosts }}
+    - host: {{ $host }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: 80
+    {{- end -}}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{ toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end -}}
+{{- end -}}

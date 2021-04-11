@@ -1,0 +1,31 @@
+
+{{- define "zulip.memcached.subvalues" -}}
+{{- with .Values.memcached }}
+{{- toYaml . }}
+{{- end }}
+serviceType: ClusterIP
+port: 11211
+command:
+  - 'sh'
+  - '-euc'
+  - |
+    echo 'mech_list: plain' > "$$SASL_CONF_PATH"
+    echo "zulip@$$HOSTNAME:$$MEMCACHED_PASSWORD" > "$$MEMCACHED_SASL_PWDB"
+    echo "zulip@localhost:$$MEMCACHED_PASSWORD" >> "$$MEMCACHED_SASL_PWDB"
+    exec memcached -S
+env:
+  - name: SASL_CONF_PATH
+    value: /home/memcache/memcached.conf
+  - name: MEMCACHED_SASL_PWDB
+    value: /home/memcache/memcached-sasl-db
+  - name: MEMCACHED_PASSWORD
+    value: {{ .Values.memcached.password }}
+{{- end }}
+
+{{- $subvalues := (include "zulip.memcached.subvalues" .) | fromYaml }}
+
+{{- $data := dict "name" "memcached" "subvalues" $subvalues "root" . -}}
+
+{{- include "zulip.template.deployment" $data }}
+{{- include "zulip.template.service" $data }}
+{{- include "zulip.template.pvc" $data }}

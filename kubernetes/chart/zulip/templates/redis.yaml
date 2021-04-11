@@ -1,0 +1,26 @@
+
+{{- define "zulip.redis.subvalues" -}}
+{{- with .Values.redis }}
+{{- toYaml . }}
+{{- end }}
+serviceType: ClusterIP
+port: 6379
+command:
+  - 'sh'
+  - '-euc'
+  - |
+    echo "requirepass '$$REDIS_PASSWORD'" > /etc/redis.conf
+    exec redis-server /etc/redis.conf
+env:
+  - name: REDIS_PASSWORD
+    value: {{ .Values.redis.password }}
+{{- end }}
+
+{{- $subvalues := (include "zulip.redis.subvalues" .) | fromYaml }}
+
+{{- $data := dict "name" "redis" "subvalues" $subvalues "root" . -}}
+
+{{- include "zulip.template.deployment" $data }}
+{{- include "zulip.template.service" $data }}
+{{- include "zulip.template.pvc" $data }}
+

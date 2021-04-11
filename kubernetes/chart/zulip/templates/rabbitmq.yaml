@@ -1,0 +1,22 @@
+
+{{- define "zulip.rabbitmq.subvalues" -}}
+{{- with .Values.rabbitmq }}
+{{- toYaml . }}
+{{- end }}
+serviceType: ClusterIP
+port: 5672
+env:
+  - name: RABBITMQ_DEFAULT_USER
+    value: "zulip"
+  - name: RABBITMQ_DEFAULT_PASS
+    value: {{ .Values.rabbitmq.password }}
+{{- end }}
+
+{{- $subvalues := (include "zulip.rabbitmq.subvalues" .) | fromYaml }}
+
+{{- $data := dict "name" "rabbitmq" "subvalues" $subvalues "root" . -}}
+
+{{- include "zulip.template.deployment" $data }}
+{{- include "zulip.template.service" $data }}
+{{- include "zulip.template.pvc" $data }}
+
