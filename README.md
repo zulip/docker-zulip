@@ -191,6 +191,13 @@ which you need to encode in the YAML file.  For example,
   comma-separated list of the backend names
   (E.g. `"EmailAuthBackend,GitHubAuthBackend"`).
 
+**Reducing RAM usage**. By default, the Zulip server automatically detect
+whether the system has enough memory to run Zulip queue processors in the
+higher-throughput but more multiprocess mode (or to save 1.5GiB of RAM with
+the multithreaded mode). This algorithm might see the host's memory, not the
+docker container's memory. Set to `QUEUE_WORKERS_MULTIPROCESS` to `true` or
+`false` to override the automatic calculation.
+
 **SSL Certificates**.  By default, the image will generate a self-signed cert.
 You can set `SSL_CERTIFICATE_GENERATION: "certbot"` within `docker-compose.yml`
 to enable automatically-renewed Let's Encrypt certificates.  By using certbot
