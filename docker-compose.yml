@@ -28,7 +28,6 @@ services:
     restart: always
   rabbitmq:
     image: 'rabbitmq:3.7.7'
-    hostname: zulip-rabbit
     restart: always
     environment:
         RABBITMQ_DEFAULT_USER: 'zulip'
