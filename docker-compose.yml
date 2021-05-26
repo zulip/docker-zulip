@@ -62,6 +62,7 @@ services:
     environment:
       DB_HOST: 'database'
       DB_HOST_PORT: '5432'
+      DB_NAME: 'zulip'
       DB_USER: 'zulip'
       SSL_CERTIFICATE_GENERATION: 'self-signed'
       SETTING_MEMCACHED_LOCATION: 'memcached:11211'
@@ -75,6 +76,8 @@ services:
       SECRETS_memcached_password: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
       SECRETS_redis_password: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
       SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
+      # Set this if you are setting a custom database user in DB_USER
+      # SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
       SETTING_EXTERNAL_HOST: 'localhost.localdomain'
       SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
       SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
