@@ -13,7 +13,8 @@ RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive \
-        apt-get -q install --no-install-recommends -y ca-certificates git locales lsb-release python3 sudo tzdata
+        apt-get -q install --no-install-recommends -y ca-certificates git locales lsb-release python3 sudo tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
 
 FROM base as build
