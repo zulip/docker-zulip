@@ -11,7 +11,7 @@ services:
       # the first time on a host.  Instructions are available in README.md.
       POSTGRES_PASSWORD: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
     volumes:
-      - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw"
+      - "postgresql-10:/var/lib/postgresql/data:rw"
   memcached:
     image: "memcached:alpine"
     restart: unless-stopped
@@ -34,7 +34,7 @@ services:
       RABBITMQ_DEFAULT_USER: "zulip"
       RABBITMQ_DEFAULT_PASS: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
     volumes:
-      - "/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw"
+      - "rabbitmq:/var/lib/rabbitmq:rw"
   redis:
     image: "redis:alpine"
     restart: unless-stopped
@@ -47,7 +47,7 @@ services:
     environment:
       REDIS_PASSWORD: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
     volumes:
-      - "/opt/docker/zulip/redis:/data:rw"
+      - "redis:/data:rw"
   zulip:
     image: "zulip/docker-zulip:5.7-0"
     restart: unless-stopped
@@ -90,8 +90,13 @@ services:
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
-      - "/opt/docker/zulip/zulip:/data:rw"
+      - "zulip:/data:rw"
     ulimits:
       nofile:
         soft: 1000000
         hard: 1048576
+volumes:
+  zulip:
+  postgresql-10:
+  rabbitmq:
+  redis:
