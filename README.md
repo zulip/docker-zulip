@@ -55,33 +55,14 @@ written to the image's filesystem is lost).  To handle persistent
 state that needs to persist after the Docker equivalent of a reboot or
 upgrades (like uploaded files or the Zulip database), container
 systems let you configure certain directories inside the container
-from the host system's filesystem.
+from the host.
 
-For example, this project's `docker-compose.yml` configuration file
-specifies a set of volumes where
-[persistent Zulip data][persistent-data] should be stored under
-`/opt/docker/zulip/` in the container host's file system:
+This project's `docker-compose.yml` configuration file uses [Docker managed
+volumes][volumes] to store [persistent Zulip data][persistent-data]. If you use
+the Docker Compose deployment, you should make sure that Zulip's volumes are
+backed up, to ensure that Zulip's data is backed up.
 
-* `/opt/docker/zulip/postgresql/data/` has the postgres container's
-  persistent storage (i.e. the database).
-* `/opt/docker/zulip/zulip/` has the application server container's
-  persistent storage, including the secrets file, uploaded files,
-  etc.
-
-This approach of mounting `/opt/docker` into the container is the
-right model if you're hosting your containers from a single host
-server, which is how `docker-compose` is intended to be used.  If
-you're using Kubernetes, Docker Swarm, or another cloud container
-service, then these persistent storage volumes are typically
-configured to be network block storage volumes (e.g. an Amazon EBS
-volume) so that they can be mounted from any server within the
-cluster.
-
-What this means is that if you're using `docker-zulip` in production
-with `docker-compose`, you'll want to configure your backup system to
-do backups on the `/opt/docker/zulip` directory, in order to ensure
-you don't lose data.
-
+[volumes]: https://docs.docker.com/storage/volumes/
 [persistent-data]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
 
 ## Prerequisites
