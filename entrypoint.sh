@@ -119,6 +119,10 @@ setConfigurationValue() {
     echo "$VALUE" >> "$FILE"
     echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
 }
+zulipConfConfiguration () {
+    crudini --set /etc/zulip/zulip.conf postgresql database_name DB_NAME
+    crudini --set /etc/zulip/zulip.conf postgresql database_user DB_USER
+}
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
     if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
@@ -309,6 +313,7 @@ autoBackupConfiguration() {
 initialConfiguration() {
     echo "=== Begin Initial Configuration Phase ==="
     prepareDirectories
+    zulipConfConfiguration
     nginxConfiguration
     configureCerts
     additionalPuppetConfiguration
