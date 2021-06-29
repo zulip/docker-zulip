@@ -316,8 +316,8 @@ A Kubernetes pod file is in the `kubernetes/` folder; you can run it
 with `kubectl create -f ./kubernetes/`.
 
 You should read the `docker-compose` section above to understand how
-this works, since it's a very similar setup.  You'll want to to clone
-this repository, and edit the `zulip-rc.yml` to configure the image, etc.
+this works, since it's a very similar setup.  You'll want to clone
+this repository, edit the `zulip-rc.yml` to configure the image, etc.
 
 ### Installing minikube for testing
 
@@ -421,7 +421,7 @@ zulip:
 4. You can execute the upgrade by running:
 
 ```
-# Stops the old zulip container; this beings your downtime
+# Stops the old zulip container; this begins your downtime
 docker-compose stop
 # Boots the new zulip container; this ends your downtime
 docker-compose up
