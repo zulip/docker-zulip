@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: zulip-ingress
+  namespace: zulip
+spec:
+  rules:
+  - host: zulip.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: zulip
+          servicePort: 443
