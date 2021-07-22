@@ -17,123 +17,123 @@ spec:
         app: zulip
     spec:
       containers:
-      - name: redis
-        image: quay.io/sameersbn/redis:latest
-        resources:
-          limits:
-            cpu: 50m
-        volumeMounts:
-          - name: redis-persistent-storage
-            mountPath: /var/lib/redis
-      - name: memcached
-        image: quay.io/sameersbn/memcached:latest
-        resources:
-          limits:
-            cpu: 75m
-            memory: 768Mi
-      - name: rabbitmq
-        image: rabbitmq:3.7.7
-        resources:
-          limits:
-            cpu: 75m
-            memory: 768Mi
-        env:
-        - name: RABBITMQ_DEFAULT_USER
-          value: "zulip"
-        - name: RABBITMQ_DEFAULT_PASS
-          value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
-        volumeMounts:
-          - name: rabbitmq-persistent-storage
-            mountPath: /var/lib/rabbitmq
-      - name: postgresql
-        image: zulip/zulip-postgresql
-        resources:
-          limits:
-            cpu: 80m
-            memory: 768Mi
-        env:
-        - name: POSTGRES_DB
-          value: zulip
-        - name: POSTGRES_USER
-          value: zulip
-        - name: POSTGRES_PASSWORD
-          value: REPLACE_WITH_SECURE_POSTGRES_PASSWORD
-        volumeMounts:
-          - name: postgresql-persistent-storage
-            mountPath: /var/lib/postgresql
-      - name: zulip
-        image: zulip/docker-zulip:4.3-0
-        resources:
-          limits:
-            cpu: 100m
-            memory: 3584Mi
-        env:
-        # Please take a look at the environment variables in docker-compose.yml for all required env variables!
-        - name: DB_HOST
-          value: 'localhost'
-        - name: MEMCACHED_HOST
-          value: 'localhost'
-        - name: REDIS_HOST
-          value: 'localhost'
-        - name: RABBITMQ_HOST
-          value: 'localhost'
-        - name: ZULIP_AUTH_BACKENDS
-          value: 'EmailAuthBackend'
-        - name: SECRETS_email_password
-          value: '123456789'
-        - name: SETTING_EXTERNAL_HOST
-          value: 'localhost'
-        - name: SETTING_ZULIP_ADMINISTRATOR
-          value: 'admin@example.com'
-        - name: SETTING_EMAIL_HOST
-          value: ''  # E.g. 'smtp.example.com'
-        - name: SETTING_EMAIL_HOST_USER
-          value: 'noreply@example.com'
-        - name: ZULIP_USER_EMAIL
-          value: 'example@example.com'
-        - name: ZULIP_USER_DOMAIN
-          value: 'example.com'
-        - name: ZULIP_USER_PASS
-          value: '123456789'
-        - name: SECRETS_secret_key
-          value: 'REPLCAE_WITH_SECURE_SECRET_KEY'
-        # These should match the passwords configured above
-        - name: SECRETS_postgres_password
-          value: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
-        - name: SECRETS_rabbitmq_password
-          value: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
-        - name: SSL_CERTIFICATE_GENERATION
-          value: 'self-signed'
-        # Uncomment this when configuring the mobile push notifications service
-        # - name: PUSH_NOTIFICATION_BOUNCER_URL
-        # value: 'https://push.zulipchat.com'
-        ports:
-        - containerPort: 80
-          name: http
-          protocol: TCP
-        - containerPort: 443
-          name: https
-          protocol: TCP
-        volumeMounts:
-          - name: zulip-persistent-storage
-            mountPath: /data
-#        livenessProbe:
-#          httpGet:
-#            path: /login
-#            port: 443
-#            scheme: HTTP
-#          initialDelaySeconds: 120
-#          timeoutSeconds: 12
+        - name: redis
+          image: quay.io/sameersbn/redis:latest
+          resources:
+            limits:
+              cpu: 50m
+          volumeMounts:
+            - name: redis-persistent-storage
+              mountPath: /var/lib/redis
+        - name: memcached
+          image: quay.io/sameersbn/memcached:latest
+          resources:
+            limits:
+              cpu: 75m
+              memory: 768Mi
+        - name: rabbitmq
+          image: rabbitmq:3.7.7
+          resources:
+            limits:
+              cpu: 75m
+              memory: 768Mi
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "zulip"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
+          volumeMounts:
+            - name: rabbitmq-persistent-storage
+              mountPath: /var/lib/rabbitmq
+        - name: postgresql
+          image: zulip/zulip-postgresql
+          resources:
+            limits:
+              cpu: 80m
+              memory: 768Mi
+          env:
+            - name: POSTGRES_DB
+              value: zulip
+            - name: POSTGRES_USER
+              value: zulip
+            - name: POSTGRES_PASSWORD
+              value: REPLACE_WITH_SECURE_POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgresql-persistent-storage
+              mountPath: /var/lib/postgresql
+        - name: zulip
+          image: zulip/docker-zulip:4.4-0
+          resources:
+            limits:
+              cpu: 100m
+              memory: 3584Mi
+          env:
+            # Please take a look at the environment variables in docker-compose.yml for all required env variables!
+            - name: DB_HOST
+              value: "localhost"
+            - name: MEMCACHED_HOST
+              value: "localhost"
+            - name: REDIS_HOST
+              value: "localhost"
+            - name: RABBITMQ_HOST
+              value: "localhost"
+            - name: ZULIP_AUTH_BACKENDS
+              value: "EmailAuthBackend"
+            - name: SECRETS_email_password
+              value: "123456789"
+            - name: SETTING_EXTERNAL_HOST
+              value: "localhost"
+            - name: SETTING_ZULIP_ADMINISTRATOR
+              value: "admin@example.com"
+            - name: SETTING_EMAIL_HOST
+              value: "" # E.g. 'smtp.example.com'
+            - name: SETTING_EMAIL_HOST_USER
+              value: "noreply@example.com"
+            - name: ZULIP_USER_EMAIL
+              value: "example@example.com"
+            - name: ZULIP_USER_DOMAIN
+              value: "example.com"
+            - name: ZULIP_USER_PASS
+              value: "123456789"
+            - name: SECRETS_secret_key
+              value: "REPLCAE_WITH_SECURE_SECRET_KEY"
+            # These should match the passwords configured above
+            - name: SECRETS_postgres_password
+              value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
+            - name: SECRETS_rabbitmq_password
+              value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
+            - name: SSL_CERTIFICATE_GENERATION
+              value: "self-signed"
+          # Uncomment this when configuring the mobile push notifications service
+          # - name: PUSH_NOTIFICATION_BOUNCER_URL
+          # value: 'https://push.zulipchat.com'
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+            - containerPort: 443
+              name: https
+              protocol: TCP
+          volumeMounts:
+            - name: zulip-persistent-storage
+              mountPath: /data
+      #        livenessProbe:
+      #          httpGet:
+      #            path: /login
+      #            port: 443
+      #            scheme: HTTP
+      #          initialDelaySeconds: 120
+      #          timeoutSeconds: 12
       volumes:
-      - name: redis-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/redis
-      - name: rabbitmq-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/rabbitmq
-      - name: postgresql-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/postgresql
-      - name: zulip-persistent-storage
-        hostPath:
-          path: /opt/docker/zulip/zulip
+        - name: redis-persistent-storage
+          hostPath:
+            path: /opt/docker/zulip/redis
+        - name: rabbitmq-persistent-storage
+          hostPath:
+            path: /opt/docker/zulip/rabbitmq
+        - name: postgresql-persistent-storage
+          hostPath:
+            path: /opt/docker/zulip/postgresql
+        - name: zulip-persistent-storage
+          hostPath:
+            path: /opt/docker/zulip/zulip

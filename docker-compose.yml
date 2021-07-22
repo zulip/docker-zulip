@@ -1,93 +1,93 @@
-version: '2'
+version: "2"
 services:
   database:
-    image: 'zulip/zulip-postgresql:10'
+    image: "zulip/zulip-postgresql:10"
     environment:
-      POSTGRES_DB: 'zulip'
-      POSTGRES_USER: 'zulip'
+      POSTGRES_DB: "zulip"
+      POSTGRES_USER: "zulip"
       # Note that you need to do a manual `ALTER ROLE` query if you
       # change this on a system after booting the postgres container
       # the first time on a host.  Instructions are available in README.md.
-      POSTGRES_PASSWORD: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
+      POSTGRES_PASSWORD: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
     volumes:
-      - '/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw'
+      - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw"
   memcached:
-    image: 'memcached:alpine'
+    image: "memcached:alpine"
     command:
-      - 'sh'
-      - '-euc'
+      - "sh"
+      - "-euc"
       - |
         echo 'mech_list: plain' > "$$SASL_CONF_PATH"
         echo "zulip@$$HOSTNAME:$$MEMCACHED_PASSWORD" > "$$MEMCACHED_SASL_PWDB"
         echo "zulip@localhost:$$MEMCACHED_PASSWORD" >> "$$MEMCACHED_SASL_PWDB"
         exec memcached -S
     environment:
-      SASL_CONF_PATH: '/home/memcache/memcached.conf'
-      MEMCACHED_SASL_PWDB: '/home/memcache/memcached-sasl-db'
-      MEMCACHED_PASSWORD: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
+      SASL_CONF_PATH: "/home/memcache/memcached.conf"
+      MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
+      MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
     restart: always
   rabbitmq:
-    image: 'rabbitmq:3.7.7'
+    image: "rabbitmq:3.7.7"
     restart: always
     environment:
-        RABBITMQ_DEFAULT_USER: 'zulip'
-        RABBITMQ_DEFAULT_PASS: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
+      RABBITMQ_DEFAULT_USER: "zulip"
+      RABBITMQ_DEFAULT_PASS: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
     volumes:
-      - '/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw'
+      - "/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw"
   redis:
-    image: 'redis:alpine'
+    image: "redis:alpine"
     command:
-      - 'sh'
-      - '-euc'
+      - "sh"
+      - "-euc"
       - |
         echo "requirepass '$$REDIS_PASSWORD'" > /etc/redis.conf
         exec redis-server /etc/redis.conf
     environment:
-      REDIS_PASSWORD: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
+      REDIS_PASSWORD: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
     volumes:
-      - '/opt/docker/zulip/redis:/data:rw'
+      - "/opt/docker/zulip/redis:/data:rw"
   zulip:
-    image: 'zulip/docker-zulip:4.3-0'
+    image: "zulip/docker-zulip:4.4-0"
     build:
       context: .
       args:
         # Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: '4.3'
+        ZULIP_GIT_REF: "4.4"
         # Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+      - "443:443"
     environment:
-      DB_HOST: 'database'
-      DB_HOST_PORT: '5432'
-      DB_USER: 'zulip'
-      SSL_CERTIFICATE_GENERATION: 'self-signed'
-      SETTING_MEMCACHED_LOCATION: 'memcached:11211'
-      SETTING_RABBITMQ_HOST: 'rabbitmq'
-      SETTING_REDIS_HOST: 'redis'
-      SECRETS_email_password: '123456789'
+      DB_HOST: "database"
+      DB_HOST_PORT: "5432"
+      DB_USER: "zulip"
+      SSL_CERTIFICATE_GENERATION: "self-signed"
+      SETTING_MEMCACHED_LOCATION: "memcached:11211"
+      SETTING_RABBITMQ_HOST: "rabbitmq"
+      SETTING_REDIS_HOST: "redis"
+      SECRETS_email_password: "123456789"
       # These should match RABBITMQ_DEFAULT_PASS, POSTGRES_PASSWORD,
       # MEMCACHED_PASSWORD, and REDIS_PASSWORD above.
-      SECRETS_rabbitmq_password: 'REPLACE_WITH_SECURE_RABBITMQ_PASSWORD'
-      SECRETS_postgres_password: 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD'
-      SECRETS_memcached_password: 'REPLACE_WITH_SECURE_MEMCACHED_PASSWORD'
-      SECRETS_redis_password: 'REPLACE_WITH_SECURE_REDIS_PASSWORD'
-      SECRETS_secret_key: 'REPLACE_WITH_SECURE_SECRET_KEY'
-      SETTING_EXTERNAL_HOST: 'localhost.localdomain'
-      SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
-      SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
-      SETTING_EMAIL_HOST_USER: 'noreply@example.com'
-      SETTING_EMAIL_PORT: '587'
+      SECRETS_rabbitmq_password: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
+      SECRETS_postgres_password: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
+      SECRETS_memcached_password: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
+      SECRETS_redis_password: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
+      SECRETS_secret_key: "REPLACE_WITH_SECURE_SECRET_KEY"
+      SETTING_EXTERNAL_HOST: "localhost.localdomain"
+      SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+      SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
+      SETTING_EMAIL_HOST_USER: "noreply@example.com"
+      SETTING_EMAIL_PORT: "587"
       # It seems that the email server needs to use ssl or tls and can't be used without it
-      SETTING_EMAIL_USE_SSL: 'False'
-      SETTING_EMAIL_USE_TLS: 'True'
-      ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+      SETTING_EMAIL_USE_SSL: "False"
+      SETTING_EMAIL_USE_TLS: "True"
+      ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
-      - '/opt/docker/zulip/zulip:/data:rw'
+      - "/opt/docker/zulip/zulip:/data:rw"
     ulimits:
       nofile:
         soft: 1000000
