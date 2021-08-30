@@ -171,7 +171,7 @@ production traffic, you need to also set these:
 [postgres-alter-role]: https://www.postgresql.org/docs/9.3/static/sql-alterrole.html
 
 **Other settings**. If an environment variable name doesn't start with
-`SETTINGS` or `SECRETS` in `docker-compose.yml`, it is specific to the
+`SETTING` or `SECRETS` in `docker-compose.yml`, it is specific to the
 Docker environment.  Standard [Zulip server settings][server-settings]
 are secrets are set using the following syntax:
 
