@@ -1,0 +1,108 @@
+# Default values for zulip.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# nodeSelector, affinity, tolerations and resources can be configured to each sub-key (resources added for everyone for example)
+
+ingress:
+  enabled: true
+  hosts:
+    - zulip.example.com
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls:
+    - secretName: zulip.example.com
+      hosts:
+        - zulip.example.com
+
+
+memcached:
+  image: memcached:alpine
+  imagePullPolicy: Always
+  password: "change_me" # openssl rand -base64 32
+  resources: {}
+
+
+rabbitmq:
+  image: rabbitmq:3.7.7
+  imagePullPolicy: Always
+  password: "change_me" # openssl rand -base64 32
+  resources: {}
+  needVolume: false
+  mountPath: /var/lib/rabbitmq
+  persistence: {}
+
+
+redis:
+  image: redis:alpine
+  imagePullPolicy: Always
+  password: "change_me" # openssl rand -base64 32
+  resources: {}
+  needVolume: true
+  mountPath: /data
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # storageClass: standard
+    # annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: zulip
+    #     component: redis
+
+postgresql:
+  image: zulip/zulip-postgresql:10
+  imagePullPolicy: Always
+  password: "change_me" # openssl rand -base64 32
+  resources: {}
+  needVolume: true
+  mountPath: /var/lib/postgresql/data
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # storageClass: standard
+    # annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: zulip
+    #     component: postgresql
+
+zulip:
+  image: zulip/docker-zulip:3.3-0
+  imagePullPolicy: Always
+  password: "change_me" # openssl rand -base64 32
+  # based on; https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
+  # these values will be merged with db secrets and hosts/ports
+  environment:
+    DISABLE_HTTPS: true
+    SSL_CERTIFICATE_GENERATION: self-signed
+    SECRETS_email_password: '123456789'
+    SETTING_EXTERNAL_HOST: zulip.example.com
+    SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+    SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+    SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+    SETTING_EMAIL_PORT: '587'
+    # It seems that the email server needs to use ssl or tls and can't be used without it
+    SETTING_EMAIL_USE_SSL: 'False'
+    SETTING_EMAIL_USE_TLS: 'True'
+    ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+  needVolume: true
+  mountPath: /data
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # storageClass: standard
+    # annotations: {}
+    # selector:
+    #   matchLabels:
+    #     app: zulip
+    #     component: zulip
+  resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
