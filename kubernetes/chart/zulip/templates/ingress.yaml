@@ -1,29 +1,41 @@
 {{- if .Values.ingress.enabled -}}
-{{- $data := dict "name" "zulip" "subvalues" .Values.zulip "root" . -}}
-{{- $serviceName := (include "zulip.fullname.withName" $data) -}}
+{{- $fullName := include "zulip.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: {{ template "zulip.fullname" . }}
+  name: {{ $fullName }}
   labels:
-    {{- include "zulip.labels.withName" $data | nindent 4 }}
+    {{- include "zulip.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  rules:
-    {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: {{ $serviceName }}
-              servicePort: 80
-    {{- end -}}
   {{- if .Values.ingress.tls }}
   tls:
-    {{ toYaml .Values.ingress.tls | nindent 4 }}
-  {{- end -}}
-{{- end -}}
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+  {{- end }}
