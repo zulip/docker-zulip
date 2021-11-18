@@ -4,6 +4,13 @@ metadata:
   name: {{ include "zulip.fullname" . }}
   labels:
     {{- include "zulip.labels" . | nindent 4 }}
+  {{- if .Values.statefulSetLabels }}
+    {{- toYaml .Values.statefulSetLabels | nindent 4 }}
+  {{- end }}
+  {{- if .Values.statefulSetAnnotations }}
+  annotations:
+    {{- toYaml .Values.statefulSetAnnotations | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -20,6 +27,9 @@ spec:
       {{- end }}
       labels:
         {{- include "zulip.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
