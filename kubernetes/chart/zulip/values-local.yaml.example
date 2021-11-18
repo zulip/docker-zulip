@@ -3,9 +3,15 @@
 # Replace each occurrence of "zulip.example.com" with the domain you want Zulip
 # to be reached on.
 
+# Supports OIDC and the below `create_realm` script
+image:
+  repository: open.greenhost.net:4567/stackspin/stackspin/zulip
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "f60b8cc"
 ingress:
   enabled: true
-  annotations: {}
+  annotations:
     # Get certificates with cert-manager
     kubernetes.io/tls-acme: "true"
   hosts:
@@ -29,7 +35,7 @@ redis:
   auth:
     password: set-secure-password
 
-postgres:
+postgresql:
   postgresqlPassword: set-secure-password
 
 zulip:

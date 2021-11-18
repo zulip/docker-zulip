@@ -6,10 +6,11 @@ Helm chart based on https://github.com/zulip/docker-zulip
 
 ## Installation
 
-Grab a copy of values.yaml, modify it as necessary, then install with 
+Copy `values-local.yaml.example`, modify it as instructed in the comments , then
+install with 
 
 ```
-helm install -f ./values.yaml zulip .
+helm install -f ./values-local.yaml zulip .
 ```
 
 After installation you will need to get a realm creation link, the `notes` will

@@ -1,7 +1,7 @@
 1. Zulip should now be available on:
 {{- if .Values.ingress.enabled }}
 {{- range .Values.ingress.hosts }}
-  http://{{ . }}
+  http://{{ .host }}
 {{- end }}
 {{- else }}
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "zulip.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
