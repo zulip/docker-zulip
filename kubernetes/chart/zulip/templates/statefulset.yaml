@@ -51,7 +51,6 @@ spec:
           volumeMounts:
             - name: {{ include "zulip.fullname" . }}-persistent-storage
               mountPath: /data
-          volumeMounts:
             - name: {{ include "zulip.fullname" . }}-post-setup-scripts
               mountPath: /data/post-setup.d
           env:
