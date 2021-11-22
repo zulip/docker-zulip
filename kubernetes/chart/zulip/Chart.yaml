@@ -34,3 +34,8 @@ dependencies:
     tags:
       - postgresql
     version: 10.13.8
+
+sources:
+  - https://github.com/zulip/zulip
+  - https://github.com/zulip/docker-zulip
+  - https://hub.docker.com/r/zulip/docker-zulip
