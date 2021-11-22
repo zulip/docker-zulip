@@ -1,0 +1,177 @@
+# Default values for zulip.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: zulip/docker-zulip
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "4.7-0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+statefulSetLabels: {}
+statefulSetAnnotations: {}
+
+podLabels: {}
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 1000
+  # runAsUser: 1000
+  # runAsGroup: 1000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: zulip.example.com
+      paths:
+      - path: /
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - zulip.example.com
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+postgresql:
+  containerSecurityContext:
+    runAsUser: 0
+  # We need to override the Postgresql image to get all the plugins Zulip needs
+  image:
+    repository: zulip/zulip-postgresql
+    tag: 10
+  postgresqlUsername: zulip
+  postgresqlDatabase: zulip
+
+rabbitmq:
+  auth:
+    username: zulip
+  # Set this to true if you need the rabbitmq to be persistent
+  persistence: 
+    enabled: false
+
+memcached:
+  memcachedUsername: "zulip@localhost"
+
+redis:
+  architecture: standalone
+
+zulip:
+  # based on; https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
+  # these values will be merged with db secrets and hosts/ports
+  environment:
+    # HTTPS and certificates will be managed inside Kubernetes cluster, so
+    # disabled inside the container.
+    DISABLE_HTTPS: true
+    SSL_CERTIFICATE_GENERATION: self-signed
+    # Domain 
+    SETTING_EXTERNAL_HOST: zulip.example.com
+    # SMTP settings
+    SECRETS_email_password: '123456789'
+    SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+    SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
+    SETTING_EMAIL_HOST_USER: 'noreply@example.com'
+    SETTING_EMAIL_PORT: '587'
+    # It seems that the email server needs to use ssl or tls and can't be used without it
+    SETTING_EMAIL_USE_SSL: 'False'
+    SETTING_EMAIL_USE_TLS: 'True'
+    ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
+  # TODO: REMOVE THIS
+  needVolume: true
+  mountPath: /data
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    # existingClaim: "" # Use an already existing PVC
+  resources: {}
+  # limits:
+  #  cpu: 500m
+  #  memory: 2048Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 512Mi
+
+## Liveness and readiness probe values
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+##
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+# Run custom post install command
+postSetup:
+  scripts: {}
+    # scriptName.sh: |
+    #   #!/bin/bash
+    #   echo "This is a script that gets executed in the Zulip container after installation, once migrations are complete"
