@@ -267,6 +267,7 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
+           [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] || \
