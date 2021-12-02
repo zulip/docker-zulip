@@ -67,8 +67,7 @@ RUN \
     mv zulip-server-docker zulip && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    export PUPPET_CLASSES="zulip::dockervoyager" \
-           DEPLOYMENT_TYPE="dockervoyager" \
+    export PUPPET_CLASSES="zulip::profile::docker" \
            ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
