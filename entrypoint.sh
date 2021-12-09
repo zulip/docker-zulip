@@ -414,13 +414,13 @@ function runCertbotAsNeeded() {
     # Remove the self-signed certs which were only needed to get Zulip going.
     rm -f "$DATA_DIR"/certs/zulip.key "$DATA_DIR"/certs/zulip.combined-chain.crt
 
-    ZULIP_CERTBOT_DEPLOY_HOOK="/sbin/certbot-deploy-hook"
+    ln -sf /sbin/certbot-deploy-hook /etc/letsencrypt/renewal-hooks/deploy/docker-deploy-hook
 
     # Accept the terms of service automatically.
     /home/zulip/deployments/current/scripts/setup/setup-certbot \
         --agree-tos \
         --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        --deploy-hook "$ZULIP_CERTBOT_DEPLOY_HOOK" \
+        --skip-symlink \
         -- \
         "$SETTING_EXTERNAL_HOST"
 
