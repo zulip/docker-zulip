@@ -105,8 +105,8 @@ spec:
             - name: SSL_CERTIFICATE_GENERATION
               value: "self-signed"
           # Uncomment this when configuring the mobile push notifications service
-          # - name: PUSH_NOTIFICATION_BOUNCER_URL
-          # value: 'https://push.zulipchat.com'
+          # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL
+          #   value: 'https://push.zulipchat.com'
           ports:
             - containerPort: 80
               name: http
