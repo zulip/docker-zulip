@@ -1,0 +1,27 @@
+# https://dev.to/jamiemagee/how-to-host-your-helm-chart-repository-on-github-3kd
+name: Lint and Test Charts
+
+on:
+  pull_request:
+    paths:
+      - 'kubernetes/chart/**'
+
+jobs:
+  lint-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Run chart-testing (lint)
+        uses: helm/chart-testing-action@main
+        with:
+          command: lint
+          config: .github/ct.yaml
+  lint-docs:
+    runs-on: ubuntu-latest
+    needs: lint-chart
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Run helm-docs
+        run: .github/helm-docs.sh

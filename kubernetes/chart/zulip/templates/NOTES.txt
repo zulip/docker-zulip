@@ -4,12 +4,12 @@
   http://{{ .host }}
 {{- end }}
 {{- else }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "zulip.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ template "zulip.name" . }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
 
 2. To create a realm so you can sign in:
 
-  kubectl -n {{ .Release.Namespace }} exec -it $(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/instance={{ .Release.Name }}-{{ template "zulip.name" . }}" -o jsonpath="{.items[0].metadata.name}") -c zulip -- sudo -u zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
+  kubectl -n {{ .Release.Namespace }} exec -it $(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ template "zulip.name" . }}" -o jsonpath="{.items[0].metadata.name}") -c zulip -- sudo -u zulip /home/zulip/deployments/current/manage.py generate_realm_creation_link
 

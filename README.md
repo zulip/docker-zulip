@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:4.7-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:4.8-1`)
 
-Current Zulip version: `4.7`
-Current Docker image version: `4.7-0`
+Current Zulip version: `4.8`
+Current Docker image version: `4.8-1`
 
 Project status: **Alpha**.  While this project works and is
 used by many sites in production, configuring is substantially more
@@ -329,17 +329,11 @@ signing up for a cloud service is to install
 
 ### Helm charts
 
-We are aware of two efforts at building Helm Charts for Zulip:
-* [A PR to the main Helm repo](https://github.com/kubernetes/charts/pull/5168/files),
-  which is further along.
-* [The zulip-helm project](https://github.com/armooo/zulip-helm),
-  which might be a helpful reference for work on this.
+Read the [Helm Chart README](kubernetes/chart/zulip/README.md) to learn more
+about installing Zulip on a Kubernetes cluster with Helm.
 
-Contributions to finish either of those and get them integrated are
-very welcome!  If you're interested in helping with this, post on
-[this thread][helm-chart-thread].
-
-[helm-chart-thread]: https://chat.zulip.org/#narrow/stream/21-provision-help/subject/K8.20and.20Helm/near/589098
+Feedback is welcome in the [helm-chart-thread]:
+https://chat.zulip.org/#narrow/stream/21-provision-help/subject/K8.20and.20Helm/near/589098
 
 ### Scaling out and high availability
 

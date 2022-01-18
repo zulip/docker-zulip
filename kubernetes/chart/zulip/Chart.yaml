@@ -18,12 +18,12 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     tags:
       - memcached
-    version: 5.15.8
+    version: 5.15.10
   - name: rabbitmq
     repository: https://charts.bitnami.com/bitnami
     tags:
       - rabbitmq
-    version: 8.24.3
+    version: 8.24.12
   - name: redis
     repository: https://charts.bitnami.com/bitnami
     tags:
@@ -33,7 +33,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     tags:
       - postgresql
-    version: 10.13.8
+    version: 10.13.14
 
 sources:
   - https://github.com/zulip/zulip

@@ -267,6 +267,7 @@ zulipConfiguration() {
         fi
         # Zulip settings.py / zproject specific overrides here
         if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
+           [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] || \
            [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] || \
            [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] || \
@@ -414,13 +415,13 @@ function runCertbotAsNeeded() {
     # Remove the self-signed certs which were only needed to get Zulip going.
     rm -f "$DATA_DIR"/certs/zulip.key "$DATA_DIR"/certs/zulip.combined-chain.crt
 
-    ZULIP_CERTBOT_DEPLOY_HOOK="/sbin/certbot-deploy-hook"
+    ln -sf /sbin/certbot-deploy-hook /etc/letsencrypt/renewal-hooks/deploy/docker-deploy-hook
 
     # Accept the terms of service automatically.
     /home/zulip/deployments/current/scripts/setup/setup-certbot \
         --agree-tos \
         --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        --deploy-hook "$ZULIP_CERTBOT_DEPLOY_HOOK" \
+        --skip-symlink \
         -- \
         "$SETTING_EXTERNAL_HOST"
 

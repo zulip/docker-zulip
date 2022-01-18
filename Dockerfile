@@ -28,7 +28,7 @@ WORKDIR /home/zulip
 # You can specify these in docker-compose.yml or with
 #   docker build --build-arg "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
-ARG ZULIP_GIT_REF=4.7
+ARG ZULIP_GIT_REF=4.8
 
 RUN git clone "$ZULIP_GIT_URL" && \
     cd zulip && \
@@ -67,8 +67,7 @@ RUN \
     mv zulip-server-docker zulip && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    export PUPPET_CLASSES="zulip::dockervoyager" \
-           DEPLOYMENT_TYPE="dockervoyager" \
+    export PUPPET_CLASSES="zulip::profile::docker" \
            ADDITIONAL_PACKAGES="expect" && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \

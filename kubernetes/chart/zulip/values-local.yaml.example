@@ -35,11 +35,11 @@ postgresql:
 zulip:
   # password: set-secure-password
 
-  # Add any other environment variables you want to configure here. 
+  # Add any other environment variables you want to configure here.
   # based on; https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
   # these values will be merged with db secrets and hosts/ports
   environment:
-    # Domain 
+    # Domain
     SETTING_EXTERNAL_HOST: zulip.example.com
     # SMTP settings
     SECRETS_email_password: '123456789'
