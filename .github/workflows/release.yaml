@@ -19,5 +19,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@main
+        with:
+          charts_dir: kubernetes/chart
         env:
           CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
