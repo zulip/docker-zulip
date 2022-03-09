@@ -36,6 +36,21 @@ spec:
               mountPath: /var/lib/redis
         - name: memcached
           image: memcached:alpine
+          command:
+            - "sh"
+            - "-euc"
+            - |
+              echo 'mech_list: plain' > "$$SASL_CONF_PATH"
+              echo "zulip@$$HOSTNAME:$$MEMCACHED_PASSWORD" > "$$MEMCACHED_SASL_PWDB"
+              echo "zulip@localhost:$$MEMCACHED_PASSWORD" >> "$$MEMCACHED_SASL_PWDB"
+              exec memcached -S
+          env:
+            - name: SASL_CONF_PATH
+              value: "/home/memcache/memcached.conf"
+            - name: MEMCACHED_SASL_PWDB
+              value: "/home/memcache/memcached-sasl-db"
+            - name: MEMCACHED_PASSWORD
+              value: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
           resources:
             limits:
               cpu: 75m
@@ -109,6 +124,8 @@ spec:
             # These should match the passwords configured above
             - name: SECRETS_postgres_password
               value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
+            - name: SECRETS_memcached_password
+              value: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
             - name: SECRETS_rabbitmq_password
               value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
             - name: SECRETS_redis_password
