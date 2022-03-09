@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: quay.io/sameersbn/redis:latest
+          image: redis:alpine
           resources:
             limits:
               cpu: 50m
@@ -26,7 +26,7 @@ spec:
             - name: redis-persistent-storage
               mountPath: /var/lib/redis
         - name: memcached
-          image: quay.io/sameersbn/memcached:latest
+          image: memcached:alpine
           resources:
             limits:
               cpu: 75m
