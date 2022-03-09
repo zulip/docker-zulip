@@ -19,6 +19,15 @@ spec:
       containers:
         - name: redis
           image: redis:alpine
+          command:
+            - "sh"
+            - "-euc"
+            - |
+              echo "requirepass '$$REDIS_PASSWORD'" > /etc/redis.conf
+              exec redis-server /etc/redis.conf
+          env:
+            - name: REDIS_PASSWORD
+              value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
           resources:
             limits:
               cpu: 50m
@@ -102,6 +111,8 @@ spec:
               value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
             - name: SECRETS_rabbitmq_password
               value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
+            - name: SECRETS_redis_password
+              value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
             - name: SSL_CERTIFICATE_GENERATION
               value: "self-signed"
           # Uncomment this when configuring the mobile push notifications service
