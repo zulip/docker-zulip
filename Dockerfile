@@ -26,7 +26,7 @@ USER zulip
 WORKDIR /home/zulip
 
 # You can specify these in docker-compose.yml or with
-#   docker build --build-args "ZULIP_GIT_REF=git_branch_name" .
+#   docker build --build-arg "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=4.10
 
