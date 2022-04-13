@@ -517,7 +517,7 @@ appRestore() {
     waitingForDatabase
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
     psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
-    rm -r "/tmp/$(basename  | cut -d. -f1)/"
+    rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
 }
