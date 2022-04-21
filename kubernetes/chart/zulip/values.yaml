@@ -5,11 +5,8 @@
 # with:
 #
 # ```
-# docker run --rm --volume "$(pwd):/helm-docs" -u $(id -u) # jnorwood/helm-docs:latest
+# docker run --rm --volume "$(pwd):/helm-docs" -u $(id -u) jnorwood/helm-docs:latest
 # ```
-
-# -- Amount of replicas of the Zulip container to run in the StatefulSet.
-replicaCount: 1
 
 image:
   # -- Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address.
@@ -18,7 +15,7 @@ image:
   # Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: IfNotPresent
   # -- Zulip image tag (immutable tags are recommended)
-  tag: "4.7-0"
+  tag: "5.1-0"
 
 # -- Global Docker registry secret names as an array.
 imagePullSecrets: []
@@ -105,13 +102,6 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
 # -- Optionally add a nodeSelector to the Zulip pod, so it runs on a specific
 # node.
 # Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -144,7 +134,6 @@ zulip:
     SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
     SETTING_EMAIL_HOST_USER: 'noreply@example.com'
     SETTING_EMAIL_PORT: '587'
-    # It seems that the email server needs to use ssl or tls and can't be used without it.
     SETTING_EMAIL_USE_SSL: 'False'
     SETTING_EMAIL_USE_TLS: 'True'
     ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
@@ -159,15 +148,6 @@ zulip:
 # -- Liveness probe values.
 # Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
 livenessProbe:
-  enabled: true
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
-  successThreshold: 1
-# -- Readiness probe values.
-# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
-readinessProbe:
   enabled: true
   initialDelaySeconds: 10
   periodSeconds: 10
@@ -201,7 +181,7 @@ postgresql:
   # We need to override the Postgresql image to get all the plugins Zulip needs
   image:
     repository: zulip/zulip-postgresql
-    tag: 10
+    tag: 14
   postgresqlUsername: zulip
   postgresqlDatabase: zulip
 

@@ -1,8 +1,8 @@
 # Zulip
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.7-0](https://img.shields.io/badge/AppVersion-4.7--0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.7-0](https://img.shields.io/badge/AppVersion-4.7--0-informational?style=flat-square)
 
-[Zulip](https://zulipchat.com/), the world's most productive chat
+[Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
 Helm chart based on https://github.com/zulip/docker-zulip
 
@@ -35,14 +35,10 @@ start` to start minikube. Then follow the above installation instructions.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | fullnameOverride | string | `""` | Fully override common.names.fullname template. |
 | image.pullPolicy | string | `"IfNotPresent"` | Pull policy for Zulip docker image. Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images |
 | image.repository | string | `"zulip/docker-zulip"` | Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address. |
-| image.tag | string | `"4.7-0"` | Zulip image tag (immutable tags are recommended) |
+| image.tag | string | `"5.1-0"` | Zulip image tag (immutable tags are recommended) |
 | imagePullSecrets | list | `[]` | Global Docker registry secret names as an array. |
 | ingress.annotations | object | `{}` | Can be used to add custom Ingress annotations. |
 | ingress.enabled | bool | `false` | Enable this to use an Ingress to reach the Zulip service. |
@@ -57,11 +53,9 @@ start` to start minikube. Then follow the above installation instructions.
 | podLabels | object | `{}` | Custom labels to add to the Zulip Pod. |
 | podSecurityContext | object | `{}` | Can be used to override the default PodSecurityContext (fsGroup, runAsUser and runAsGroup) of the Zulip _Pod_. |
 | postSetup.scripts | object | `{}` | The Docker entrypoint script runs commands from `/data/post-setup.d` after the Zulip application's Setup phase has completed. Scripts can be added here  as `script_filename: <script contents>` and they will be mounted in `/data/post-setup.d/script_filename`. |
-| postgresql | object | `{"containerSecurityContext":{"runAsUser":0},"image":{"repository":"zulip/zulip-postgresql","tag":10},"postgresqlDatabase":"zulip","postgresqlUsername":"zulip"}` | PostgreSQL settings, see [Requirements](#Requirements). |
+| postgresql | object | `{"containerSecurityContext":{"runAsUser":0},"image":{"repository":"zulip/zulip-postgresql","tag":14},"postgresqlDatabase":"zulip","postgresqlUsername":"zulip"}` | PostgreSQL settings, see [Requirements](#Requirements). |
 | rabbitmq | object | `{"auth":{"username":"zulip"},"persistence":{"enabled":false}}` | Rabbitmq settings, see [Requirements](#Requirements). |
-| readinessProbe | object | `{"enabled":true,"failureThreshold":3,"initialDelaySeconds":10,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Readiness probe values. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes |
 | redis | object | `{"architecture":"standalone","master":{"persistence":{"enabled":false}}}` | Redis settings, see [Requirements](#Requirements). |
-| replicaCount | int | `1` | Amount of replicas of the Zulip container to run in the StatefulSet. |
 | resources | object | `{}` |  |
 | securityContext | object | `{}` | Can be used to override the default SecurityContext of the Zulip _container_. |
 | service | object | `{"port":80,"type":"ClusterIP"}` | Service type and port for the Kubernetes service that connects to Zulip. Default: ClusterIP, needs an Ingress to be used. On Minikube, use a "NodePort" to circumvent the need for an Ingress. |
@@ -112,7 +106,7 @@ image, because it contains the Postgresql plugins that are needed to run Zulip.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | memcached | 5.15.10 |
-| https://charts.bitnami.com/bitnami | postgresql | 10.13.14 |
-| https://charts.bitnami.com/bitnami | rabbitmq | 8.24.12 |
-| https://charts.bitnami.com/bitnami | redis | 15.5.5 |
+| https://charts.bitnami.com/bitnami | memcached | 6.0.16 |
+| https://charts.bitnami.com/bitnami | postgresql | 11.1.22 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 8.32.0 |
+| https://charts.bitnami.com/bitnami | redis | 16.8.7 |

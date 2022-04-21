@@ -11,5 +11,4 @@ docker-compose-dev.yml
 kubernetes/*-dev.yml
 kubernetes/chart/zulip/values-local.yaml
 kubernetes/chart/zulip/charts/
-
 helm-docs
