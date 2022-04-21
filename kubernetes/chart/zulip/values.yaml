@@ -176,14 +176,16 @@ postSetup:
 
 # -- PostgreSQL settings, see [Requirements](#Requirements).
 postgresql:
-  containerSecurityContext:
-    runAsUser: 0
+  primary:
+    containerSecurityContext:
+      runAsUser: 0
   # We need to override the Postgresql image to get all the plugins Zulip needs
   image:
     repository: zulip/zulip-postgresql
     tag: 14
-  postgresqlUsername: zulip
-  postgresqlDatabase: zulip
+  auth:
+    username: zulip
+    database: zulip
 
 # -- Rabbitmq settings, see [Requirements](#Requirements).
 rabbitmq:

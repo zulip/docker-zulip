@@ -30,7 +30,11 @@ redis:
     # password: set-secure-password
 
 postgresql:
-  # postgresqlPassword: set-secure-password
+  auth:
+    # # postgres admin user password
+    # postgresqlPassword: set-secure-password
+    # # postgres zulip user password
+    # password: set-secure-password
 
 zulip:
   # password: set-secure-password
