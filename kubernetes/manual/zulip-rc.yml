@@ -18,7 +18,16 @@ spec:
     spec:
       containers:
         - name: redis
-          image: quay.io/sameersbn/redis:latest
+          image: redis:alpine
+          command:
+            - "sh"
+            - "-euc"
+            - |
+              echo "requirepass '$$REDIS_PASSWORD'" > /etc/redis.conf
+              exec redis-server /etc/redis.conf
+          env:
+            - name: REDIS_PASSWORD
+              value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
           resources:
             limits:
               cpu: 50m
@@ -26,7 +35,22 @@ spec:
             - name: redis-persistent-storage
               mountPath: /var/lib/redis
         - name: memcached
-          image: quay.io/sameersbn/memcached:latest
+          image: memcached:alpine
+          command:
+            - "sh"
+            - "-euc"
+            - |
+              echo 'mech_list: plain' > "$$SASL_CONF_PATH"
+              echo "zulip@$$HOSTNAME:$$MEMCACHED_PASSWORD" > "$$MEMCACHED_SASL_PWDB"
+              echo "zulip@localhost:$$MEMCACHED_PASSWORD" >> "$$MEMCACHED_SASL_PWDB"
+              exec memcached -S
+          env:
+            - name: SASL_CONF_PATH
+              value: "/home/memcache/memcached.conf"
+            - name: MEMCACHED_SASL_PWDB
+              value: "/home/memcache/memcached-sasl-db"
+            - name: MEMCACHED_PASSWORD
+              value: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
           resources:
             limits:
               cpu: 75m
@@ -62,7 +86,7 @@ spec:
             - name: postgresql-persistent-storage
               mountPath: /var/lib/postgresql
         - name: zulip
-          image: zulip/docker-zulip:4.8-1
+          image: zulip/docker-zulip:5.1-0
           resources:
             limits:
               cpu: 100m
@@ -100,13 +124,17 @@ spec:
             # These should match the passwords configured above
             - name: SECRETS_postgres_password
               value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
+            - name: SECRETS_memcached_password
+              value: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
             - name: SECRETS_rabbitmq_password
               value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
+            - name: SECRETS_redis_password
+              value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
             - name: SSL_CERTIFICATE_GENERATION
               value: "self-signed"
           # Uncomment this when configuring the mobile push notifications service
-          # - name: PUSH_NOTIFICATION_BOUNCER_URL
-          # value: 'https://push.zulipchat.com'
+          # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL
+          #   value: 'https://push.zulipchat.com'
           ports:
             - containerPort: 80
               name: http
