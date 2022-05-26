@@ -209,6 +209,13 @@ putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
 `zulip` container startup script will generate a self-signed certificate and
 install it in that directory).
 
+**Load balancer**. To tell Zulip it's behind a load balancer, you can set
+`LOADBALANCER_IPS` to a comma-separated list of IPs. This will tell Zulip
+to pass the real IP of the client instead of the IP of the load balancer itself
+by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+
+[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
+
 ### Manual configuration
 
 The way the environment variables configuration process described in
