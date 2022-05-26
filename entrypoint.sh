@@ -142,12 +142,13 @@ additionalPuppetConfiguration() {
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     else
         echo "No additional puppet configuration executed for queue workers."
-        return 0
     fi
     
     if [ -n "$LOADBALANCER_IPS" ]; then
         echo "Setting IPs for load balancer"
         crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
+    else
+	echo "No additional puppet configuration executed for loadbalanacer IPs."
     fi
     
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
