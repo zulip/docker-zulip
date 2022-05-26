@@ -133,6 +133,7 @@ nginxConfiguration() {
 }
 additionalPuppetConfiguration() {
     echo "Executing additional puppet configuration ..."
+    
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
@@ -140,9 +141,15 @@ additionalPuppetConfiguration() {
         echo "Setting queue workers to run in multithreaded mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     else
-        echo "No additional puppet configuration executed."
+        echo "No additional puppet configuration executed for queue workers."
         return 0
     fi
+    
+    if [ -n "$LOADBALANCER_IPS" ]; then
+        echo "Setting IPs for load balancer"
+        crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
+    fi
+    
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
