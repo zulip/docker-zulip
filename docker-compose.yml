@@ -47,7 +47,7 @@ services:
     volumes:
       - "/opt/docker/zulip/redis:/data:rw"
   zulip:
-    image: "zulip/docker-zulip:5.2-1"
+    image: "zulip/docker-zulip:5.2-0"
     build:
       context: .
       args:
