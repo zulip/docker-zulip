@@ -212,7 +212,9 @@ install it in that directory).
 **Load balancer**. To tell Zulip it's behind a loadbalancer, you can set
 `LOADBALANCER_IPS` to a comma-separated list of IPs. This will tell Zulip
 to pass the real IP of the client instead of the IP of the loadbalancer itself
-by [setting the IPs][configuring-zulip-to-trust-proxies] under `[loadbalancer]` in `zulip.conf`.
+by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+
+[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
 
 ### Manual configuration
 
