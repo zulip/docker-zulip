@@ -1,6 +1,6 @@
 ## [0.4.0] - 2022-06-21
 
-- Update Zulip Server 5.2 to 5.5
+- Update Zulip Server 5.2 to 5.6
 
 ## [0.3.0] - 2022-04-21
 
