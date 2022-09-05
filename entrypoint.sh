@@ -478,7 +478,7 @@ appManagePy() {
 appBackup() {
     echo "Starting backup process ..."
     local TIMESTAMP
-    TIMESTAMP=$(date "+%D-%H-%M-%S")
+    TIMESTAMP=$(date -u -Iseconds | tr ':' '_')
     if [ -d "/tmp/backup-$TIMESTAMP" ]; then
         echo "Temporary backup folder for \"$TIMESTAMP\" already exists. Aborting."
         echo "Backup process failed. Exiting."
