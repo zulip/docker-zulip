@@ -133,17 +133,32 @@ nginxConfiguration() {
 }
 additionalPuppetConfiguration() {
     echo "Executing additional puppet configuration ..."
+
+    local changedPuppetConf=false
+
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
+        changedPuppetConf=true
     elif [ "$QUEUE_WORKERS_MULTIPROCESS" == "False" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "false" ]; then
         echo "Setting queue workers to run in multithreaded mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
+        changedPuppetConf=true
     else
-        echo "No additional puppet configuration executed."
-        return 0
+        echo "No additional puppet configuration executed for queue workers."
     fi
-    /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
+
+    if [ -n "$LOADBALANCER_IPS" ]; then
+        echo "Setting IPs for load balancer"
+        crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
+        changedPuppetConf=true
+    else
+        echo "No additional puppet configuration executed for load balancer IPs."
+    fi
+
+    if [ "$changedPuppetConf" = true ]; then
+        /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
+    fi
 }
 configureCerts() {
     case "$SSL_CERTIFICATE_GENERATION" in
@@ -305,7 +320,7 @@ autoBackupConfiguration() {
         echo "Auto backup is disabled. Continuing."
         return 0
     fi
-    printf 'MAILTO=""\n%s cd /;/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
+    printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
     echo "Auto backup enabled."
 }
 initialConfiguration() {
@@ -462,17 +477,17 @@ appManagePy() {
 }
 appBackup() {
     echo "Starting backup process ..."
-    if [ -d "/tmp/backup-$(date "%D-%H-%M-%S")" ]; then
-        echo "Temporary backup folder for \"$(date "%D-%H-%M-%S")\" already exists. Aborting."
+    if [ -d "/tmp/backup-$(date "+%D-%H-%M-%S")" ]; then
+        echo "Temporary backup folder for \"$(date "+%D-%H-%M-%S")\" already exists. Aborting."
         echo "Backup process failed. Exiting."
         exit 1
     fi
     local BACKUP_FOLDER
-    BACKUP_FOLDER="/tmp/backup-$(date "%D-%H-%M-%S")"
+    BACKUP_FOLDER="/tmp/backup-$(date "+%D-%H-%M-%S")"
     mkdir -p "$BACKUP_FOLDER"
     waitingForDatabase
     pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
-    tar -zcvf "$DATA_DIR/backups/backup-$(date "%D-%H-%M-%S").tar.gz" "$BACKUP_FOLDER/"
+    tar -zcvf "$DATA_DIR/backups/backup-$(date "+%D-%H-%M-%S").tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
     exit 0
@@ -517,7 +532,7 @@ appRestore() {
     waitingForDatabase
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
     psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
-    rm -r "/tmp/$(basename  | cut -d. -f1)/"
+    rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
 }

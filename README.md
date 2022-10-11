@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:5.1-0`)
+* [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:5.6-0`)
 
-Current Zulip version: `5.1`
-Current Docker image version: `5.1-0`
+Current Zulip version: `5.6`
+Current Docker image version: `5.6-0`
 
 Project status: **Alpha**.  While this project works and is
 used by many sites in production, configuring is substantially more
@@ -208,6 +208,13 @@ You can also provide an SSL certificate for your Zulip server by
 putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
 `zulip` container startup script will generate a self-signed certificate and
 install it in that directory).
+
+**Load balancer**. To tell Zulip it's behind a load balancer, you can set
+`LOADBALANCER_IPS` to a comma-separated list of IPs. This will tell Zulip
+to pass the real IP of the client instead of the IP of the load balancer itself
+by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+
+[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
 
 ### Manual configuration
 

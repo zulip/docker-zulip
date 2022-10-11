@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.7-0](https://img.shields.io/badge/AppVersion-4.7--0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 5.6-0](https://img.shields.io/badge/AppVersion-5.6--0-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
@@ -24,11 +24,45 @@ the instructions as well.
 
 ### Installing on Minikube
 
-To install this chart on [minikube](https://minikube.sigs.k8s.io/docs/):
+You need to do a few things to make
+[minikube](https://minikube.sigs.k8s.io/docs/) serve Zulip with a TLS
+certificate. Without it, Zulip will not work.
 
-Copy `values-minikube.yaml.example` to `values-local.yaml` and add
-(auto-generated) passwords to it as instructed in the comments. Run `minikube
-start` to start minikube. Then follow the above installation instructions.
+If you haven't already, you need to set up `cert-manager` inside your minikube.
+
+First, enable the "ingress" minikube addon ([more info available
+here](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller))
+
+```
+minikube addons enable ingress
+```
+
+Second, [install cert-manager into your minikube
+cluster](https://cert-manager.io/docs/installation/#default-static-install):
+
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
+```
+
+Now you'll need to add an issuer that issues self-signed certificates. Copy this
+into a file, `self-signed-issuer.yaml`
+
+```
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+```
+
+Now apply the issuer: `kubectl apply -f self-signed-issuer.yaml`
+
+We'll host Zulip on `zulip.local`. Add that to your `/etc/hosts` file and
+point it to the IP address you get with the command `minikube ip`.
+
+Now you're ready to follow [the installation instructions above](#installation).
 
 ## Values
 
@@ -38,7 +72,7 @@ start` to start minikube. Then follow the above installation instructions.
 | fullnameOverride | string | `""` | Fully override common.names.fullname template. |
 | image.pullPolicy | string | `"IfNotPresent"` | Pull policy for Zulip docker image. Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images |
 | image.repository | string | `"zulip/docker-zulip"` | Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address. |
-| image.tag | string | `"5.1-0"` | Zulip image tag (immutable tags are recommended) |
+| image.tag | string | `"5.6-0"` | Zulip image tag (immutable tags are recommended) |
 | imagePullSecrets | list | `[]` | Global Docker registry secret names as an array. |
 | ingress.annotations | object | `{}` | Can be used to add custom Ingress annotations. |
 | ingress.enabled | bool | `false` | Enable this to use an Ingress to reach the Zulip service. |
@@ -53,12 +87,12 @@ start` to start minikube. Then follow the above installation instructions.
 | podLabels | object | `{}` | Custom labels to add to the Zulip Pod. |
 | podSecurityContext | object | `{}` | Can be used to override the default PodSecurityContext (fsGroup, runAsUser and runAsGroup) of the Zulip _Pod_. |
 | postSetup.scripts | object | `{}` | The Docker entrypoint script runs commands from `/data/post-setup.d` after the Zulip application's Setup phase has completed. Scripts can be added here  as `script_filename: <script contents>` and they will be mounted in `/data/post-setup.d/script_filename`. |
-| postgresql | object | `{"containerSecurityContext":{"runAsUser":0},"image":{"repository":"zulip/zulip-postgresql","tag":14},"postgresqlDatabase":"zulip","postgresqlUsername":"zulip"}` | PostgreSQL settings, see [Requirements](#Requirements). |
+| postgresql | object | `{"auth":{"database":"zulip","username":"zulip"},"image":{"repository":"zulip/zulip-postgresql","tag":14},"primary":{"containerSecurityContext":{"runAsUser":0}}}` | PostgreSQL settings, see [Requirements](#Requirements). |
 | rabbitmq | object | `{"auth":{"username":"zulip"},"persistence":{"enabled":false}}` | Rabbitmq settings, see [Requirements](#Requirements). |
 | redis | object | `{"architecture":"standalone","master":{"persistence":{"enabled":false}}}` | Redis settings, see [Requirements](#Requirements). |
 | resources | object | `{}` |  |
 | securityContext | object | `{}` | Can be used to override the default SecurityContext of the Zulip _container_. |
-| service | object | `{"port":80,"type":"ClusterIP"}` | Service type and port for the Kubernetes service that connects to Zulip. Default: ClusterIP, needs an Ingress to be used. On Minikube, use a "NodePort" to circumvent the need for an Ingress. |
+| service | object | `{"port":80,"type":"ClusterIP"}` | Service type and port for the Kubernetes service that connects to Zulip. Default: ClusterIP, needs an Ingress to be used. |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |

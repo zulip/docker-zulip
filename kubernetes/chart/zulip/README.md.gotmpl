@@ -24,11 +24,45 @@ the instructions as well.
 
 ### Installing on Minikube
 
-To install this chart on [minikube](https://minikube.sigs.k8s.io/docs/):
+You need to do a few things to make
+[minikube](https://minikube.sigs.k8s.io/docs/) serve Zulip with a TLS
+certificate. Without it, Zulip will not work.
 
-Copy `values-minikube.yaml.example` to `values-local.yaml` and add
-(auto-generated) passwords to it as instructed in the comments. Run `minikube
-start` to start minikube. Then follow the above installation instructions.
+If you haven't already, you need to set up `cert-manager` inside your minikube.
+
+First, enable the "ingress" minikube addon ([more info available
+here](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller))
+
+```
+minikube addons enable ingress
+```
+
+Second, [install cert-manager into your minikube
+cluster](https://cert-manager.io/docs/installation/#default-static-install):
+
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
+```
+
+Now you'll need to add an issuer that issues self-signed certificates. Copy this
+into a file, `self-signed-issuer.yaml`
+
+```
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+```
+
+Now apply the issuer: `kubectl apply -f self-signed-issuer.yaml`
+
+We'll host Zulip on `zulip.local`. Add that to your `/etc/hosts` file and
+point it to the IP address you get with the command `minikube ip`.
+
+Now you're ready to follow [the installation instructions above](#installation).
 
 {{ template "chart.valuesSection" . }}
 
