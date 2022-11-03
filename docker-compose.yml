@@ -1,7 +1,7 @@
 version: "2"
 services:
   database:
-    image: "zulip/zulip-postgresql:10"
+    image: "zulip/zulip-postgresql:14"
     restart: unless-stopped
     environment:
       POSTGRES_DB: "zulip"
@@ -11,7 +11,7 @@ services:
       # the first time on a host.  Instructions are available in README.md.
       POSTGRES_PASSWORD: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
     volumes:
-      - "postgresql-10:/var/lib/postgresql/data:rw"
+      - "postgresql-14:/var/lib/postgresql/data:rw"
   memcached:
     image: "memcached:alpine"
     restart: unless-stopped
@@ -97,6 +97,6 @@ services:
         hard: 1048576
 volumes:
   zulip:
-  postgresql-10:
+  postgresql-14:
   rabbitmq:
   redis:
