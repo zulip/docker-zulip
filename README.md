@@ -464,6 +464,71 @@ repository, and `ZULIP_GIT_REF` to be any ref name in that repository
 
 Then stop and restart the container as described in the previous section.
 
+### Upgrading zulip/zulip-postgresql to 14
+
+These instructions assume that you have not changed the default
+Postgres data path (`/opt/docker/zulip/postgresql/data`) in your
+`docker-compose.yml`.  If you have changed it, please replace all
+occurences of `/opt/docker/zulip/postgresql/data` with your path.
+
+1. Make a backup of your Zulip Postgres data dir.
+
+2. Stop the Zulip container:
+
+```
+docker-compose stop zulip
+```
+
+3. Create a new (upgraded) Postgres container using a different data directory:
+
+```
+docker run -d \
+      --name postgresnew \
+      -e POSTGRES_DB=zulip \
+      -e POSTGRES_USER=zulip \
+      -e POSTGRES_PASSWORD=zulip \
+      -v /opt/docker/zulip/postgresql/new:/var/lib/postgresql/data:rw \
+      zulip/zulip-postgresql:14
+```
+
+4. Use `pg_dumpall` to dump all data from the existing Postgres container to the
+new Postgres container, and reset the password (for SCRAM-SHA-256 auth upgrade):
+
+```
+docker-compose exec database pg_dumpall -U zulip | \
+    docker exec -i postgresnew psql -U zulip
+
+echo "ALTER USER zulip WITH PASSWORD 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD';" |
+    docker exec -i postgresnew psql -U zulip
+```
+
+5. Stop and remove both Postgres containers:
+
+```
+docker-compose rm --stop database
+docker stop postgresnew
+docker rm postgresnew
+```
+
+6. Edit your `docker-compose.yml` to use the `zulip/zulip-postgresql:14` image
+for the `database` container.
+
+7. Replace the old Postgres data directory with upgraded data directory:
+
+```
+sudo mv /opt/docker/zulip/postgresql/data /opt/docker/zulip/postgresql/old
+sudo mv /opt/docker/zulip/postgresql/new /opt/docker/zulip/postgresql/data
+```
+
+8. Start Zulip up again:
+
+```
+docker-compose up
+```
+
+That should be it. Your Postgres data has now been updated to use the
+`zulip/zulip-postgresql` image.
+
 ### Upgrading from the old galexrt/docker-zulip
 
 If you are using an earlier version of `galexrt/docker-zulip` which
