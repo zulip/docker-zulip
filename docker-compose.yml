@@ -2,6 +2,7 @@ version: "2"
 services:
   database:
     image: "zulip/zulip-postgresql:10"
+    restart: unless-stopped
     environment:
       POSTGRES_DB: "zulip"
       POSTGRES_USER: "zulip"
@@ -13,6 +14,7 @@ services:
       - "/opt/docker/zulip/postgresql/data:/var/lib/postgresql/data:rw"
   memcached:
     image: "memcached:alpine"
+    restart: unless-stopped
     command:
       - "sh"
       - "-euc"
@@ -25,10 +27,9 @@ services:
       SASL_CONF_PATH: "/home/memcache/memcached.conf"
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
-    restart: always
   rabbitmq:
     image: "rabbitmq:3.7.7"
-    restart: always
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"
       RABBITMQ_DEFAULT_PASS: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
@@ -36,6 +37,7 @@ services:
       - "/opt/docker/zulip/rabbitmq:/var/lib/rabbitmq:rw"
   redis:
     image: "redis:alpine"
+    restart: unless-stopped
     command:
       - "sh"
       - "-euc"
@@ -48,6 +50,7 @@ services:
       - "/opt/docker/zulip/redis:/data:rw"
   zulip:
     image: "zulip/docker-zulip:5.7-0"
+    restart: unless-stopped
     build:
       context: .
       args:
