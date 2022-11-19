@@ -477,17 +477,19 @@ appManagePy() {
 }
 appBackup() {
     echo "Starting backup process ..."
-    if [ -d "/tmp/backup-$(date "+%D-%H-%M-%S")" ]; then
-        echo "Temporary backup folder for \"$(date "+%D-%H-%M-%S")\" already exists. Aborting."
+    local TIMESTAMP
+    TIMESTAMP=$(date "+%D-%H-%M-%S")
+    if [ -d "/tmp/backup-$TIMESTAMP" ]; then
+        echo "Temporary backup folder for \"$TIMESTAMP\" already exists. Aborting."
         echo "Backup process failed. Exiting."
         exit 1
     fi
     local BACKUP_FOLDER
-    BACKUP_FOLDER="/tmp/backup-$(date "+%D-%H-%M-%S")"
+    BACKUP_FOLDER="/tmp/backup-$TIMESTAMP)"
     mkdir -p "$BACKUP_FOLDER"
     waitingForDatabase
     pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
-    tar -zcvf "$DATA_DIR/backups/backup-$(date "+%D-%H-%M-%S").tar.gz" "$BACKUP_FOLDER/"
+    tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
     exit 0
