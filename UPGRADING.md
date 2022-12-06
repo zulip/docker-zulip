@@ -116,21 +116,21 @@ file to match, and re-start Zulip.
 
 If you are using an earlier version of `galexrt/docker-zulip` which
 used the `quay.io/galexrt/postgres-zulip-tsearchextras:latest`
-Postgres image, you need to run a few manual steps to upgrade to the
-`zulip/zulip-postgresql` Postgres image (because we've significantly
+PostgreSQL image, you need to run a few manual steps to upgrade to the
+`zulip/zulip-postgresql` PostgreSQL image (because we've significantly
 upgraded the major postgres version).
 
 These instructions assume that you have not changed the default
-Postgres data path (`/opt/docker/zulip/postgresql/data`) in your
+PostgreSQL data path (`/opt/docker/zulip/postgresql/data`) in your
 `docker-compose.yml`. If you have changed it, please replace all
 occurences of `/opt/docker/zulip/postgresql/data` with your path.
 
-1. Make a backup of your Zulip Postgres data dir.
+1. Make a backup of your Zulip PostgreSQL data dir.
 
 2. Stop all Zulip containers, except the postgres one (e.g. use
    `docker stop` and not `docker-compose stop`).
 
-3. Create a new (upgraded) Postgres container using a different data directory:
+3. Create a new (upgraded) PostgreSQL container using a different data directory:
 
    ```shell
    docker run -d \
@@ -142,15 +142,15 @@ occurences of `/opt/docker/zulip/postgresql/data` with your path.
          zulip/zulip-postgresql:latest
    ```
 
-4. Use `pg_dumpall` to dump all data from the existing Postgres container to
-   the new Postgres container:
+4. Use `pg_dumpall` to dump all data from the existing PostgreSQL container to
+   the new PostgreSQL container:
 
    ```shell
    docker-compose exec database pg_dumpall -U postgres | \
        docker exec -i postgresnew psql -U postgres
    ```
 
-5. Stop and remove both Postgres containers:
+5. Stop and remove both PostgreSQL containers:
 
    ```shell
    docker-compose rm --stop database
@@ -161,7 +161,7 @@ occurences of `/opt/docker/zulip/postgresql/data` with your path.
    `zulip/zulip-postgresql:latest` image for the `database` container
    (this is the default in `zulip/docker-zulip`).
 
-7. Replace the old Postgres data directory with upgraded data directory:
+7. Replace the old PostgreSQL data directory with upgraded data directory:
 
    ```shell
    mv /opt/docker/zulip/postgresql/data /opt/docker/zulip/postgresql/old
@@ -180,5 +180,5 @@ occurences of `/opt/docker/zulip/postgresql/data` with your path.
    docker-compose up
    ```
 
-That should be it. Your Postgres data has now been updated to use the
+That should be it. Your PostgreSQL data has now been updated to use the
 `zulip/zulip-postgresql` image.
