@@ -29,8 +29,14 @@ section.
    Note that `docker-zulip` did not support for Zulip's built-in
    `restore-backup` tool before Zulip 3.0.
 
-1. Pull the new image version, e.g. for `2.0.8` run: `docker pull zulip/docker-zulip:2.0.8-0`. We recommend always upgrading to the
-   latest minor release within a major release series.
+1. Pull the new image version, e.g. for `2.0.8` run:
+
+   ```shell
+   docker pull zulip/docker-zulip:2.0.8-0
+   ```
+
+   We recommend always upgrading to the latest minor release within a major
+   release series.
 
 2. Update this project to the corresponding `docker-zulip` version and
    resolve any merge conflicts in `docker-compose.yml`.
