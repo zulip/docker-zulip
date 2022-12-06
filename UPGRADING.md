@@ -1,4 +1,4 @@
-## Upgrading the Zulip container
+# Upgrading instructions for `docker-compose`
 
 You can upgrade your Zulip installation to any newer version of Zulip with the
 following instructions. At a high level, the strategy is to download a new
@@ -9,13 +9,10 @@ necessary database migrations with `manage.py migrate`.
 If you ever find you need to downgrade your Zulip server, you'll need to use
 `manage.py migrate` to downgrade the database schema manually.
 
-If you are using old `galexrt/docker-zulip` images (from Zulip 1.8.1 or older),
-you need to upgrade the postgres image from
-`quay.io/galexrt/postgres-zulip-tsearchextras:latest`. Refer to the
-[instructions for upgrading from the old
-galexrt/docker-zulip](#upgrading-from-the-old-galexrtdocker-zulip) section.
+All of the instructions below assume you are using the provided
+`docker-compose.yml`.
 
-### Using `docker-compose`
+## Upgrading to a release
 
 0. (Optional) Upgrading does not delete your data, but it's generally good
    practice to [back up your Zulip
@@ -75,7 +72,7 @@ You can confirm you're running the latest version by running:
 docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.py
 ```
 
-### Upgrading from a Git repository
+## Upgrading from a Git repository
 
 1. Edit `docker-compose.yml` to comment out the `image` line, and specify the
    Git commit you'd like to build the zulip container from. E.g.:
@@ -100,7 +97,7 @@ docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
 
 Then stop and restart the container as described in the previous section.
 
-### Upgrading zulip/zulip-postgresql to 14
+## Upgrading zulip/zulip-postgresql to 14
 
 The Docker Compose configuration for version 6.0-0 and higher default to using
 PostgreSQL 14, as the previously-used PostgreSQL 10 is no longer
@@ -114,7 +111,7 @@ The provided `upgrade-postgresql` tool will dump the contents of the
 necessary migration, update the `docker-compose.yml` file to match, and re-start
 Zulip.
 
-### Upgrading from the old galexrt/docker-zulip
+## Upgrading from the old galexrt/docker-zulip
 
 If you are using an earlier version of `galexrt/docker-zulip` which used the
 `quay.io/galexrt/postgres-zulip-tsearchextras:latest` PostgreSQL image, you need
@@ -126,7 +123,7 @@ path (`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`. If you
 have changed it, please replace all occurences of
 `/opt/docker/zulip/postgresql/data` with your path.
 
-1. Make a backup of your Zulip PostgreSQL data dir.
+1. Make a backup of your Zulip PostgreSQL data directory.
 
 2. Stop all Zulip containers, except the postgres one (e.g. use `docker stop`
    and not `docker-compose stop`).
@@ -181,6 +178,3 @@ have changed it, please replace all occurences of
    ```shell
    docker-compose up
    ```
-
-That should be it. Your PostgreSQL data has now been updated to use the
-`zulip/zulip-postgresql` image.
