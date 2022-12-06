@@ -49,26 +49,26 @@ section.
 3. Verify that your updated `docker-compose.yml` points to the desired image version,
    e.g.:
 
-```yml
-zulip:
-  image: "zulip/docker-zulip:2.0.1-0"
-```
+   ```yaml
+   zulip:
+     image: "zulip/docker-zulip:2.0.1-0"
+   ```
 
 4. You can execute the upgrade by running:
 
-```
-# Stops the old zulip container; this begins your downtime
-docker-compose stop
-# Boots the new zulip container; this ends your downtime
-docker-compose up
-# Deletes the old container images
-docker-compose rm
-```
+   ```shell
+   # Stops the old zulip container; this begins your downtime
+   docker-compose stop
+   # Boots the new zulip container; this ends your downtime
+   docker-compose up
+   # Deletes the old container images
+   docker-compose rm
+   ```
 
 That's it! Zulip is now running the updated version.
 You can confirm you're running the latest version by running:
 
-```bash
+```shell
 docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.py
 ```
 
@@ -78,21 +78,20 @@ docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
    specify the Git commit you'd like to build the zulip container from.
    E.g.:
 
-```
-  zulip:
-    # image: "zulip/docker-zulip:2.0.1-0"
-    build:
-      context: .
-      args:
-        # Change these if you want to build zulip from a different repo/branch
-        ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: master
-```
+   ```yaml
+   zulip:
+     # image: "zulip/docker-zulip:2.0.1-0"
+     build:
+       context: .
+       args:
+         # Change these if you want to build zulip from a different repo/branch
+         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
+         ZULIP_GIT_REF: master
+   ```
 
-You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git
-repository, and `ZULIP_GIT_REF` to be any ref name in that repository
-(e.g. `master` or `1.9.0` or
-`445932cc8613c77ced023125248c8b966b3b7528`).
+   You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git repository,
+   and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `master` or
+   `1.9.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
 
 2. Run `docker-compose build zulip` to build a Zulip Docker image from
    the specified Git version.
@@ -133,30 +132,30 @@ occurences of `/opt/docker/zulip/postgresql/data` with your path.
 
 3. Create a new (upgraded) Postgres container using a different data directory:
 
-```
-docker run -d \
-      --name postgresnew \
-      -e POSTGRES_DB=zulip \
-      -e POSTGRES_USER=zulip \
-      -e POSTGRES_PASSWORD=zulip \
-      -v /opt/docker/zulip/postgresql/new:/var/lib/postgresql/data:rw \
-      zulip/zulip-postgresql:latest
-```
+   ```shell
+   docker run -d \
+         --name postgresnew \
+         -e POSTGRES_DB=zulip \
+         -e POSTGRES_USER=zulip \
+         -e POSTGRES_PASSWORD=zulip \
+         -v /opt/docker/zulip/postgresql/new:/var/lib/postgresql/data:rw \
+         zulip/zulip-postgresql:latest
+   ```
 
 4. Use `pg_dumpall` to dump all data from the existing Postgres container to
    the new Postgres container:
 
-```
-docker-compose exec database pg_dumpall -U postgres | \
-    docker exec -i postgresnew psql -U postgres
-```
+   ```shell
+   docker-compose exec database pg_dumpall -U postgres | \
+       docker exec -i postgresnew psql -U postgres
+   ```
 
 5. Stop and remove both Postgres containers:
 
-```
-docker-compose rm --stop database
-docker rm --stop postgresnew
-```
+   ```shell
+   docker-compose rm --stop database
+   docker rm --stop postgresnew
+   ```
 
 6. Edit your `docker-compose.yml` to use the
    `zulip/zulip-postgresql:latest` image for the `database` container
@@ -164,22 +163,22 @@ docker rm --stop postgresnew
 
 7. Replace the old Postgres data directory with upgraded data directory:
 
-```
-mv /opt/docker/zulip/postgresql/data /opt/docker/zulip/postgresql/old
-mv /opt/docker/zulip/postgresql/new /opt/docker/zulip/postgresql/data
-```
+   ```shell
+   mv /opt/docker/zulip/postgresql/data /opt/docker/zulip/postgresql/old
+   mv /opt/docker/zulip/postgresql/new /opt/docker/zulip/postgresql/data
+   ```
 
 8. Delete the old existing containers:
 
-```
-docker-compose rm
-```
+   ```shell
+   docker-compose rm
+   ```
 
 9. Start Zulip up again:
 
-```
-docker-compose up
-```
+   ```shell
+   docker-compose up
+   ```
 
 That should be it. Your Postgres data has now been updated to use the
 `zulip/zulip-postgresql` image.
