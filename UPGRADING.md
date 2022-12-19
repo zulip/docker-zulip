@@ -44,7 +44,7 @@ All of the instructions below assume you are using the provided
    complete that upgrade separately after the Zulip upgrade; see [the section
    below][pg-upgrade].
 
-   [pg-upgrade]: #upgrading-zulipzulip-postgresql-to-14
+   [pg-upgrade]: #upgrading-zulipzulip-postgresql-to-14-version-60-0-and-above
 
 3. Verify that your updated `docker-compose.yml` points to the desired image
    version, e.g.:
