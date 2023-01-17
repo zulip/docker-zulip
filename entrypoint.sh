@@ -135,6 +135,7 @@ additionalPuppetConfiguration() {
     echo "Executing additional puppet configuration ..."
 
     local changedPuppetConf=false
+    local requireUpdateApt=false
 
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
@@ -183,7 +184,6 @@ additionalPuppetConfiguration() {
     if [ "$requireUpdateApt" = true ]; then
       apt update
     fi
-
     if [ "$changedPuppetConf" = true ]; then
         /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
     fi
