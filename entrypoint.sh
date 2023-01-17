@@ -156,6 +156,34 @@ additionalPuppetConfiguration() {
         echo "No additional puppet configuration executed for load balancer IPs."
     fi
 
+    if [ -n "$ADDITIONAL_PUPPET_CLASSES" ]; then
+        echo "Add additional puppet classes"
+        current_classes=$(crudini --get /etc/zulip/zulip.conf machine puppet_classes)
+        if [ -n "$current_classes" ]; then
+            echo "Add additional puppet classes to existing"
+            crudini --set /etc/zulip/zulip.conf machine puppet_classes "${current_classes}, ${ADDITIONAL_PUPPET_CLASSES}"
+        else
+            echo "No existing puppet classes, just setting"
+            crudini --set /etc/zulip/zulip.conf machine puppet_classes "${ADDITIONAL_PUPPET_CLASSES}"
+        fi
+        changedPuppetConf=true
+        requireUpdateApt=true
+    else
+        echo "No additional puppet classes."
+    fi
+
+    if [ -n "$MAILNAME" ]; then
+        echo "Setup mail name for postfix"
+        crudini --set /etc/zulip/zulip.conf postfix mailname "${MAILNAME}"
+        changedPuppetConf=true
+    else
+        echo "No config for mail name for postfix"
+    fi
+
+    if [ "$requireUpdateApt" = true ]; then
+      apt update
+    fi
+
     if [ "$changedPuppetConf" = true ]; then
         /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
     fi

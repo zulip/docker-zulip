@@ -197,6 +197,12 @@ by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
 
 [loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
 
+**Additional puppet classes**. If you need to do additional puppet classes, you can set `ADDITIONAL_PUPPET_CLASSES` to a comma-separated list of puppet classes. This will tell Zulip to run the puppet classes under `[additional_puppet_classes]` in `zulip.conf`.
+For example: `ADDITIONAL_PUPPET_CLASSES="zulip::postfix_localmail"`.
+
+**Mail name**. If you need to set the mail name to used in [Local delivery setup for incoming email integration](https://zulip.readthedocs.io/en/latest/production/email-gateway.html#local-delivery-setup), you can set `MAILNAME` to the mail name. This will tell Zulip to add the mail name configuration under `[postfix]` in `zulip.conf`.
+
+
 ### Manual configuration
 
 The way the environment variables configuration process described in
