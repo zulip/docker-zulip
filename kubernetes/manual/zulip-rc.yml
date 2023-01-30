@@ -70,7 +70,7 @@ spec:
             - name: rabbitmq-persistent-storage
               mountPath: /var/lib/rabbitmq
         - name: postgresql
-          image: zulip/zulip-postgresql
+          image: zulip/zulip-postgresql:14
           resources:
             limits:
               cpu: 80m
