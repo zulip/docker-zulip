@@ -57,7 +57,7 @@ temp_container=$(
 		--health-interval 10s \
 		"zulip/zulip-postgresql:$new_version"
 )
-trap 'docker volume rm --force "$full_new_volume"; docker rm --force "$temp_container"' EXIT
+trap 'docker rm --force "$temp_container"; docker volume rm --force "$full_new_volume"' EXIT
 
 # Wait for the new PostgreSQL container to become available
 tries=0
