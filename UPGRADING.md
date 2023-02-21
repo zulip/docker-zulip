@@ -149,10 +149,13 @@ You can perform this step either before or after updating to use Docker volumes
 (above). In either case, the updated `docker-compose.yml` will use a new Docker
 volume for the upgraded PostgreSQL 14 data.
 
-If the tool does not work, or you would prefer to perform the steps manually,
-see the steps below. These instructions assume that you have not changed the
-default Postgres data path (`/opt/docker/zulip/postgresql/data`) in your
-`docker-compose.yml`. If you have changed it, please replace all occurrences of
+The `upgrade-postgresql` tool requires `docker-compose` 2.1.1 or higher.
+
+If the tool does not work, you have too old a `docker-compose`, or you would
+prefer to perform the steps manually, see the steps below. These instructions
+assume that you have not changed the default Postgres data path
+(`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`. If you have
+changed it, please replace all occurrences of
 `/opt/docker/zulip/postgresql/data` with your path, or volume.
 
 1. Make a backup of your Zulip Postgres data directory.
