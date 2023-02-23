@@ -1,0 +1,14 @@
+---
+name: Publish Docker Image to GHCR (versioned + :latest)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  multiarch-image:
+    uses: ./.github/workflows/build-and-push-ghcr-common.yml
+    secrets: inherit
+    with:
+      push-latest-tag: true

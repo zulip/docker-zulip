@@ -1,0 +1,19 @@
+---
+name: Publish Docker Image to GHCR (PR)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  multiarch-image:
+    uses: ./.github/workflows/build-and-push-ghcr-common.yml
+    secrets: inherit
+    with:
+      # dz prefix to emphasize that the commit does not line up with any commit
+      # in zulip/zulip
+      primary-registry-tag: "dz-${{ github.sha }}"
+      # There's no realistic chance of overwriting an existing SHA tag here, so
+      # save the pull time
+      skip-pull-check: true
