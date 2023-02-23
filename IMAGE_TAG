@@ -1,0 +1,15 @@
+# This should ~always be updated to match the Zulip Server version targeted,
+# with the trailing -N used to denote image versions within the series. Only
+# the final line of this file is read during publishing.
+#
+# Note that changes to the Dockerfile that are not bundled with a bump to this
+# number will never be published to GitHub Container Registry, as duplicates
+# aren't built.
+
+# Changelog:
+#
+# 6.1-1: Add ARM64 support, publish to GHCR
+# <--> This file created here <-->
+# 6.1-0: final version published exclusively to Docker Hub
+
+6.1-1
