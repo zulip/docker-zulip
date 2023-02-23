@@ -1,0 +1,46 @@
+---
+on:
+  workflow_call:
+    inputs:
+      # N.B.: This behavior is not concurrency-safe and updates the mutable
+      # :latest image tag
+      allow-push-latest:
+        type: boolean
+      primary-registry-tag:
+        type: string
+      skip-pull-check:
+        type: boolean
+
+jobs:
+  multiarch-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+      - name: Calculate highest version number from Git tags
+        if: inputs.allow-push-latest
+        run: echo "MOST_RECENT_TAG=$(git tag | sort --version-sort | tail -n1)" >> $GITHUB_ENV
+      - name: Set PUSH_LATEST_TAG in environment
+        if: inputs.allow-push-latest && github.ref_name == env.MOST_RECENT_TAG
+        run: echo "PUSH_LATEST_TAG=1" >> $GITHUB_ENV
+      - name: Set REGISTRY_TAG in environment
+        if: inputs.primary-registry-tag != ''
+        run: echo "REGISTRY_TAG=${{ inputs.primary-registry-tag }}" >> $GITHUB_ENV
+      - name: Set SKIP_PULL_CHECK in environment
+        if: inputs.skip-pull-check
+        run: echo "SKIP_PULL_CHECK=1" >> $GITHUB_ENV
+      - name: Build Images
+        env:
+          EXTERNAL_QEMU: "1"
+        run: ./build_and_push_image.sh
