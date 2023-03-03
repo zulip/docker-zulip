@@ -18,23 +18,23 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     tags:
       - memcached
-    version: 6.0.16
+    version: 6.3.5
   - name: rabbitmq
     repository: https://charts.bitnami.com/bitnami
     tags:
       - rabbitmq
-    version: 8.32.0
+    version: 11.9.1
   - name: redis
     repository: https://charts.bitnami.com/bitnami
     tags:
       - redis
-    version: 16.8.7
+    version: 17.7.4
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
     tags:
       - postgresql
     # Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
-    version: 11.1.22
+    version: 11.9.13
 
 sources:
   - https://github.com/zulip/zulip
