@@ -69,11 +69,12 @@ Now you're ready to follow [the installation instructions above](#installation).
 ## About this helm chart
 
 This helm chart sets up a StatefulSet that runs a Zulip pod, that in turn runs
-the [docker-zulip](https://hub.docker.com/r/zulip/docker-zulip/) Dockerized
-Zulip version. Configuration of Zulip happens through environment variables that
-are defined in the `values.yaml` under `zulip.environment`. These environment
-variables are forwarded to the Docker container, you can read more about
-configuring Zulip through environment variables
+the [Dockerized Zulip
+version](https://github.com/orgs/zulip/packages/container/package/zulip).
+Configuration of Zulip happens through environment variables that are defined
+in the `values.yaml` under `zulip.environment`. These environment variables are
+forwarded to the Docker container, you can read more about configuring Zulip
+through environment variables
 [here](https://github.com/zulip/docker-zulip/#configuration).
 
 ### Dependencies
