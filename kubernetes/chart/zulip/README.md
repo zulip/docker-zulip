@@ -71,8 +71,8 @@ Now you're ready to follow [the installation instructions above](#installation).
 | affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
 | fullnameOverride | string | `""` | Fully override common.names.fullname template. |
 | image.pullPolicy | string | `"IfNotPresent"` | Pull policy for Zulip docker image. Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images |
-| image.repository | string | `"zulip/docker-zulip"` | Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address. |
-| image.tag | string | `"6.1-0"` | Zulip image tag (immutable tags are recommended) |
+| image.repository | string | `"ghcr.io/zulip/zulip"` | Image repository. Override this only if using a forked or otherwise custom image. |
+| image.tag | string | `"6.1-1"` | Zulip image tag (immutable tags are recommended) |
 | imagePullSecrets | list | `[]` | Global Docker registry secret names as an array. |
 | ingress.annotations | object | `{}` | Can be used to add custom Ingress annotations. |
 | ingress.enabled | bool | `false` | Enable this to use an Ingress to reach the Zulip service. |
@@ -116,11 +116,12 @@ Now you're ready to follow [the installation instructions above](#installation).
 ## About this helm chart
 
 This helm chart sets up a StatefulSet that runs a Zulip pod, that in turn runs
-the [docker-zulip](https://hub.docker.com/r/zulip/docker-zulip/) Dockerized
-Zulip version. Configuration of Zulip happens through environment variables that
-are defined in the `values.yaml` under `zulip.environment`. These environment
-variables are forwarded to the Docker container, you can read more about
-configuring Zulip through environment variables
+the [Dockerized Zulip
+version](https://github.com/orgs/zulip/packages/container/package/zulip).
+Configuration of Zulip happens through environment variables that are defined
+in the `values.yaml` under `zulip.environment`. These environment variables are
+forwarded to the Docker container, you can read more about configuring Zulip
+through environment variables
 [here](https://github.com/zulip/docker-zulip/#configuration).
 
 ### Dependencies
