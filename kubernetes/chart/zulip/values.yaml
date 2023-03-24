@@ -9,13 +9,13 @@
 # ```
 
 image:
-  # -- Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address.
-  repository: zulip/docker-zulip
+  # -- Override this only if using a forked or otherwise custom image. |
+  repository: ghcr.io/zulip/zulip
   # -- Pull policy for Zulip docker image.
   # Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: IfNotPresent
   # -- Zulip image tag (immutable tags are recommended)
-  tag: "6.1-0"
+  tag: "6.1-1"
 
 # -- Global Docker registry secret names as an array.
 imagePullSecrets: []
