@@ -4,6 +4,8 @@
 # from the provided Git ref.
 FROM ubuntu:20.04 as base
 
+LABEL org.opencontainers.image.source https://github.com/zulip/docker-zulip
+
 # Set up working locales and upgrade the base image
 ENV LANG="C.UTF-8"
 
