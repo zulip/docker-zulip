@@ -4,17 +4,22 @@
 
 This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
-[production][prod-overview]. Image available from:
+[production][prod-overview].
 
-- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:6.1-0`)
 
-Current Zulip version: `6.1`
-Current Docker image version: `6.1-0`
-Current architectures supported: `amd64`
+```sh
+docker pull ghcr.io/zulip/zulip
 
-<!-- Remove when https://github.com/zulip/docker-zulip/issues/357 resolved -->
-> `arm64` support is experimental, and is not provided in the Docker Hub
-> images. To build an `arm64` image yourself, see `make help` locally.
+# Or, pin a version:
+docker pull ghcr.io/zulip/zulip:6.1-1
+```
+
+- Current Zulip Server version: `6.1`
+- Current Docker image version: `6.1-1`
+- Current architectures supported: `amd64`, `arm64`
+
+See all available image tags [in GitHub Container
+Registry](https://github.com/orgs/zulip/packages/container/package/zulip).
 
 Project status: **Alpha**. While these images work and are used by many sites
 in production, configuring is substantially more error-prone than the [bare
