@@ -9,6 +9,13 @@ if ! command -v yq >/dev/null; then
 	exit 1
 fi
 
+# Require docker-compose 2.1.1 or higher, for `docker-compose up --wait`
+docker_compose_version=$(docker-compose --version --short)
+if [ "${docker_compose_version}" = "$(echo -e "2.1.0\n${docker_compose_version}" | sort -V | head -n1)" ]; then
+	echo "Your docker-compose is too old (${docker_compose_version}); upgrade to at least 2.1.1."
+	exit 1
+fi
+
 image=$(yq ".services.database.image" docker-compose.yml)
 if [[ $image =~ ^zulip/zulip-postgresql:([0-9]+)$ ]]; then
 	old_version="${BASH_REMATCH[1]}"
@@ -50,7 +57,7 @@ temp_container=$(
 		--health-interval 10s \
 		"zulip/zulip-postgresql:$new_version"
 )
-trap 'docker volume rm --force "$full_new_volume"; docker rm --force "$temp_container"' EXIT
+trap 'docker rm --force "$temp_container"; docker volume rm --force "$full_new_volume"' EXIT
 
 # Wait for the new PostgreSQL container to become available
 tries=0
