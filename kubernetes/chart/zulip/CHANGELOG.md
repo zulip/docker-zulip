@@ -1,3 +1,7 @@
+## [0.7.1] - 2023-06-13
+
+- Update Zulip Server to 7.1
+
 ## [0.7.0] - 2023-05-31
 
 - Update Zulip Server to 7.0
