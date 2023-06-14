@@ -190,12 +190,23 @@ putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
 `zulip` container startup script will generate a self-signed certificate and
 install it in that directory).
 
-**Load balancer**. To tell Zulip it's behind a load balancer, you can set
-`LOADBALANCER_IPS` to a comma-separated list of IPs. This will tell Zulip
-to pass the real IP of the client instead of the IP of the load balancer itself
-by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+**Load balancer**. To tell Zulip that it is behind a load balancer,
+you must set `LOADBALANCER_IPS` to a comma-separated list of IPs or
+CIDR ranges. This will tell Zulip to pass the real IP of the client,
+instead of the IP of the load balancer itself, by [setting the
+IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+
+Your proxy must provide both `X-Forwarded-For` and
+`X-Forwarded-Proto` headers.  See the Zulip documentation for sample
+[nginx][nginx-proxy], [Apache2][apache2-proxy], and
+[HAProxy][haproxy-proxy] configurations, as well as notes for [other
+proxies][other-proxy].
 
 [loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
+[nginx-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#nginx-configuration
+[apache2-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#apache2-configuration
+[haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#haproxy-configuration
+[other-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#other-proxies
 
 ### Manual configuration
 
