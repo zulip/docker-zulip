@@ -291,6 +291,7 @@ zulipConfiguration() {
            [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] || \
+           [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] || \
            { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
            [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
            [[ "$setting_key" = "CSRF_"* ]] || \
