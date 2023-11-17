@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:7.4-0`)
+- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:7.5-0`)
 
-Current Zulip version: `7.4`
-Current Docker image version: `7.4-0`
+Current Zulip version: `7.5`
+Current Docker image version: `7.5-0`
 
 Project status: **Alpha**. While this project works and is
 used by many sites in production, configuring is substantially more
@@ -197,7 +197,7 @@ instead of the IP of the load balancer itself, by [setting the
 IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
 
 Your proxy must provide both `X-Forwarded-For` and
-`X-Forwarded-Proto` headers.  See the Zulip documentation for sample
+`X-Forwarded-Proto` headers. See the Zulip documentation for sample
 [nginx][nginx-proxy], [Apache2][apache2-proxy], and
 [HAProxy][haproxy-proxy] configurations, as well as notes for [other
 proxies][other-proxy].
