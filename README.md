@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:7.5-0`)
+- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:8.0-0`)
 
-Current Zulip version: `7.5`
-Current Docker image version: `7.5-0`
+Current Zulip version: `8.0`
+Current Docker image version: `8.0-0`
 
 Project status: **Alpha**. While this project works and is
 used by many sites in production, configuring is substantially more
