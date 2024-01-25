@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.0-0](https://img.shields.io/badge/AppVersion-8.0--0-informational?style=flat-square)
+![Version: 0.8.1](https://img.shields.io/badge/Version-0.8.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8.1-0](https://img.shields.io/badge/AppVersion-8.1--0-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
@@ -72,7 +72,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | fullnameOverride | string | `""` | Fully override common.names.fullname template. |
 | image.pullPolicy | string | `"IfNotPresent"` | Pull policy for Zulip docker image. Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images |
 | image.repository | string | `"zulip/docker-zulip"` | Defaults to hub.docker.com/zulip/docker-zulip, but can be overwritten with a full HTTPS address. |
-| image.tag | string | `"8.0-0"` | Zulip image tag (immutable tags are recommended) |
+| image.tag | string | `"8.1-0"` | Zulip image tag (immutable tags are recommended) |
 | imagePullSecrets | list | `[]` | Global Docker registry secret names as an array. |
 | ingress.annotations | object | `{}` | Can be used to add custom Ingress annotations. |
 | ingress.enabled | bool | `false` | Enable this to use an Ingress to reach the Zulip service. |
