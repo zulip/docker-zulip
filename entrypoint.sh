@@ -290,6 +290,7 @@ zulipConfiguration() {
            [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] || \
            [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] || \
            [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] || \
+           [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] || \
