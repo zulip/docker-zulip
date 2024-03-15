@@ -89,7 +89,7 @@ setConfigurationValue() {
             [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
             TYPE="bool"
             ;;
-            +([0-9]))
+            [1-9][0-9]*)
             TYPE="integer"
             ;;
             [\[\(]*[\]\)])
