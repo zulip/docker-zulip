@@ -90,8 +90,11 @@ setConfigurationValue() {
             TYPE="bool"
             ;;
             [1-9][0-9]*)
-            TYPE="integer"
-            ;;
+            if [[ "$2" =~ ^[1-9][0-9]*$ ]]; then
+                TYPE="integer"
+            else
+                TYPE="string"
+            fi
             [\[\(]*[\]\)])
             TYPE="array"
             ;;
