@@ -95,6 +95,7 @@ setConfigurationValue() {
             else
                 TYPE="string"
             fi
+            ;;
             [\[\(]*[\]\)])
             TYPE="array"
             ;;
