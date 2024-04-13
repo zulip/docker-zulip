@@ -86,19 +86,26 @@ setConfigurationValue() {
     local TYPE="$4"
     if [ -z "$TYPE" ]; then
         case "$2" in
-            [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
-            TYPE="bool"
-            ;;
-            [1-9][0-9]*)
-            TYPE="integer"
-            ;;
-            [\[\(]*[\]\)])
-            TYPE="array"
+            ''|*[!0-9]*)
+            TYPE="not-integer"
             ;;
             *)
-            TYPE="string"
+            TYPE="integer"
             ;;
         esac
+        if [ "$TYPE" != "integer" ]; then
+            case "$2" in
+                [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
+                TYPE="bool"
+                ;;
+                [\[\(]*[\]\)])
+                TYPE="array"
+                ;;
+                *)
+                TYPE="string"
+                ;;
+            esac
+        fi
     fi
     case "$TYPE" in
         emptyreturn)
