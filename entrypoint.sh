@@ -148,6 +148,14 @@ puppetConfiguration() {
 
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
+outgoingProxyConfiguration() {
+    echo "Executing outgoing proxy configuration ..."
+    if [ "$DISABLE_OUTGOING_PROXY" == "True" ] || [ "$DISABLE_OUTGOING_PROXY" == "true" ]; then
+        echo "Disabling outgoing proxy."
+        crudini --set /etc/zulip/zulip.conf http_proxy host ""
+        /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
+    fi
+}
 configureCerts() {
     case "$SSL_CERTIFICATE_GENERATION" in
         self-signed)
@@ -320,6 +328,7 @@ initialConfiguration() {
     puppetConfiguration
     nginxConfiguration
     configureCerts
+    outgoingProxyConfiguration
     if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
         # Start with the settings template file.
         cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"

@@ -208,6 +208,16 @@ proxies][other-proxy].
 [haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#haproxy-configuration
 [other-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#other-proxies
 
+**Outgoing proxy**. By default, Zulip proxies outgoing requests with
+Smokescreen to protect against SSRF. However, in development scenarios,
+this might interfere with your ability to connect to bots or other
+integrations running on the local machine. To disable this protection,
+you can set `DISABLE_OUTGOING_PROXY: "True"` within `docker-compose.yml`.
+For more information, see [Customizing the outgoing HTTP
+proxy][outgoing-proxy].
+
+[outgoing-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#customizing-the-outgoing-http-proxy
+
 ### Manual configuration
 
 The way the environment variables configuration process described in
