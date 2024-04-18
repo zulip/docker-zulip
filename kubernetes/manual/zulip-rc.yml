@@ -86,7 +86,7 @@ spec:
             - name: postgresql-persistent-storage
               mountPath: /var/lib/postgresql
         - name: zulip
-          image: zulip/docker-zulip:8.3-0
+          image: zulip/docker-zulip:8.3-1
           resources:
             limits:
               cpu: 100m

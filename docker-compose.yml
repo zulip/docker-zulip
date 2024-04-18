@@ -49,7 +49,7 @@ services:
     volumes:
       - "redis:/data:rw"
   zulip:
-    image: "zulip/docker-zulip:8.3-0"
+    image: "zulip/docker-zulip:8.3-1"
     restart: unless-stopped
     build:
       context: .
