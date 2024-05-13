@@ -68,7 +68,7 @@ RUN \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
     /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" \
-      --puppet-classes="zulip::profile::docker" && \
+      --puppet-classes="zulip::profile::docker" --postgresql-version=14 && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
