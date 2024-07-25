@@ -1,3 +1,7 @@
+## [0.9.0] - 2024-07-25
+
+- Update Zulip Server to 9.0
+
 ## [0.8.4] - 2024-05-09
 
 - Update Zulip Server to 8.4
