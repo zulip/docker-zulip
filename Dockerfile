@@ -2,7 +2,7 @@
 # Zulip development environment image and use
 # tools/build-release-tarball to generate a production release tarball
 # from the provided Git ref.
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 # Set up working locales and upgrade the base image
 ENV LANG="C.UTF-8"
@@ -13,7 +13,7 @@ RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive \
-        apt-get -q install --no-install-recommends -y ca-certificates git locales lsb-release python3 sudo tzdata
+        apt-get -q install --no-install-recommends -y ca-certificates git locales python3 sudo tzdata
 
 
 FROM base as build
