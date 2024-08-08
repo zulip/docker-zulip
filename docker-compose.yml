@@ -87,6 +87,9 @@ services:
       SETTING_EMAIL_USE_SSL: "False"
       SETTING_EMAIL_USE_TLS: "True"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+      # Disabling the outgoing proxy can be useful for development purposes,
+      # but it should be left enabled in production to protect against SSRF
+      DISABLE_OUTGOING_PROXY: "False"
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
     volumes:
