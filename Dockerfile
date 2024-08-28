@@ -2,7 +2,7 @@
 # Zulip development environment image and use
 # tools/build-release-tarball to generate a production release tarball
 # from the provided Git ref.
-FROM ubuntu:22.04 as base
+FROM ubuntu:24.04 AS base
 
 # Set up working locales and upgrade the base image
 ENV LANG="C.UTF-8"
@@ -16,7 +16,7 @@ RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/
         apt-get -q install --no-install-recommends -y ca-certificates git locales python3 sudo tzdata
 
 
-FROM base as build
+FROM base AS build
 
 # Add a zulip user
 RUN useradd -d /home/zulip -m zulip && \
