@@ -1,3 +1,7 @@
+## [0.9.11] - 2024-08=28
+
+- Packaging updates for Docker
+
 ## [0.9.1] - 2024-08-02
 
 - Update Zulip Server to 9.1
