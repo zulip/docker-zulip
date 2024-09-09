@@ -1,8 +1,12 @@
-## [0.9.12] - 2024-08=28
+## [0.9.13] - 2024-09-09
+
+- More thoroughly remove the `ubuntu` user
+
+## [0.9.12] - 2024-09-09
 
 - Fix consistent user-ID for `zulip` user
 
-## [0.9.11] - 2024-08=28
+## [0.9.11] - 2024-08-28
 
 - Packaging updates for Docker
 
