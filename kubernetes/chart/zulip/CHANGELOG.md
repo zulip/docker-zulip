@@ -1,3 +1,7 @@
+## [0.9.12] - 2024-08=28
+
+- Fix consistent user-ID for `zulip` user
+
 ## [0.9.11] - 2024-08=28
 
 - Packaging updates for Docker
