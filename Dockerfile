@@ -18,8 +18,8 @@ RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/
 
 FROM base AS build
 
-# Add a zulip user
-RUN useradd -d /home/zulip -m zulip && \
+RUN touch /var/mail/ubuntu && chown ubuntu /var/mail/ubuntu && userdel -r ubuntu && \
+    useradd -d /home/zulip -m zulip -u 1000 && \
     echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER zulip
