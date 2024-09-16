@@ -1,3 +1,8 @@
+## [0.9.20] - 2024-09-16
+
+- Update to Zulip Server 9.2
+- Change nginx's max-upload size to match standard Zulip (80m)
+
 ## [0.9.13] - 2024-09-09
 
 - More thoroughly remove the `ubuntu` user
