@@ -15,26 +15,26 @@ version: 0.9.20
 appVersion: "9.2-0"
 dependencies:
   - name: memcached
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - memcached
-    version: 6.0.16
+    version: 7.4.16
   - name: rabbitmq
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - rabbitmq
-    version: 8.32.0
+    version: 14.7.0
   - name: redis
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - redis
-    version: 16.8.7
+    version: 20.1.4
   - name: postgresql
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - postgresql
     # Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
-    version: 11.1.22
+    version: 15.5.32
 
 sources:
   - https://github.com/zulip/zulip
