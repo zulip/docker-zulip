@@ -145,6 +145,8 @@ zulip:
     enabled: true
     accessMode: ReadWriteOnce
     size: 10Gi
+    # -- Set storageClass to use.
+    storageClass:
     # existingClaim: "" # Use an already existing PVC
 
 # -- Liveness probe values.
