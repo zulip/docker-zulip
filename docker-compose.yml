@@ -88,7 +88,8 @@ services:
       SETTING_EMAIL_USE_TLS: "True"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       # Uncomment this when configuring the mobile push notifications service
-      # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
+      # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
+      # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
     volumes:
       - "zulip:/data:rw"
     ulimits:
