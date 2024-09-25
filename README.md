@@ -202,11 +202,11 @@ Your proxy must provide both `X-Forwarded-For` and
 [HAProxy][haproxy-proxy] configurations, as well as notes for [other
 proxies][other-proxy].
 
-[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
-[nginx-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#nginx-configuration
-[apache2-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#apache2-configuration
-[haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#haproxy-configuration
-[other-proxy]: https://zulip.readthedocs.io/en/latest/production/deployment.html#other-proxies
+[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#configuring-zulip-to-trust-proxies
+[nginx-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#nginx-configuration
+[apache2-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#apache2-configuration
+[haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#haproxy-configuration
+[other-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#other-proxies
 
 ### Manual configuration
 
@@ -253,7 +253,7 @@ you'd prefer to have the containers run in the background, you can use
 
 If you want to build the Zulip image yourself, you can do that by
 running `docker-compose build`; see also
-[the documentation on building a custom Git version version](#upgrading-from-a-git-repository).
+[the documentation on building a custom Git version version](UPGRADING.md#upgrading-from-a-git-repository).
 
 ### Connecting to your Zulip server
 
@@ -358,7 +358,7 @@ See also the
 [Zulip documentation on reverse proxies][reverse-proxy-docs]
 
 [proxy-wiki-page]: https://github.com/zulip/docker-zulip/wiki/Proxying-via-nginx-on-host-machine
-[reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/deployment.html#putting-the-zulip-application-behind-a-reverse-proxy
+[reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#reverse-proxies
 
 By default, Zulip will only interact with user traffic over HTTPS.
 However, if your networking environment is such that the Zulip server
