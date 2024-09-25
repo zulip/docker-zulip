@@ -455,6 +455,11 @@ appRun() {
     echo ""
     exec supervisord -n -c "/etc/supervisor/supervisord.conf"
 }
+appInit() {
+    echo "=== Running initial setup ==="
+    initialConfiguration
+    bootstrappingEnvironment
+}
 appManagePy() {
     COMMAND="$1"
     shift 1
@@ -541,6 +546,7 @@ appHelp() {
     echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:certs    - Create self-signed certificates"
     echo "> app:run      - Run the Zulip server"
+    echo "> app:init     - Run inital setup of Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
 }
 appVersion() {
@@ -554,6 +560,9 @@ appVersion() {
 case "$1" in
     app:run)
         appRun
+    ;;
+    app:init)
+        appInit
     ;;
     app:managepy)
         shift 1
