@@ -177,14 +177,14 @@ postSetup:
     #   #!/bin/bash
     #   echo "This is a script that gets executed in the Zulip container after installation, once migrations are complete"
 
-  # -- You can add any sidecar to Zulip, like:
+  # -- You can add any sidecar to Zulip, like a minio client to use for
+  # uploading backups to a bucket, and mounting the volume for Zulip.
   # sidecars:
-  #   - image: busybox
-  #     name: busy
-  #     command:
-  #       - "/bin/sh"
-  #       - "-c"
-  #       - "echo 'message from sidecar' > /inthis.txt"
+  #   - image: minio/mc
+  #     name: minio-client
+  #     volumeMounts:
+  #       - name: zulip-data
+  #         mountPath: /data
 sidecars:
   []
 
