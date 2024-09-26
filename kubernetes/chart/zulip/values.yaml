@@ -139,6 +139,26 @@ zulip:
     SETTING_EMAIL_USE_SSL: "False"
     SETTING_EMAIL_USE_TLS: "True"
     ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+  # -- Mount environment variables from secrets. Use the secret name.
+  # If you have a secret with env. variables created named zulip-secrets
+  # you will add:
+  # ```
+  # envSecrets:
+  #   - zulip-secrets
+  #   - other-secrets
+  # The secrets file you manually create in the namespace, can look something
+  # like this (secrets need to be base64 encoded):
+  # ---
+  # apiVersion: v1
+  # kind: Secret
+  # metadata:
+  #   name: zulip-secrets
+  # type: Opaque
+  # data:
+  #   SECRETS_email_password: MTIzNDU2Nzg5
+  #   SECRET: Zm9vaXNiYXI=
+  envSecrets:
+    []
   # -- If `persistence.existingClaim` is not set, a PVC is generated with these
   # specifications.
   persistence:
