@@ -142,7 +142,10 @@ zulip:
   # -- Mount environment variables from secrets. Use the secret name.
   # If you have a secret with env. variables created named zulip-secrets
   # you will add:
-  # `envSecrets: zulip-secrets`
+  # ```
+  # envSecrets:
+  #   - zulip-secrets
+  #   - other-secrets
   # The secrets file you manually create in the namespace, can look something
   # like this (secrets need to be base64 encoded):
   # ---
@@ -153,8 +156,8 @@ zulip:
   # type: Opaque
   # data:
   #   SECRETS_email_password: MTIzNDU2Nzg5
-  #   MY_OTHER_SECRET: Zm9vaXNiYXI=
-  envSecrets:
+  #   SECRET: Zm9vaXNiYXI=
+  envSecrets: []
   # -- If `persistence.existingClaim` is not set, a PVC is generated with these
   # specifications.
   persistence:

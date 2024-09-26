@@ -52,10 +52,12 @@ spec:
               mountPath: /data/post-setup.d
           env:
             {{ include "zulip.env" . | nindent 12 }}
-          {{- if .Values.envSecrets }}
+          {{- if .Values.zulip.envSecrets }}
           envFrom:
+          {{- range .Values.zulip.envSecrets }}
           - secretRef:
-              name: {{ .Values.zulip.envSecrets }}
+              name: {{ . }}
+          {{- end }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
