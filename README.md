@@ -266,10 +266,21 @@ login until you create an organization, but visiting the URL is a good
 way to confirm that your networking configuration is working
 correctly.
 
-You can now follow the normal instructions for how to
+### Creating your organization
+
+You can now follow the normal Zulip installer instructions for how to
 [create a Zulip organization and log in][create-organization] to your
-new Zulip server (though see the following section for how to run
-management commands).
+new Zulip server. You'll generate the realm creation link as follows:
+
+```bash
+docker-compose exec -u zulip zulip \
+    "/home/zulip/deployments/current/manage.py generate_realm_creation_link"
+```
+
+But don't forget to review the [getting started][next-steps] links at
+the end of the main installation guide.
+
+[next-steps]: https://zulip.readthedocs.io/en/latest/production/install.html#getting-started-with-zulip
 
 ### Running management commands
 
@@ -280,9 +291,9 @@ The following are helpful examples:
 ```bash
 # Get a (root) shell in the container so you can access logs
 docker-compose exec zulip bash
-# Create the initial Zulip organization
+# Run a Zulip management command
 docker-compose exec -u zulip zulip \
-    /home/zulip/deployments/current/manage.py generate_realm_creation_link
+    "/home/zulip/deployments/current/manage.py list_realms"
 ```
 
 Since that process for running management commands is a pain, we recommend
