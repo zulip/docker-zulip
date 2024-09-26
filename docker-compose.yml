@@ -63,6 +63,9 @@ services:
       - "80:80"
       - "443:443"
     environment:
+      # See https://github.com/zulip/docker-zulip#configuration for
+      # details on this section and how to discover the many
+      # additional settings that are supported here.
       DB_HOST: "database"
       DB_HOST_PORT: "5432"
       DB_USER: "zulip"
@@ -90,6 +93,10 @@ services:
       # Uncomment this when configuring the mobile push notifications service
       # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
       # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
+
+      # If you're using a reverse proxy, you'll want to provide the
+      # comma-separated set of IP addresses to trust here.
+      # LOADBALANCER_IPS: "",
     volumes:
       - "zulip:/data:rw"
     ulimits:

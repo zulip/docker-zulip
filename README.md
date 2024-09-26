@@ -190,10 +190,10 @@ putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
 `zulip` container startup script will generate a self-signed certificate and
 install it in that directory).
 
-**Load balancer**. To tell Zulip that it is behind a load balancer,
-you must set `LOADBALANCER_IPS` to a comma-separated list of IPs or
-CIDR ranges. This will tell Zulip to pass the real IP of the client,
-instead of the IP of the load balancer itself, by [setting the
+**Reverse proxies**. To tell Zulip that it is behind a reverse proxy
+or load balancer, you must set `LOADBALANCER_IPS` to a comma-separated
+list of IPs or CIDR ranges. This will tell Zulip to pass the real IP
+of the client, instead of the IP of the proxy itself, by [setting the
 IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
 
 Your proxy must provide both `X-Forwarded-For` and
