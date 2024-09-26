@@ -157,7 +157,8 @@ zulip:
   # data:
   #   SECRETS_email_password: MTIzNDU2Nzg5
   #   SECRET: Zm9vaXNiYXI=
-  envSecrets: []
+  envSecrets:
+    []
   # -- If `persistence.existingClaim` is not set, a PVC is generated with these
   # specifications.
   persistence:
