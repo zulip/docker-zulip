@@ -96,6 +96,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| sidecars | list | `[]` |  |
 | startupProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Startup probe values. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes |
 | statefulSetAnnotations | object | `{}` | Custom annotations to add to the Zulip StatefulSet. |
 | statefulSetLabels | object | `{}` | Custom labels to add to the Zulip StatefulSet. |
@@ -111,7 +112,8 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.environment.SETTING_ZULIP_ADMINISTRATOR | string | `"admin@example.com"` |  |
 | zulip.environment.SSL_CERTIFICATE_GENERATION | string | `"self-signed"` | Set SSL certificate generation to self-signed because Kubernetes manages the client-facing SSL certs. |
 | zulip.environment.ZULIP_AUTH_BACKENDS | string | `"EmailAuthBackend"` |  |
-| zulip.persistence | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"10Gi"}` | If `persistence.existingClaim` is not set, a PVC is generated with these specifications. |
+| zulip.persistence | object | `{"accessMode":"ReadWriteOnce","enabled":true,"size":"10Gi","storageClass":null}` | If `persistence.existingClaim` is not set, a PVC is generated with these specifications. |
+| zulip.persistence.storageClass | string | `nil` | Set storageClass to use. |
 
 ## About this helm chart
 
@@ -140,7 +142,7 @@ image, because it contains the Postgresql plugins that are needed to run Zulip.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | memcached | 6.0.16 |
-| https://charts.bitnami.com/bitnami | postgresql | 11.1.22 |
-| https://charts.bitnami.com/bitnami | rabbitmq | 8.32.0 |
-| https://charts.bitnami.com/bitnami | redis | 16.8.7 |
+| oci://registry-1.docker.io/bitnamicharts | memcached | 7.4.16 |
+| oci://registry-1.docker.io/bitnamicharts | postgresql | 15.5.32 |
+| oci://registry-1.docker.io/bitnamicharts | rabbitmq | 14.7.0 |
+| oci://registry-1.docker.io/bitnamicharts | redis | 20.1.4 |
