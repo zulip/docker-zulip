@@ -1,4 +1,3 @@
-version: "2"
 services:
   database:
     image: "zulip/zulip-postgresql:14"
@@ -28,7 +27,7 @@ services:
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
   rabbitmq:
-    image: "rabbitmq:3.7.7"
+    image: "rabbitmq:3.12.14"
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"

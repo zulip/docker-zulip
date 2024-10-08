@@ -56,7 +56,7 @@ spec:
               cpu: 75m
               memory: 768Mi
         - name: rabbitmq
-          image: rabbitmq:3.7.7
+          image: rabbitmq:3.12.14
           resources:
             limits:
               cpu: 75m
