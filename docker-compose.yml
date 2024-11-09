@@ -1,4 +1,3 @@
-version: "2"
 services:
   database:
     image: "zulip/zulip-postgresql:14"
@@ -28,7 +27,7 @@ services:
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
   rabbitmq:
-    image: "rabbitmq:3.7.7"
+    image: "rabbitmq:3.12.14"
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"
@@ -49,20 +48,23 @@ services:
     volumes:
       - "redis:/data:rw"
   zulip:
-    image: "zulip/docker-zulip:6.0-0"
+    image: "zulip/docker-zulip:9.2-0"
     restart: unless-stopped
     build:
       context: .
       args:
         # Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: "6.0"
+        ZULIP_GIT_REF: "9.2"
         # Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:
       - "80:80"
       - "443:443"
     environment:
+      # See https://github.com/zulip/docker-zulip#configuration for
+      # details on this section and how to discover the many
+      # additional settings that are supported here.
       DB_HOST: "database"
       DB_HOST_PORT: "5432"
       DB_USER: "zulip"
@@ -88,7 +90,12 @@ services:
       SETTING_EMAIL_USE_TLS: "True"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       # Uncomment this when configuring the mobile push notifications service
-      # SETTING_PUSH_NOTIFICATION_BOUNCER_URL: 'https://push.zulipchat.com'
+      # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
+      # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
+
+      # If you're using a reverse proxy, you'll want to provide the
+      # comma-separated set of IP addresses to trust here.
+      # LOADBALANCER_IPS: "",
     volumes:
       - "zulip:/data:rw"
     ulimits:

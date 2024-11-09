@@ -2,7 +2,7 @@
 # Zulip development environment image and use
 # tools/build-release-tarball to generate a production release tarball
 # from the provided Git ref.
-FROM ubuntu:20.04 as base
+FROM ubuntu:24.04 AS base
 
 # Set up working locales and upgrade the base image
 ENV LANG="C.UTF-8"
@@ -13,14 +13,13 @@ RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive \
-        apt-get -q install --no-install-recommends -y ca-certificates git locales lsb-release python3 sudo tzdata
+    apt-get -q install --no-install-recommends -y ca-certificates git locales python3 sudo tzdata && \
+    touch /var/mail/ubuntu && chown ubuntu /var/mail/ubuntu && userdel -r ubuntu && \
+    useradd -d /home/zulip -m zulip -u 1000
 
+FROM base AS build
 
-FROM base as build
-
-# Add a zulip user
-RUN useradd -d /home/zulip -m zulip && \
-    echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo 'zulip ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER zulip
 WORKDIR /home/zulip
@@ -28,7 +27,7 @@ WORKDIR /home/zulip
 # You can specify these in docker-compose.yml or with
 #   docker build --build-arg "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
-ARG ZULIP_GIT_REF=6.0
+ARG ZULIP_GIT_REF=9.2
 
 RUN git clone "$ZULIP_GIT_URL" && \
     cd zulip && \
@@ -67,9 +66,8 @@ RUN \
     mv zulip-server-docker zulip && \
     cp -rf /root/custom_zulip/* /root/zulip && \
     rm -rf /root/custom_zulip && \
-    export PUPPET_CLASSES="zulip::profile::docker" \
-           ADDITIONAL_PACKAGES="expect" && \
-    /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" --no-init-db && \
+    /root/zulip/scripts/setup/install --hostname="$(hostname)" --email="docker-zulip" \
+      --puppet-classes="zulip::profile::docker" --postgresql-version=14 && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \

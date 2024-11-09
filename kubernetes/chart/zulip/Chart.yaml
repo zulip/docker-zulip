@@ -6,35 +6,35 @@ icon: https://raw.githubusercontent.com/zulip/zulip/main/static/images/logo/zuli
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.4.0
+version: 0.9.20
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "6.0-0"
+appVersion: "9.2-0"
 dependencies:
   - name: memcached
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - memcached
-    version: 6.0.16
+    version: 7.4.16
   - name: rabbitmq
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - rabbitmq
-    version: 8.32.0
+    version: 14.7.0
   - name: redis
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - redis
-    version: 16.8.7
+    version: 20.1.4
   - name: postgresql
-    repository: https://charts.bitnami.com/bitnami
+    repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - postgresql
     # Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
-    version: 11.1.22
+    version: 15.5.32
 
 sources:
   - https://github.com/zulip/zulip

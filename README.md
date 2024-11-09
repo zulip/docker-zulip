@@ -6,10 +6,10 @@ This is a container image for running [Zulip](https://zulip.com)
 ([GitHub](https://github.com/zulip/zulip)) in
 [production][prod-overview]. Image available from:
 
-- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:6.0-0`)
+- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:9.2-0`)
 
-Current Zulip version: `6.0`
-Current Docker image version: `6.0-0`
+Current Zulip version: `9.2`
+Current Docker image version: `9.2-0`
 
 Project status: **Alpha**. While this project works and is
 used by many sites in production, configuring is substantially more
@@ -190,12 +190,23 @@ putting it in `/opt/docker/zulip/zulip/certs/` (by default, the
 `zulip` container startup script will generate a self-signed certificate and
 install it in that directory).
 
-**Load balancer**. To tell Zulip it's behind a load balancer, you can set
-`LOADBALANCER_IPS` to a comma-separated list of IPs. This will tell Zulip
-to pass the real IP of the client instead of the IP of the load balancer itself
-by [setting the IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
+**Reverse proxies**. To tell Zulip that it is behind a reverse proxy
+or load balancer, you must set `LOADBALANCER_IPS` to a comma-separated
+list of IPs or CIDR ranges. This will tell Zulip to pass the real IP
+of the client, instead of the IP of the proxy itself, by [setting the
+IPs][loadbalancer-ips] under `[loadbalancer]` in `zulip.conf`.
 
-[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/deployment.html#configuring-zulip-to-trust-proxies
+Your proxy must provide both `X-Forwarded-For` and
+`X-Forwarded-Proto` headers. See the Zulip documentation for sample
+[nginx][nginx-proxy], [Apache2][apache2-proxy], and
+[HAProxy][haproxy-proxy] configurations, as well as notes for [other
+proxies][other-proxy].
+
+[loadbalancer-ips]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#configuring-zulip-to-trust-proxies
+[nginx-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#nginx-configuration
+[apache2-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#apache2-configuration
+[haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#haproxy-configuration
+[other-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#other-proxies
 
 **Additional puppet classes**. If you need to do additional puppet classes, you can set `ADDITIONAL_PUPPET_CLASSES` to a comma-separated list of puppet classes. This will tell Zulip to run the puppet classes under `[additional_puppet_classes]` in `zulip.conf`.
 For example: `ADDITIONAL_PUPPET_CLASSES="zulip::postfix_localmail"`.
@@ -248,7 +259,7 @@ you'd prefer to have the containers run in the background, you can use
 
 If you want to build the Zulip image yourself, you can do that by
 running `docker-compose build`; see also
-[the documentation on building a custom Git version version](#upgrading-from-a-git-repository).
+[the documentation on building a custom Git version version](UPGRADING.md#upgrading-from-a-git-repository).
 
 ### Connecting to your Zulip server
 
@@ -261,10 +272,21 @@ login until you create an organization, but visiting the URL is a good
 way to confirm that your networking configuration is working
 correctly.
 
-You can now follow the normal instructions for how to
+### Creating your organization
+
+You can now follow the normal Zulip installer instructions for how to
 [create a Zulip organization and log in][create-organization] to your
-new Zulip server (though see the following section for how to run
-management commands).
+new Zulip server. You'll generate the realm creation link as follows:
+
+```bash
+docker-compose exec -u zulip zulip \
+    "/home/zulip/deployments/current/manage.py generate_realm_creation_link"
+```
+
+But don't forget to review the [getting started][next-steps] links at
+the end of the main installation guide.
+
+[next-steps]: https://zulip.readthedocs.io/en/latest/production/install.html#getting-started-with-zulip
 
 ### Running management commands
 
@@ -275,9 +297,9 @@ The following are helpful examples:
 ```bash
 # Get a (root) shell in the container so you can access logs
 docker-compose exec zulip bash
-# Create the initial Zulip organization
+# Run a Zulip management command
 docker-compose exec -u zulip zulip \
-    /home/zulip/deployments/current/manage.py generate_realm_creation_link
+    "/home/zulip/deployments/current/manage.py list_realms"
 ```
 
 Since that process for running management commands is a pain, we recommend
@@ -340,8 +362,7 @@ This image is not designed to make it easy to run multiple copies of
 the `zulip` application server container (and you need to know a lot
 about Zulip to do this sort of thing successfully). If you're
 interested in running a high-availablity Zulip installation, your best
-bet is to get in touch with the Zulip support team at
-`support@zulip.com`.
+bet is to get in touch with the Zulip team at `sales@zulip.com`.
 
 ## Networking and reverse proxy configuration
 
@@ -354,7 +375,7 @@ See also the
 [Zulip documentation on reverse proxies][reverse-proxy-docs]
 
 [proxy-wiki-page]: https://github.com/zulip/docker-zulip/wiki/Proxying-via-nginx-on-host-machine
-[reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/deployment.html#putting-the-zulip-application-behind-a-reverse-proxy
+[reverse-proxy-docs]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#reverse-proxies
 
 By default, Zulip will only interact with user traffic over HTTPS.
 However, if your networking environment is such that the Zulip server

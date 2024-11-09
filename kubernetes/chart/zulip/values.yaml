@@ -15,7 +15,7 @@ image:
   # Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: IfNotPresent
   # -- Zulip image tag (immutable tags are recommended)
-  tag: "6.0-0"
+  tag: "9.2-0"
 
 # -- Global Docker registry secret names as an array.
 imagePullSecrets: []
@@ -145,6 +145,8 @@ zulip:
     enabled: true
     accessMode: ReadWriteOnce
     size: 10Gi
+    # -- Set storageClass to use.
+    storageClass:
     # existingClaim: "" # Use an already existing PVC
 
 # -- Liveness probe values.
@@ -176,6 +178,17 @@ postSetup:
     # scriptName.sh: |
     #   #!/bin/bash
     #   echo "This is a script that gets executed in the Zulip container after installation, once migrations are complete"
+
+  # -- You can add any sidecar to Zulip, like a minio client to use for
+  # uploading backups to a bucket, and mounting the volume for Zulip.
+  # sidecars:
+  #   - image: minio/mc
+  #     name: minio-client
+  #     volumeMounts:
+  #       - name: zulip-data
+  #         mountPath: /data
+sidecars:
+  []
 
 # -- PostgreSQL settings, see [Requirements](#Requirements).
 postgresql:
