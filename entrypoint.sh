@@ -133,7 +133,6 @@ puppetConfiguration() {
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
-
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
