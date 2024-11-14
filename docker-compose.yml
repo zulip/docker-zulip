@@ -97,7 +97,14 @@ services:
       # comma-separated set of IP addresses to trust here.
       # LOADBALANCER_IPS: "",
     volumes:
+      - ./logs:/var/log/zulip:rw
+      - ./supervisor-logs:/var/log/supervisor:rw
       - "zulip:/data:rw"
+    depends_on:
+      - database
+      - memcached
+      - rabbitmq
+      - redis
     ulimits:
       nofile:
         soft: 1000000
