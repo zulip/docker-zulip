@@ -176,6 +176,10 @@ which you need to encode in the YAML file. For example,
   comma-separated list of the backend names
   (E.g. `"EmailAuthBackend,GitHubAuthBackend"`).
 
+- LDAP authentication currently requires
+  [`MANUAL_CONFIGURATION`](#manual-configuration) in order to encode
+  the `LDAPSearch` logic, see below.
+
 **Reducing RAM usage**. By default, the Zulip server automatically detect
 whether the system has enough memory to run Zulip queue processors in the
 higher-throughput but more multiprocess mode (or to save 1.5GiB of RAM with
