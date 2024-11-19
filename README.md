@@ -1,69 +1,27 @@
-# Welcome to docker-zulip!
+# Zulip Docker image overview
 
 [![](https://images.microbadger.com/badges/image/zulip/docker-zulip.svg)](https://microbadger.com/images/zulip/docker-zulip "Get your own image badge on microbadger.com") [![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
 
-This is a container image for running [Zulip](https://zulip.com)
-([GitHub](https://github.com/zulip/zulip)) in
-[production][prod-overview]. Image available from:
+`docker-zulip` is the official Docker container image for running a
+[Zulip server](https://zulip.com) in
+[production][prod-overview]. Built images are available from: [Docker
+Hub](https://hub.docker.com/r/zulip/docker-zulip):
 
-- [**Docker Hub**](https://hub.docker.com/r/zulip/docker-zulip) (`docker pull zulip/docker-zulip:9.2-0`)
+```console
+$ docker pull zulip/docker-zulip:9.2-0`
+```
 
 Current Zulip version: `9.2`
 Current Docker image version: `9.2-0`
 
-Project status: **Alpha**. While this project works and is
-used by many sites in production, configuring is substantially more
-error-prone than the [normal Zulip installer][normal-install] (which
-Just Works). We recommend this project if you want to host Zulip
-using Docker, but both setting up and maintaining a Zulip server is
-simpler and less error-prone with the normal installer than with Docker.
+We recommend using the Docker image if your organization has a
+preference for deploying services using Docker. Deploying with Docker
+moderately increases the effort required to install, maintain, and
+upgrade a Zulip installation, compared with the [standard Zulip
+installer][normal-install].  ￼
 
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
-
-## Overview
-
-This project defines a Docker image for a Zulip server, as well as
-sample configuration to run that Zulip web/application server with
-each of the major [services that Zulip uses][zulip-architecture] in
-its own container: `redis`, `postgres`, `rabbitmq`, `memcached`.
-
-We have configuration and documentation for
-[Docker Compose](#running-a-zulip-server-with-docker-compose) and
-[Kubernetes](#running-a-zulip-server-with-kubernetes); contributions are welcome for
-documenting other container runtimes and flows.
-
-If you aren't already a Docker expert, we recommend starting by
-reading our brief overview of how Docker and containers work in the
-next section.
-
 [zulip-architecture]: https://zulip.readthedocs.io/en/latest/overview/architecture-overview.html
-
-### The Docker data storage model
-
-Docker and other container systems are built around shareable
-container images. An image is a read-only template with instructions
-for creating a container. Often, an image is based on another image,
-with a bit of additional customization. For example, Zulip's
-`zulip-postgresql` image extends the standard `postgresql` image (by
-installing a couple `postgres` extensions). And the `zulip` image is
-built on top of a standard `ubuntu` image, adding all the code for a Zulip
-application/web server.
-
-Every time you boot a container based on a given image, it's like
-booting off a CD-ROM: you get the exact same image (and anything
-written to the image's filesystem is lost). To handle persistent
-state that needs to persist after the Docker equivalent of a reboot or
-upgrades (like uploaded files or the Zulip database), container
-systems let you configure certain directories inside the container
-from the host.
-
-This project's `docker-compose.yml` configuration file uses [Docker managed
-volumes][volumes] to store [persistent Zulip data][persistent-data]. If you use
-the Docker Compose deployment, you should make sure that Zulip's volumes are
-backed up, to ensure that Zulip's data is backed up.
-
-[volumes]: https://docs.docker.com/storage/volumes/
-[persistent-data]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
 
 ## Prerequisites
 
@@ -86,10 +44,56 @@ To use `docker-zulip`, you need the following:
   descriptions via `ulimit` (which is important for it to handle
   thousands of connected clients).
 
+If you aren't already a Docker expert, we recommend starting by
+reading our brief overview of how Docker and containers work in the
+next section for important background that the rest of this
+documentation will assume.
+
+Otherwise, you can jump to our documentation for your preferred
+container runtime:
+
+- [Docker Compose](#running-a-zulip-server-with-docker-compose)
+- [Kubernetes](#running-a-zulip-server-with-kubernetes)
+
 [install-docker]: https://docs.docker.com/install/
 [install-docker-compose]: https://docs.docker.com/compose/install/
 [prod-overview]: https://zulip.readthedocs.io/en/latest/production/overview.html
 [prod-requirements]: https://zulip.readthedocs.io/en/latest/production/requirements.html
+
+## The Docker data storage model
+
+Docker and other container systems are built around shareable
+container images. An image is a read-only template with instructions
+for creating a container.
+
+Often, an image is based on another image, with a bit of additional
+customization. For example, Zulip's `zulip-postgresql` image extends
+the standard `postgresql` image (by installing a couple `postgres`
+extensions). Meanwhile, the `zulip` image is built on top of a
+standard `ubuntu` image, adding all the code for a Zulip
+application/web server.
+
+Every time you boot a container based on a given image, it's like
+booting off a CD-ROM: you get the exact same image (and anything
+written to the image's filesystem is lost). To handle persistent
+state that needs to persist after the Docker equivalent of a reboot or
+upgrades (like uploaded files or the Zulip database), container
+systems let you configure certain directories inside the container
+from the host.
+
+This project's `docker-compose.yml` configuration file uses [Docker
+managed volumes][volumes] to store [persistent Zulip
+data][persistent-data]. If you use the Docker Compose deployment, you
+should make sure that Zulip's volumes are backed up, to ensure that
+Zulip's data is backed up.
+
+This project defines a Docker image for a Zulip server, as well as
+sample configuration to run that Zulip server with each of the major
+[services that Zulip uses][zulip-architecture] in its own container:
+`redis`, `postgres`, `rabbitmq`, `memcached`.
+
+[volumes]: https://docs.docker.com/storage/volumes/
+[persistent-data]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
 
 ## Running a Zulip server with docker-compose
 
@@ -102,9 +106,9 @@ cd docker-zulip
 # Edit `docker-compose.yml` to configure; see docs below
 ```
 
-If you're in hurry to try Zulip, you can skip to
-[start the Zulip server](#starting-the-server), but for production
-use, you'll need to do some configuration.
+If you're in hurry to try Zulip, you can skip to [start the Zulip
+server](#starting-the-server), but for production use, you'll need to
+generate secrets and do some configuration.
 
 ### Configuration
 
@@ -122,20 +126,20 @@ discussion in the main [Zulip installation docs][install-normal]):
 - `SETTING_ZULIP_ADMINISTRATOR`: The email address to receive error
   and support emails generated by the Zulip server and its users.
 
-**Mandatory settings for serious use**. Before you allow
-production traffic, you need to also set these:
+**Mandatory settings for produciton use**. Before you allow production
+traffic, you need to generate secrets. We recommend using long random
+strings of alphanumeric characters for your secrets; not every special
+character works.
 
-- `POSTGRES_PASSWORD` and `SECRETS_postgres_password` should both be a
-  password for the Zulip container to authenticate to the Postgres
-  container. Since you won't use this directly, you just want a long,
-  randomly generated string. While `SECRETS_postgres_password` is
+- `POSTGRES_PASSWORD` is the password for the PostgreSQL
+  instance. `SECRETS_postgres_password` configures the Zulip server to
+  know the PostgreSQL password. While `SECRETS_postgres_password` is
   synced to the Zulip container on every boot, `POSTGRES_PASSWORD` is
   only accessed by the postgres container on first boot, so if you
   later want to change your postgres password after booting the
-  container, you'll need to either do an
-  [ALTER ROLE][postgres-alter-role] query inside the `postgres`
-  container or rebuild the postgres database (only if you don't need
-  your data!).
+  container, you'll need to either do an [ALTER
+  ROLE][postgres-alter-role] query inside the `postgres` container or
+  rebuild the postgres database (only if you don't need your data!).
 - `RABBITMQ_DEFAULT_PASS` and `SECRETS_rabbitmq_password` are similar,
   just for the RabbitMQ container.
 - `MEMCACHED_PASSWORD` and `SECRETS_memcached_password` are similar,
