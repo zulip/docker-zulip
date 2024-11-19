@@ -92,7 +92,8 @@ spec:
               cpu: 100m
               memory: 3584Mi
           env:
-            # Please take a look at the environment variables in docker-compose.yml for all required env variables!
+            ## Please take a look at the environment variables in
+            ## docker-compose.yml for all required env variables!
             - name: DB_HOST
               value: "localhost"
             - name: MEMCACHED_HOST
@@ -110,7 +111,7 @@ spec:
             - name: SETTING_ZULIP_ADMINISTRATOR
               value: "admin@example.com"
             - name: SETTING_EMAIL_HOST
-              value: "" # E.g. 'smtp.example.com'
+              value: ""
             - name: SETTING_EMAIL_HOST_USER
               value: "noreply@example.com"
             - name: ZULIP_USER_EMAIL
@@ -121,7 +122,7 @@ spec:
               value: "123456789"
             - name: SECRETS_secret_key
               value: "REPLCAE_WITH_SECURE_SECRET_KEY"
-            # These should match the passwords configured above
+            ## These should match the passwords configured above
             - name: SECRETS_postgres_password
               value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
             - name: SECRETS_memcached_password
@@ -132,7 +133,7 @@ spec:
               value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
             - name: SSL_CERTIFICATE_GENERATION
               value: "self-signed"
-          # Uncomment this when configuring the mobile push notifications service
+          ## Uncomment this when configuring the mobile push notifications service
           # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL
           #   value: 'https://push.zulipchat.com'
           ports:
