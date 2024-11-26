@@ -8,7 +8,7 @@
 Hub](https://hub.docker.com/r/zulip/docker-zulip):
 
 ```console
-$ docker pull zulip/docker-zulip:9.3-0`
+$ docker pull zulip/docker-zulip:9.3-0
 ```
 
 Current Zulip version: `9.3`
