@@ -18,7 +18,7 @@ We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker
 moderately increases the effort required to install, maintain, and
 upgrade a Zulip installation, compared with the [standard Zulip
-installer][normal-install].  ￼
+installer][normal-install].
 
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 [zulip-architecture]: https://zulip.readthedocs.io/en/latest/overview/architecture-overview.html
