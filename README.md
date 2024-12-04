@@ -37,7 +37,7 @@ To use `docker-zulip`, you need the following:
   you can get away with significantly less especially for the
   `postgres`, `memcached`, etc. containers, because Docker makes it
   easy to sharply limit the RAM allocated to the services Zulip
-  depends on, like redis, memcached, and postgresql (at the cost of
+  depends on, like Redis, memcached, and PostgreSQL (at the cost of
   potential performance issues).
 - This project doesn't support `docker-rootless`; Zulip needs root
   access to set properties like the maximum number of open file
@@ -135,11 +135,11 @@ character works.
   instance. `SECRETS_postgres_password` configures the Zulip server to
   know the PostgreSQL password. While `SECRETS_postgres_password` is
   synced to the Zulip container on every boot, `POSTGRES_PASSWORD` is
-  only accessed by the postgres container on first boot, so if you
-  later want to change your postgres password after booting the
+  only accessed by the PostgreSQL container on first boot, so if you
+  later want to change your PostgreSQL password after booting the
   container, you'll need to either do an [ALTER
   ROLE][postgres-alter-role] query inside the `postgres` container or
-  rebuild the postgres database (only if you don't need your data!).
+  rebuild the PostgreSQL database (only if you don't need your data!).
 - `RABBITMQ_DEFAULT_PASS` and `SECRETS_rabbitmq_password` are similar,
   just for the RabbitMQ container.
 - `MEMCACHED_PASSWORD` and `SECRETS_memcached_password` are similar,
@@ -318,7 +318,7 @@ The Zulip build process installs packages via `yarn` and `pip`, and
 these need packages to be configured to use your custom CA
 certificates. You will need to get your certificate bundle into the
 docker image, either by adding a `COPY` somewhere or by replacing the
-`FROM`s with a custom ubuntu image that includes your bundle. The
+`FROM`s with a custom Ubuntu image that includes your bundle. The
 recommended way is to have your own base image which has your bundle
 ready at the default `/etc/ssl/certs/ca-certificates.crt`.
 
