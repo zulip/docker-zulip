@@ -32,7 +32,7 @@ To use `docker-zulip`, you need the following:
   engine.
 - We [recommend at least 2GB of available RAM][prod-requirements] for
   running a production Zulip server; you'll want 4GB if you're
-  building the container (rather than using the prebuilt images). If
+  building the container (rather than using the pre-built images). If
   you're just testing and/or aren't expecting a lot of users/messages,
   you can get away with significantly less especially for the
   `postgres`, `memcached`, etc. containers, because Docker makes it
@@ -97,7 +97,7 @@ sample configuration to run that Zulip server with each of the major
 
 ## Running a Zulip server with docker-compose
 
-To use this project, we recommend starting by cloning the repo (since
+To use this project, we recommend starting by cloning the repository (since
 you'll want to edit the `docker-compose.yml` file in this project):
 
 ```
@@ -183,11 +183,11 @@ which you need to encode in the YAML file. For example,
 **Reducing RAM usage**. By default, the Zulip server automatically detect
 whether the system has enough memory to run Zulip queue processors in the
 higher-throughput but more multiprocess mode (or to save 1.5GiB of RAM with
-the multithreaded mode). This algorithm might see the host's memory, not the
+the multi-threaded mode). This algorithm might see the host's memory, not the
 docker container's memory. Set to `QUEUE_WORKERS_MULTIPROCESS` to `true` or
 `false` to override the automatic calculation.
 
-**SSL Certificates**. By default, the image will generate a self-signed cert.
+**SSL Certificates**. By default, the image will generate a self-signed certificate.
 You can set `SSL_CERTIFICATE_GENERATION: "certbot"` within `docker-compose.yml`
 to enable automatically-renewed Let's Encrypt certificates. By using certbot
 here, you are agreeing to the [Let's Encrypt
