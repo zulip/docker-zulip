@@ -7,7 +7,7 @@ Fixes: <!-- Issue link, or clear description.-->
 Tooling tips: https://zulip.readthedocs.io/en/latest/tutorials/screenshot-and-gif-software.html
 -->
 
-**Screenshots and how this was tested:**
+**How did you test this PR?**
 
 <details>
 <summary>Self-review checklist</summary>
