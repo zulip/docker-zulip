@@ -93,7 +93,7 @@ sample configuration to run that Zulip server with each of the major
 `redis`, `postgres`, `rabbitmq`, `memcached`.
 
 [volumes]: https://docs.docker.com/storage/volumes/
-[persistent-data]: https://zulip.readthedocs.io/en/latest/production/maintain-secure-upgrade.html#backups
+[persistent-data]: https://zulip.readthedocs.io/en/latest/production/export-and-import.html#backups
 
 ## Running a Zulip server with docker-compose
 
