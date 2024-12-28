@@ -50,6 +50,9 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
           volumeMounts:
             - name: {{ include "zulip.fullname" . }}-persistent-storage
               mountPath: /data
