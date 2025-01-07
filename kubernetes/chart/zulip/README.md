@@ -76,6 +76,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | image.tag                                                          | string | `"11.4-0"`                  |             |
 | imagePullSecrets                                                   | list   | `[]`                        |             |
 | ingress.annotations                                                | object | `{}`                        |             |
+| ingress.className                                                  | string | `nil`                       |             |
 | ingress.enabled                                                    | bool   | `false`                     |             |
 | ingress.hosts[0].host                                              | string | `"zulip.example.com"`       |             |
 | ingress.hosts[0].paths[0].path                                     | string | `"/"`                       |             |
