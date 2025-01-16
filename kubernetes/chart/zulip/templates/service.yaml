@@ -8,7 +8,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      {{- if .Values.zulip.environment.DISABLE_HTTPS }}
       targetPort: http
+      {{- else }}
+      targetPort: https
+      {{- end }}
       protocol: TCP
       name: http
   selector:
