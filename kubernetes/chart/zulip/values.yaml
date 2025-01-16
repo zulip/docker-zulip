@@ -17,7 +17,7 @@ image:
   ## Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   pullPolicy: IfNotPresent
   ## Zulip image tag (immutable tags are recommended)
-  tag: "9.3-0"
+  tag: "9.4-0"
 
 ## Global Docker registry secret names as an array.
 imagePullSecrets: []
@@ -194,8 +194,7 @@ postSetup:
   #     volumeMounts:
   #       - name: zulip-data
   #         mountPath: /data
-sidecars:
-  []
+sidecars: []
 
 ## PostgreSQL settings, see [Requirements](#Requirements).
 postgresql:
