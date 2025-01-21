@@ -84,7 +84,7 @@ spec:
               value: REPLACE_WITH_SECURE_POSTGRES_PASSWORD
           volumeMounts:
             - name: postgresql-persistent-storage
-              mountPath: /var/lib/postgresql
+              mountPath: /var/lib/postgresql/data
         - name: zulip
           image: zulip/docker-zulip:9.4-0
           resources:
