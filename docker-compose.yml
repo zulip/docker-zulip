@@ -105,13 +105,13 @@ services:
       ##   https://zulip.readthedocs.io/en/latest/production/upload-backends.html
       ##
       ## If you want to use the S3 backend, you must set
-      ## SETTINGS_LOCAL_UPLOADS_DIR to None as well as configuring the
+      ## SETTING_LOCAL_UPLOADS_DIR to None as well as configuring the
       ## other fields.
-      # SETTINGS_LOCAL_UPLOADS_DIR: "None"
-      # SETTINGS_S3_AUTH_UPLOADS_BUCKET: ""
-      # SETTINGS_S3_AVATAR_BUCKET: ""
-      # SETTINGS_S3_ENDPOINT_URL: "None"
-      # SETTINGS_S3_REGION: "None"
+      # SETTING_LOCAL_UPLOADS_DIR: "None"
+      # SETTING_S3_AUTH_UPLOADS_BUCKET: ""
+      # SETTING_S3_AVATAR_BUCKET: ""
+      # SETTING_S3_ENDPOINT_URL: "None"
+      # SETTING_S3_REGION: "None"
     volumes:
       - "zulip:/data:rw"
     ulimits:
