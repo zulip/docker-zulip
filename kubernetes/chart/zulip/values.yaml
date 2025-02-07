@@ -125,7 +125,7 @@ affinity: {}
 
 zulip:
   ## Environment variables based on
-  ## https://github.com/zulip/docker-zulip/blob/master/docker-compose.yml#L63
+  ## https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
   environment:
     ## Disable the default Zulip requirement of HTTPS.  HTTPS and
     ## certificates are managed by the Kubernetes cluster, so by
