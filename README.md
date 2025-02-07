@@ -427,5 +427,5 @@ make a high-quality Docker image for Zulip possible.
 [install-normal]: https://zulip.readthedocs.io/en/latest/production/install.html#installer-options
 [outgoing-email]: https://zulip.readthedocs.io/en/latest/production/email.html
 [server-settings]: https://zulip.readthedocs.io/en/latest/production/settings.html
-[prod-settings-template]: https://github.com/zulip/zulip/blob/master/zproject/prod_settings_template.py
+[prod-settings-template]: https://github.com/zulip/zulip/blob/main/zproject/prod_settings_template.py
 [create-organization]: http://zulip.readthedocs.io/en/latest/production/install.html#step-3-create-a-zulip-organization-and-log-in
