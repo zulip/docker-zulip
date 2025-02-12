@@ -90,6 +90,10 @@ include all env variables for Zulip pods
   value: "{{ .Values.zulip.password }}"
 {{- range $key, $value := .Values.zulip.environment }}
 - name: {{ $key }}
+  {{- if kindIs "map" $value }}
+  {{- toYaml $value | nindent 2 }}
+  {{- else }}
   value: {{ $value | quote }}
+  {{- end }}
 {{- end }}
 {{- end }}
