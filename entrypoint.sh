@@ -366,7 +366,7 @@ zulipFirstStartInit() {
     echo "Zulip first start init sucessful."
 }
 zulipMigration() {
-    echo "Migrating Zulip to new version ..."
+    echo "Running new database migrations..."
     set +e
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
     local RETURN_CODE=$?
@@ -377,7 +377,7 @@ zulipMigration() {
     set -e
     rm -rf "$DATA_DIR/.zulip-*"
     touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
-    echo "Zulip migration succeeded."
+    echo "Database migrations completed."
 }
 runPostSetupScripts() {
     echo "Post setup scripts execution ..."
