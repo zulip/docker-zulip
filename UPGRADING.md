@@ -85,11 +85,11 @@ docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
        args:
          # Change these if you want to build zulip from a different repo/branch
          ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-         ZULIP_GIT_REF: master
+         ZULIP_GIT_REF: main
    ```
 
    You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git repository,
-   and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `master` or
+   and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `main` or
    `1.9.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
 
 2. Run `docker-compose build zulip` to build a Zulip Docker image from the
