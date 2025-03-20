@@ -27,7 +27,7 @@ services:
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
   rabbitmq:
-    image: "rabbitmq:3.12.14"
+    image: "rabbitmq:4.0.7"
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"
@@ -48,14 +48,14 @@ services:
     volumes:
       - "redis:/data:rw"
   zulip:
-    image: "zulip/docker-zulip:9.4-0"
+    image: "zulip/docker-zulip:10.0-0"
     restart: unless-stopped
     build:
       context: .
       args:
         ## Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: "9.4"
+        ZULIP_GIT_REF: "10.0"
         ## Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:

@@ -27,7 +27,7 @@ WORKDIR /home/zulip
 # You can specify these in docker-compose.yml or with
 #   docker build --build-arg "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
-ARG ZULIP_GIT_REF=9.4
+ARG ZULIP_GIT_REF=10.0
 
 RUN git clone "$ZULIP_GIT_URL" && \
     cd zulip && \
@@ -38,9 +38,8 @@ WORKDIR /home/zulip/zulip
 ARG CUSTOM_CA_CERTIFICATES
 
 # Finally, we provision the development environment and build a release tarball
-RUN SKIP_VENV_SHELL_WARNING=1 ./tools/provision --build-release-tarball-only
-RUN . /srv/zulip-py3-venv/bin/activate && \
-    ./tools/build-release-tarball docker && \
+RUN SKIP_VENV_SHELL_WARNING=1 ./tools/provision --build-release-tarball-only && \
+    uv run --no-sync ./tools/build-release-tarball docker && \
     mv /tmp/tmp.*/zulip-server-docker.tar.gz /tmp/zulip-server-docker.tar.gz
 
 

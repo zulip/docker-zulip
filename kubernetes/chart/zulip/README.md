@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 0.9.40](https://img.shields.io/badge/Version-0.9.40-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 9.4-0](https://img.shields.io/badge/AppVersion-9.4--0-informational?style=flat-square)
+![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 10.0-0](https://img.shields.io/badge/AppVersion-10.0--0-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
@@ -72,7 +72,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"zulip/docker-zulip"` |  |
-| image.tag | string | `"9.4-0"` |  |
+| image.tag | string | `"10.0-0"` |  |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.enabled | bool | `false` |  |
