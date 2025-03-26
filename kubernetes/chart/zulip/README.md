@@ -143,6 +143,17 @@ are defined in the `values.yaml` under `zulip.environment`. These environment
 variables are forwarded to the Docker container, you can read more about
 configuring Zulip through environment variables
 [here](https://github.com/zulip/docker-zulip/#configuration).
+Variables can be either a plain scalar value ie. string/int or a projected value
+from a secret or configmap, eg:
+
+```yaml
+SETTING_EXTERNAL_HOST: zulip.example.com
+SECRETS_email_password:
+  valueFrom:
+    secretKeyRef:
+      name: email
+      key: password
+```
 
 ### Dependencies
 
