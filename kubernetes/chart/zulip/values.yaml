@@ -14,7 +14,7 @@ image:
   ## overwritten with a full HTTPS address.
   repository: zulip/docker-zulip
   ## Pull policy for Zulip docker image.
-  ## Ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ## Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
   pullPolicy: IfNotPresent
   ## Zulip image tag (immutable tags are recommended)
   tag: "10.1-0"
@@ -112,7 +112,7 @@ resources:
 
 ## Optionally add a nodeSelector to the Zulip pod, so it runs on a specific
 ## node.
-## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
 nodeSelector: {}
 
 ## Tolerations for pod assignment.
