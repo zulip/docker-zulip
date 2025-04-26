@@ -95,7 +95,7 @@ services:
 
       ## If you're using a reverse proxy, you'll want to provide the
       ## comma-separated set of IP addresses to trust here.
-      # LOADBALANCER_IPS: "",
+      # LOADBALANCER_IPS: ""
 
       ## By default, files uploaded by users and profile pictures are
       ## stored directly on the Zulip server. You can configure files
