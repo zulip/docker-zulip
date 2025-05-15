@@ -8,11 +8,11 @@
 Hub](https://hub.docker.com/r/zulip/docker-zulip):
 
 ```console
-$ docker pull zulip/docker-zulip:10.2-0
+$ docker pull zulip/docker-zulip:10.3-0
 ```
 
-Current Zulip version: `10.2`
-Current Docker image version: `10.2-0`
+Current Zulip version: `10.3`
+Current Docker image version: `10.3-0`
 
 We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker
