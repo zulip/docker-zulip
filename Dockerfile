@@ -76,7 +76,7 @@ COPY entrypoint.sh /sbin/entrypoint.sh
 COPY certbot-deploy-hook /sbin/certbot-deploy-hook
 
 VOLUME ["$DATA_DIR"]
-EXPOSE 80 443
+EXPOSE 25 80 443
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:run"]

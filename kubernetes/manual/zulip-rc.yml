@@ -137,6 +137,9 @@ spec:
           # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL
           #   value: 'https://push.zulipchat.com'
           ports:
+            - containerPort: 25
+              name: smtp
+              protocol: TCP
             - containerPort: 80
               name: http
               protocol: TCP

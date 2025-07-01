@@ -8,6 +8,10 @@ spec:
   selector:
     app: zulip
   ports:
+  - name: smtp
+    port: 25
+    targetPort: 25
+    protocol: TCP
   - name: http
     port: 80
     targetPort: 80
