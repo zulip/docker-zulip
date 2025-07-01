@@ -59,6 +59,7 @@ services:
         ## Set this up if you plan to use your own CA certificate bundle for building
         # CUSTOM_CA_CERTIFICATES:
     ports:
+      - "25:25"
       - "80:80"
       - "443:443"
     environment:
@@ -88,6 +89,10 @@ services:
       ## It seems that the email server needs to use ssl or tls and can't be used without it
       SETTING_EMAIL_USE_SSL: "False"
       SETTING_EMAIL_USE_TLS: "True"
+      ## Uncomment to enable the incoming email gateway.  You will need to
+      ## ensure that email to emaildomain.example.com is routed to this host
+      ## (e.g. via MX record)
+      # SETTING_EMAIL_GATEWAY_PATTERN: "%s@emaildomain.example.com"
       ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
       ## Uncomment this when configuring the mobile push notifications service
       # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
