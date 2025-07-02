@@ -1,3 +1,7 @@
+## [0.10.3] - 2025-07-02
+
+- Update to Zulip Server 10.4
+
 ## [0.10.3] - 2025-05-15
 
 - Update to Zulip Server 10.3
