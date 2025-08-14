@@ -282,6 +282,7 @@ zulipConfiguration() {
            [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] || \
            [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] || \
+           [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] || \
            { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
            [ "$setting_key" = "SCIM_CONFIG" ] || \
            [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
