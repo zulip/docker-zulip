@@ -133,6 +133,10 @@ puppetConfiguration() {
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
+    if [ "$POSTGRESQL_MISSING_DICTIONARIES" == "True" ] || [ "$POSTGRESQL_MISSING_DICTIONARIES" == "true" ]; then
+	echo "Setting zulip not to expect tsearch-extras in its target Postgres."
+	crudini --set /etc/zulip/zulip.conf postgresql missing_dictionaries true
+    fi
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
