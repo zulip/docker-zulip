@@ -123,6 +123,11 @@ services:
       nofile:
         soft: 1000000
         hard: 1048576
+    depends_on:
+      - database
+      - memcached
+      - rabbitmq
+      - redis
 volumes:
   zulip:
   postgresql-14:
