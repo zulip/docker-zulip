@@ -17,7 +17,7 @@ image:
   ## Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
   pullPolicy: IfNotPresent
   ## Zulip image tag (immutable tags are recommended)
-  tag: "11.1-0"
+  tag: "11.2-0"
 
 ## Global Docker registry secret names as an array.
 imagePullSecrets: []
