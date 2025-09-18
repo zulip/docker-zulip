@@ -99,7 +99,7 @@ services:
       # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
 
       ## If you're using a reverse proxy, you'll want to provide the
-      ## comma-separated set of IP addresses to trust here.
+      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
       # LOADBALANCER_IPS: ""
 
       ## By default, files uploaded by users and profile pictures are
