@@ -146,6 +146,15 @@ puppetConfiguration() {
         crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
     fi
 
+    if [ -n "$PROXY_ALLOW_ADDRESSES" ]; then
+        echo "Setting outgoing proxy allowed private IPs"
+        crudini --set /etc/zulip/zulip.conf http_proxy allow_addresses "${PROXY_ALLOW_ADDRESSES}"
+    fi
+    if [ -n "$PROXY_ALLOW_RANGES" ]; then
+        echo "Setting outgoing proxy allowed private IP ranges"
+        crudini --set /etc/zulip/zulip.conf http_proxy allow_ranges "${PROXY_ALLOW_RANGES}"
+    fi
+
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
