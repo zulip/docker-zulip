@@ -155,6 +155,16 @@ puppetConfiguration() {
         crudini --set /etc/zulip/zulip.conf http_proxy allow_ranges "${PROXY_ALLOW_RANGES}"
     fi
 
+    if [ "$DB_NAME" != "zulip" ]; then
+        echo "Setting database name to $DB_NAME"
+        crudini --set /etc/zulip/zulip.conf postgresql database_name "$DB_NAME"
+    fi
+
+    if [ "$DB_USER" != "zulip" ]; then
+        echo "Setting database user to $DB_USER"
+        crudini --set /etc/zulip/zulip.conf postgresql database_user "$DB_USER"
+    fi
+
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
