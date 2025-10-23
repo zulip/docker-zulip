@@ -9,10 +9,10 @@ if ! command -v yq >/dev/null; then
 	exit 1
 fi
 
-# Require docker-compose 2.1.1 or higher, for `docker-compose up --wait`
-docker_compose_version=$(docker-compose --version --short)
+# Require docker compose 2.1.1 or higher, for `docker compose up --wait`
+docker_compose_version=$(docker compose --version --short)
 if [ "${docker_compose_version}" = "$(echo -e "2.1.0\n${docker_compose_version}" | sort -V | head -n1)" ]; then
-	echo "Your docker-compose is too old (${docker_compose_version}); upgrade to at least 2.1.1."
+	echo "Your docker compose is too old (${docker_compose_version}); upgrade to at least 2.1.1."
 	exit 1
 fi
 
@@ -38,7 +38,7 @@ if [ "$new_version" -eq "$old_version" ]; then
 fi
 
 # Create a new volume for the data; scope it with the current
-# directory, like docker-compose
+# directory, like docker compose
 docker_compose_project="$(basename "$(pwd)")"
 new_volume="postgresql-$new_version"
 full_new_volume="${docker_compose_project}_${new_volume}"
@@ -71,16 +71,16 @@ while [ "$(docker inspect --format='{{json .State.Health.Status}}' "$temp_contai
 done
 
 # Ensure database is running
-docker-compose up --wait database
+docker compose up --wait database
 
 # Stop the zulip processes which talk to the database
-zulip_is_running=$(docker-compose ps --filter status=running --services | grep zulip || true)
+zulip_is_running=$(docker compose ps --filter status=running --services | grep zulip || true)
 if [ -n "$zulip_is_running" ]; then
-	docker-compose stop zulip
+	docker compose stop zulip
 fi
 
 # Transfer the data to the new container
-docker-compose exec database pg_dumpall -U zulip |
+docker compose exec database pg_dumpall -U zulip |
 	docker exec -i "$temp_container" psql -U zulip
 
 if [ "$old_version" -eq "10" ]; then
@@ -92,7 +92,7 @@ if [ "$old_version" -eq "10" ]; then
 fi
 
 # Stop the running database
-docker-compose rm --force --stop database
+docker compose rm --force --stop database
 
 # Stop the temporary PostgreSQL container
 docker stop "$temp_container"
@@ -105,6 +105,6 @@ VOLUME="$new_volume:/var/lib/postgresql/data:rw" yq -i '.services.database.volum
 VOLUME="$new_volume" yq -i 'with(.volumes.[strenv(VOLUME)]; . = "" | . tag="!!null")' docker-compose.yml
 
 # Restart zulip, and the new database container
-docker-compose up --wait
+docker compose up --wait
 
 echo "Old data from PostgreSQL $old_version is available in $old_mountpoint"

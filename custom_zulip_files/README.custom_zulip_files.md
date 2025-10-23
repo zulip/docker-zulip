@@ -7,4 +7,4 @@ As an example, if you want to test a change to
 `scripts/setup/generate-self-signed-cert`, you would grab a copy of
 the script from zulip/zulip, place it at
 `custom_zulip_files/scripts/setup/generate-self-signed-cert`, make
-your local edits, and then run `docker-compose build`.
+your local edits, and then run `docker compose build`.
