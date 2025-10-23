@@ -27,7 +27,7 @@ services:
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
   rabbitmq:
-    image: "rabbitmq:4.0.7"
+    image: "rabbitmq:4.1"
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"
