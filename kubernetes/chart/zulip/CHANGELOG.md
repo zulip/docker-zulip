@@ -1,3 +1,10 @@
+## [0.11.3] - 2025-10-22
+
+- Update to Zulip Server 11.3
+- Support valueFrom in both SECRETS_ and SETTING_ values
+- Support `PROXY_ALLOW_*` settings for outgoing proxy rules
+- Support `DB_NAME` / `DB_USER` settings.
+
 ## [0.11.2] - 2025-09-16
 
 - Update to Zulip Server 11.2

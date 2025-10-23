@@ -76,6 +76,19 @@ variables are forwarded to the Docker container, you can read more about
 configuring Zulip through environment variables
 [here](https://github.com/zulip/docker-zulip/#configuration).
 
+Variables can be either a plain scalar value (i.e., a string or
+integer), or a projected value from a secret or configmap.  For
+example:
+
+```yaml
+SETTING_EXTERNAL_HOST: zulip.example.com
+SECRETS_email_password:
+  valueFrom:
+    secretKeyRef:
+      name: email
+      key: password
+```
+
 ### Dependencies
 
 The chart uses Memcached, RabbitMQ and Redis helm charts defined in
