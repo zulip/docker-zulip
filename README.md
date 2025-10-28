@@ -381,6 +381,126 @@ about Zulip to do this sort of thing successfully). If you're
 interested in running a high-availability Zulip installation, your best
 bet is to get in touch with the Zulip team at `sales@zulip.com`.
 
+## Port Configuration and Networking
+
+This section explains how Zulip’s ports and networking settings work in different deployment scenarios.
+
+By default, the `docker-compose.yml` file exposes the following ports:
+
+```yaml
+ports:
+  - "25:25"     # SMTP (Mail delivery)
+  - "80:80"     # HTTP (Non-secure web access)
+  - "443:443"   # HTTPS (Secure web access)
+```
+---
+
+### Example Port Configuration Scenarios
+
+#### **1. Direct Deployment (no proxy)**
+
+If you’re exposing Zulip directly to the internet, leave the default ports:
+
+```yaml
+ports:
+  - "25:25"
+  - "80:80"
+  - "443:443"
+```
+
+Ensure that no other services (e.g., Apache, Nginx, Postfix) are already using these ports on the host.
+
+---
+
+#### **2. Using a Reverse Proxy (recommended for production)**
+
+If you use an external Nginx, Apache, or HAProxy instance in front of Zulip:
+
+```yaml
+ports:
+  - "8080:80"   # Forward proxy traffic to Zulip’s internal HTTP
+```
+
+Then set:
+
+```yaml
+environment:
+  DISABLE_HTTPS: "true"
+  LOADBALANCER_IPS: 172.16.0.0/20    # adjust for your network
+  SETTING_EXTERNAL_HOST: "zulip.example.com"
+```
+
+The proxy should handle:
+
+* SSL termination (HTTPS)
+* Redirection from HTTP → HTTPS
+* Passing `X-Forwarded-For` and `X-Forwarded-Proto` headers
+
+Refer to [Networking and Reverse Proxy Configuration](https://zulip.readthedocs.io/en/latest/production/deployment.html#reverse-proxies) for detailed examples.
+
+---
+
+#### **3. Custom Mail Relay**
+
+If you disable port 25:
+
+* Set `EMAIL_HOST` and `EMAIL_PORT` in `settings.py` or via environment variables.
+* Example:
+
+  ```yaml
+  environment:
+    EMAIL_HOST: "smtp.gmail.com"
+    EMAIL_PORT: "587"
+  ```
+See [Outgoing email configuration](https://zulip.readthedocs.io/en/latest/production/email.html) for details.
+
+---
+
+#### **4. Behind Load Balancers or Private Networks**
+
+If Zulip runs behind an internal load balancer:
+
+```yaml
+environment:
+  DISABLE_HTTPS: "true"
+  LOADBALANCER_IPS: "10.0.0.0/8"
+```
+
+You may also remap ports:
+
+```yaml
+ports:
+  - "8080:80"
+  - "8443:443"
+```
+
+Your load balancer should then route:
+
+* HTTPS → `host:8443`
+* HTTP → redirect to HTTPS
+
+---
+
+#### **5. Development or Testing**
+
+You can disable mail (port 25) entirely:
+
+```yaml
+ports:
+  - "80:80"
+  - "443:443"
+```
+
+and run with:
+
+```yaml
+environment:
+  DISABLE_HTTPS: "true"
+```
+
+Access Zulip locally via `http://localhost`.
+
+
 ## Networking and reverse proxy configuration
 
 When running your container in production, you may want to put your
