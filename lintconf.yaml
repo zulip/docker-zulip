@@ -1,0 +1,5 @@
+---
+# This is consumed by `yamllint`, which is run by `ct lint`
+rules:
+  comments:
+    min-spaces-from-content: 1 # Due to prettier: https://github.com/prettier/prettier/pull/10926
