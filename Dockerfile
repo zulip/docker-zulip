@@ -9,6 +9,7 @@ ENV LANG="C.UTF-8"
 
 ARG UBUNTU_MIRROR
 
+# hadolint ignore=DL3005,DL3008,DL3009
 RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/ubuntu/\? |$UBUNTU_MIRROR |" /etc/apt/sources.list; } && \
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
@@ -29,8 +30,7 @@ WORKDIR /home/zulip
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=11.4
 
-RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF" && \
-    cd zulip
+RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF"
 
 WORKDIR /home/zulip/zulip
 
@@ -53,12 +53,12 @@ COPY custom_zulip_files/ /root/custom_zulip
 
 ARG CUSTOM_CA_CERTIFICATES
 
+WORKDIR /root
 RUN \
     # Make sure Nginx is started by Supervisor.
     dpkg-divert --add --rename /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     mkdir -p "$DATA_DIR" && \
-    cd /root && \
     tar -xf zulip-server-docker.tar.gz && \
     rm -f zulip-server-docker.tar.gz && \
     mv zulip-server-docker zulip && \
