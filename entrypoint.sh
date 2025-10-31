@@ -86,37 +86,37 @@ setConfigurationValue() {
     local TYPE="$4"
     if [ -z "$TYPE" ]; then
         case "$2" in
-            [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
-            TYPE="bool"
-            ;;
+            [Tt][Rr][Uu][Ee] | [Ff][Aa][Ll][Ss][Ee] | [Nn]one)
+                TYPE="bool"
+                ;;
             +([0-9]))
-            TYPE="integer"
-            ;;
+                TYPE="integer"
+                ;;
             [\[\(]*[\]\)])
-            TYPE="array"
-            ;;
+                TYPE="array"
+                ;;
             *)
-            TYPE="string"
-            ;;
+                TYPE="string"
+                ;;
         esac
     fi
     case "$TYPE" in
         emptyreturn)
-        if [ -z "$2" ]; then
-            return 0
-        fi
-        ;;
+            if [ -z "$2" ]; then
+                return 0
+            fi
+            ;;
         literal)
-        VALUE="$1"
-        ;;
-        bool|boolean|int|integer|array)
-        VALUE="$KEY = $2"
-        ;;
-        string|*)
-        VALUE="$KEY = '${2//\'/\'}'"
-        ;;
+            VALUE="$1"
+            ;;
+        bool | boolean | int | integer | array)
+            VALUE="$KEY = $2"
+            ;;
+        string | *)
+            VALUE="$KEY = '${2//\'/\'}'"
+            ;;
     esac
-    echo "$VALUE" >> "$FILE"
+    echo "$VALUE" >>"$FILE"
     echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
 }
 nginxConfiguration() {
@@ -260,7 +260,7 @@ authenticationBackends() {
     echo "Activating authentication backends ..."
     local FIRST=true
     local auth_backends
-    IFS=, read -r -a auth_backends <<< "$ZULIP_AUTH_BACKENDS"
+    IFS=, read -r -a auth_backends <<<"$ZULIP_AUTH_BACKENDS"
     for AUTH_BACKEND in "${auth_backends[@]}"; do
         if [ "$FIRST" = true ]; then
             setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
@@ -275,7 +275,7 @@ authenticationBackends() {
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
     if [ -n "$ZULIP_CUSTOM_SETTINGS" ]; then
-        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$SETTINGS_PY"
+        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >>"$SETTINGS_PY"
     fi
     local key
     for key in "${!SETTING_@}"; do
@@ -288,35 +288,35 @@ zulipConfiguration() {
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
-        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] || \
-           [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] || \
-           [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] || \
-           { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
-           [ "$setting_key" = "SCIM_CONFIG" ] || \
-           [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
-           [[ "$setting_key" = "CSRF_"* ]] || \
-           [ "$setting_key" = "REALM_HOSTS" ] || \
-           [ "$setting_key" = "ALLOWED_HOSTS" ]; then
+        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] \
+            || [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] \
+            || [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] \
+            || { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } \
+            || [ "$setting_key" = "SCIM_CONFIG" ] \
+            || [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] \
+            || [[ "$setting_key" = "CSRF_"* ]] \
+            || [ "$setting_key" = "REALM_HOSTS" ] \
+            || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
-        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ] || \
-           [ "$type" = "string" ]; then
+        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ] \
+            || [ "$type" = "string" ]; then
             type=""
         fi
-        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || \
-           [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
-           [ "$setting_key" = "EXTERNAL_HOST" ]; then
+        if [ "$setting_key" = "EMAIL_HOST_USER" ] \
+            || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ] \
+            || [ "$setting_key" = "EXTERNAL_HOST" ]; then
             type="string"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
@@ -333,7 +333,7 @@ autoBackupConfiguration() {
         echo "Auto backup is disabled. Continuing."
         return 0
     fi
-    printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
+    printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" >/etc/cron.d/autobackup
     echo "Auto backup enabled."
 }
 initialConfiguration() {
@@ -357,8 +357,7 @@ initialConfiguration() {
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
-    do
+    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
@@ -435,7 +434,7 @@ function runCertbotAsNeeded() {
 
     echo "Waiting for nginx to come online before generating certbot certificate ..."
     while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
-        sleep 1;
+        sleep 1
     done
 
     echo "Generating LetsEncrypt/certbot certificate ..."
@@ -507,7 +506,7 @@ appBackup() {
     BACKUP_FOLDER="/tmp/backup-$TIMESTAMP)"
     mkdir -p "$BACKUP_FOLDER"
     waitingForDatabase
-    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
+    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
     tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
@@ -552,7 +551,7 @@ appRestore() {
     echo "!! WARNING !! Starting restore process ... !! WARNING !!"
     waitingForDatabase
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
-    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
+    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
@@ -583,30 +582,30 @@ appVersion() {
 case "$1" in
     app:run)
         appRun
-    ;;
+        ;;
     app:init)
         appInit
-    ;;
+        ;;
     app:managepy)
         shift 1
         appManagePy "$@"
-    ;;
+        ;;
     app:backup)
         appBackup
-    ;;
+        ;;
     app:restore)
         appRestore
-    ;;
+        ;;
     app:certs)
         appCerts
-    ;;
+        ;;
     app:help)
         appHelp
-    ;;
+        ;;
     app:version)
         appVersion
-    ;;
+        ;;
     *)
         exec "$@" || appHelp
-    ;;
+        ;;
 esac
