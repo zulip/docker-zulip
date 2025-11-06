@@ -349,6 +349,33 @@ initialConfiguration() {
         secretsConfiguration
         authenticationBackends
         zulipConfiguration
+    else
+        # Check that the configuration will work
+        root_path="/etc/zulip"
+        if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
+            root_path="/data/settings/etc-zulip"
+        fi
+        failure=0
+        for conf_file in zulip.conf zulip-secrets.conf settings.py; do
+            if [ ! -f "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file does not exist!"
+                failure=1
+            elif ! sudo -u zulip test -r "/etc/zulip/$conf_file"; then
+                echo "ERROR: $root_path/$conf_file is not readable by the zulip user (UID $(id -u zulip))"
+                failure=1
+            elif [ ! -s "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file is empty"
+                failure=1
+            fi
+        done
+        if [ "$failure" = "1" ]; then
+            ls -l /etc/zulip/
+            exit 1
+        fi
+        if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+            echo "Error in the Zulip configuration. Exiting."
+            exit 1
+        fi
     fi
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
