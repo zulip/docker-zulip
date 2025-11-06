@@ -96,7 +96,9 @@ Now you're ready to follow [the installation instructions above](#installation).
 | postgresql.auth.username | string | `"zulip"` |  |
 | postgresql.image.repository | string | `"zulip/zulip-postgresql"` |  |
 | postgresql.image.tag | int | `14` |  |
-| postgresql.primary.containerSecurityContext.runAsUser | int | `0` |  |
+| postgresql.primary.containerSecurityContext.readOnlyRootFilesystem | bool | `false` |  |
+| postgresql.primary.containerSecurityContext.runAsGroup | int | `70` |  |
+| postgresql.primary.containerSecurityContext.runAsUser | int | `70` |  |
 | rabbitmq.auth.username | string | `"zulip"` |  |
 | rabbitmq.persistence.enabled | bool | `false` |  |
 | redis.architecture | string | `"standalone"` |  |
