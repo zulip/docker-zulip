@@ -200,7 +200,12 @@ sidecars: []
 postgresql:
   primary:
     containerSecurityContext:
-      runAsUser: 0
+      # 70 is the standard uid/gid of the "postgres" user in Alpine, which is
+      # used as the base for zulip/zulip-postgresql
+      # https://github.com/docker-library/postgres/blob/23987751b63ce745bd27b1119ab29dc4a1ffd728/Dockerfile-alpine.template#L7
+      runAsUser: 70
+      runAsGroup: 70
+      readOnlyRootFilesystem: false
   ## We need to override the Postgresql image to get all the plugins Zulip needs
   image:
     repository: zulip/zulip-postgresql
