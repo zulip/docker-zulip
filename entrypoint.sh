@@ -30,6 +30,7 @@ DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
+TRUST_GATEWAY_IP="${TRUST_GATEWAY_IP:-False}"
 # Zulip certificate parameters
 SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:self-signed}"
 # Zulip related settings
@@ -141,6 +142,11 @@ puppetConfiguration() {
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     fi
 
+    if [ "$TRUST_GATEWAY_IP" == "True" ] || [ "$TRUST_GATEWAY_IP" == "true" ]; then
+        GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
+        echo "Trusting local network gateway $GATEWAY_IP"
+        LOADBALANCER_IPS="${LOADBALANCER_IPS:+$LOADBALANCER_IPS,}$GATEWAY_IP"
+    fi
     if [ -n "$LOADBALANCER_IPS" ]; then
         echo "Setting IPs for load balancer"
         crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
