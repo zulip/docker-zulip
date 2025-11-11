@@ -1,0 +1,22 @@
+---
+name: Cleanup closed PR images
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Delete PR image
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: "zulip/docker-zulip"
+          package-type: "container"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag-name: pr-${{ github.event.pull_request.number }}
