@@ -282,6 +282,9 @@ secretsConfiguration() {
         fi
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
+        elif [[ "$SECRET_VAR" =~ $'\n' ]]; then
+            echo "ERROR: Secret \"$SECRET_KEY\" contains a newline!"
+            exit 1
         fi
         crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
