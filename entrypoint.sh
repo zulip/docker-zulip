@@ -7,6 +7,30 @@ fi
 set -e
 shopt -s extglob
 
+normalize_bool() {
+    # Returns either "True" or "False"
+    local varname="$1"
+    local raw_value="${!varname:-}"
+    local value="${raw_value,,}" # Convert to lowercase
+    local default="${2:-False}"
+
+    case "$value" in
+        true | enable | enabled | yes | y | 1 | on)
+            echo "True"
+            ;;
+        false | disable | disabled | no | n | 0 | off)
+            echo "False"
+            ;;
+        "")
+            echo "$default"
+            ;;
+        *)
+            echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
+            echo "$default"
+            ;;
+    esac
+}
+
 # DB aka Database
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
@@ -25,25 +49,26 @@ if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
     SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
 fi
 # Nginx settings
-DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
+DISABLE_HTTPS="$(normalize_bool DISABLE_HTTPS)"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
-TRUST_GATEWAY_IP="${TRUST_GATEWAY_IP:-False}"
+TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
 # Zulip certificate parameters
 SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:-self-signed}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
-ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
+ZULIP_RUN_POST_SETUP_SCRIPTS="$(normalize_bool ZULIP_RUN_POST_SETUP_SCRIPTS True)"
+QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS)"
 # Zulip user setup
-FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
+FORCE_FIRST_START_INIT="$(normalize_bool FORCE_FIRST_START_INIT)"
 # Auto backup settings
-AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
+AUTO_BACKUP_ENABLED="$(normalize_bool AUTO_BACKUP_ENABLED True)"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # Zulip configuration function specific variable(s)
-SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-}"
-MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
-LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
+SPECIAL_SETTING_DETECTION_MODE="$(normalize_bool SPECIAL_SETTING_DETECTION_MODE)"
+MANUAL_CONFIGURATION="$(normalize_bool MANUAL_CONFIGURATION)"
+LINK_SETTINGS_TO_DATA="$(normalize_bool LINK_SETTINGS_TO_DATA)"
 # entrypoint.sh specific variable(s)
 SETTINGS_PY="/etc/zulip/settings.py"
 GENERATE_CERTBOT_CERT_SCHEDULED=""
@@ -58,7 +83,7 @@ prepareDirectories() {
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
     # Link settings folder
-    if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
         # Create settings directories
         if [ ! -d "$DATA_DIR/settings" ]; then
             mkdir -p "$DATA_DIR/settings"
@@ -130,19 +155,19 @@ nginxConfiguration() {
 puppetConfiguration() {
     echo "Executing puppet configuration ..."
 
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
+    if [ "$DISABLE_HTTPS" == "True" ]; then
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
-    if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
+    if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
-    elif [ "$QUEUE_WORKERS_MULTIPROCESS" == "False" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "false" ]; then
+    else
         echo "Setting queue workers to run in multithreaded mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     fi
 
-    if [ "$TRUST_GATEWAY_IP" == "True" ] || [ "$TRUST_GATEWAY_IP" == "true" ]; then
+    if [ "$TRUST_GATEWAY_IP" == "True" ]; then
         local GATEWAY_IP
         GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
         echo "Trusting local network gateway $GATEWAY_IP"
@@ -320,8 +345,7 @@ zulipConfiguration() {
             || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
-        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ] \
-            || [ "$type" = "string" ]; then
+        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$type" = "string" ]; then
             type=""
         fi
         if [ "$setting_key" = "EMAIL_HOST_USER" ] \
@@ -338,7 +362,7 @@ zulipConfiguration() {
     echo "Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
-    if [ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
+    if [ "$AUTO_BACKUP_ENABLED" != "True" ]; then
         rm -f /etc/cron.d/autobackup
         echo "Auto backup is disabled. Continuing."
         return 0
@@ -352,7 +376,7 @@ initialConfiguration() {
     puppetConfiguration
     nginxConfiguration
     configureCerts
-    if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
+    if [ "$MANUAL_CONFIGURATION" = "False" ]; then
         # Start with the settings template file.
         cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
         databaseConfiguration
@@ -362,7 +386,7 @@ initialConfiguration() {
     else
         # Check that the configuration will work
         local root_path="/etc/zulip"
-        if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
+        if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
             root_path="/data/settings/etc-zulip"
         fi
         local failure=0
@@ -405,7 +429,7 @@ waitingForDatabase() {
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]; then
+    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ]; then
         echo "First Start Init not needed. Continuing."
         return 0
     fi
@@ -438,7 +462,7 @@ zulipMigration() {
 }
 runPostSetupScripts() {
     echo "Post setup scripts execution ..."
-    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] && [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
+    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ]; then
         echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
         return 0
     fi
