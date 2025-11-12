@@ -70,6 +70,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
+| global.security.allowInsecureImages | bool | `true` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"zulip/docker-zulip"` |  |
 | image.tag | string | `"11.4-0"` |  |
@@ -85,6 +86,8 @@ Now you're ready to follow [the installation instructions above](#installation).
 | livenessProbe.periodSeconds | int | `10` |  |
 | livenessProbe.successThreshold | int | `1` |  |
 | livenessProbe.timeoutSeconds | int | `5` |  |
+| memcached.image.repository | string | `"bitnamilegacy/memcached"` |  |
+| memcached.image.tag | string | `"latest"` |  |
 | memcached.memcachedUsername | string | `"zulip@localhost"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
@@ -100,8 +103,12 @@ Now you're ready to follow [the installation instructions above](#installation).
 | postgresql.primary.containerSecurityContext.runAsGroup | int | `70` |  |
 | postgresql.primary.containerSecurityContext.runAsUser | int | `70` |  |
 | rabbitmq.auth.username | string | `"zulip"` |  |
+| rabbitmq.image.repository | string | `"bitnamilegacy/rabbitmq"` |  |
+| rabbitmq.image.tag | string | `"4.1.3"` |  |
 | rabbitmq.persistence.enabled | bool | `false` |  |
 | redis.architecture | string | `"standalone"` |  |
+| redis.image.repository | string | `"bitnamilegacy/redis"` |  |
+| redis.image.tag | string | `"latest"` |  |
 | redis.master.persistence.enabled | bool | `false` |  |
 | resources | object | `{}` |  |
 | securityContext | object | `{}` |  |
@@ -130,6 +137,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.environment.SETTING_EXTERNAL_HOST | string | `"zulip.example.com"` |  |
 | zulip.environment.SETTING_ZULIP_ADMINISTRATOR | string | `"admin@example.com"` |  |
 | zulip.environment.SSL_CERTIFICATE_GENERATION | string | `"self-signed"` |  |
+| zulip.environment.TRUST_GATEWAY_IP | bool | `true` |  |
 | zulip.environment.ZULIP_AUTH_BACKENDS | string | `"EmailAuthBackend"` |  |
 | zulip.persistence.accessMode | string | `"ReadWriteOnce"` |  |
 | zulip.persistence.enabled | bool | `true` |  |
@@ -176,7 +184,7 @@ image, because it contains the Postgresql plugins that are needed to run Zulip.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | memcached | 7.4.16 |
-| oci://registry-1.docker.io/bitnamicharts | postgresql | 15.5.32 |
-| oci://registry-1.docker.io/bitnamicharts | rabbitmq | 14.7.0 |
-| oci://registry-1.docker.io/bitnamicharts | redis | 20.1.4 |
+| oci://registry-1.docker.io/bitnamicharts | memcached | 8.1.5 |
+| oci://registry-1.docker.io/bitnamicharts | postgresql | 18.1.8 |
+| oci://registry-1.docker.io/bitnamicharts | rabbitmq | 16.0.14 |
+| oci://registry-1.docker.io/bitnamicharts | redis | 23.2.12 |

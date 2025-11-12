@@ -23,23 +23,23 @@ dependencies:
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - memcached
-    version: 7.4.16
+    version: 8.1.5
   - name: rabbitmq
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - rabbitmq
-    version: 14.7.0
+    version: 16.0.14
   - name: redis
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - redis
-    version: 20.1.4
+    version: 23.2.12
   - name: postgresql
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - postgresql
     ## Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
-    version: 15.5.32
+    version: 18.1.8
 
 sources:
   - https://github.com/zulip/zulip
