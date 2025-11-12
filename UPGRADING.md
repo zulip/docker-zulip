@@ -219,7 +219,7 @@ image (because we've significantly upgraded the major postgres version).
 
 These instructions assume that you have not changed the default PostgreSQL data
 path (`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`. If you
-have changed it, please replace all occurences of
+have changed it, please replace all occurrences of
 `/opt/docker/zulip/postgresql/data` with your path.
 
 1. Make a backup of your Zulip PostgreSQL data directory.

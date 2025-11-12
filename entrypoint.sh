@@ -30,7 +30,7 @@ DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
-# Zulip certifcate parameters
+# Zulip certificate parameters
 SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:self-signed}"
 # Zulip related settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
@@ -382,7 +382,7 @@ zulipFirstStartInit() {
     fi
     set -e
     touch "$DATA_DIR/.initiated"
-    echo "Zulip first start init sucessful."
+    echo "Zulip first start init successful."
 }
 zulipMigration() {
     echo "Running new database migrations..."
@@ -568,7 +568,7 @@ appHelp() {
     echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:certs    - Create self-signed certificates"
     echo "> app:run      - Run the Zulip server"
-    echo "> app:init     - Run inital setup of Zulip server"
+    echo "> app:init     - Run initial setup of Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
 }
 appVersion() {
