@@ -196,6 +196,11 @@ postSetup:
   #         mountPath: /data
 sidecars: []
 
+## Bitnami requires this to override PostgreSQL image
+global:
+  security:
+    allowInsecureImages: true
+
 ## PostgreSQL settings, see [Requirements](#Requirements).
 postgresql:
   primary:
@@ -216,6 +221,10 @@ postgresql:
 
 ## Rabbitmq settings, see [Requirements](#Requirements).
 rabbitmq:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/rabbitmq
+    tag: 4.1.3
   auth:
     username: zulip
   ## Set this to true if you need the rabbitmq to be persistent
@@ -224,10 +233,18 @@ rabbitmq:
 
 ## Memcached settings, see [Requirements](#Requirements).
 memcached:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/memcached
+    tag: latest
   memcachedUsername: "zulip@localhost"
 
 ## Redis settings, see [Requirements](#Requirements).
 redis:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/redis
+    tag: latest
   architecture: standalone
   master:
     persistence:
