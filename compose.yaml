@@ -120,12 +120,6 @@ services:
       SETTING_MEMCACHED_LOCATION: "memcached:11211"
       SETTING_RABBITMQ_HOST: "rabbitmq"
       SETTING_REDIS_HOST: "redis"
-      SECRETS_postgres_password_FILE: /run/secrets/zulip__postgres_password
-      SECRETS_memcached_password_FILE: /run/secrets/zulip__memcached_password
-      SECRETS_rabbitmq_password_FILE: /run/secrets/zulip__rabbitmq_password
-      SECRETS_redis_password_FILE: /run/secrets/zulip__redis_password
-      SECRETS_secret_key_FILE: /run/secrets/zulip__secret_key
-      SECRETS_email_password_FILE: /run/secrets/zulip__email_password
       SETTING_EXTERNAL_HOST: "localhost.localdomain"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
       SETTING_EMAIL_HOST: "" # e.g. smtp.example.com

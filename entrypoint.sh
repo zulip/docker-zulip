@@ -289,6 +289,24 @@ secretsConfiguration() {
         echo "Setting $SECRET_KEY from environment variable $key"
         crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
+    # Secrets detected in /run/secrets/ override those via env vars
+    shopt -s nullglob
+    local secrets_path
+    for secrets_path in /run/secrets/zulip__*; do
+        local secrets_filename
+        secrets_filename="$(basename "$secrets_path")"
+        local SECRET_KEY="${secrets_filename#zulip__}"
+        local SECRET_VAR
+        SECRET_VAR="$(cat "$secrets_path")"
+        if [ -z "$SECRET_VAR" ]; then
+            echo "Empty secret for key \"$SECRET_KEY\"."
+        elif [[ "$SECRET_VAR" =~ $'\n' ]]; then
+            echo "ERROR: Secret \"$SECRET_KEY\" contains a newline!"
+            exit 1
+        fi
+        echo "Setting $SECRET_KEY from secret in $secrets_path"
+        crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
+    done
     echo "Zulip secrets configuration succeeded."
 }
 databaseConfiguration() {
