@@ -133,7 +133,8 @@ jobs:
                      --skip-clean-up
 
       - name: Fetch logs
-        if: always()
+        if: steps.list-changed.outputs.changed == 'true' && ( success() || failure() )
+        continue-on-error: true
         run: |
           namespace=$(helm list --all-namespaces --output json \
                     | jq -r '[.[] | select(.namespace | startswith("zulip-"))][0].namespace')
