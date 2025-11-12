@@ -102,14 +102,9 @@ setConfigurationValue() {
         echo "No KEY given for setConfigurationValue."
         return 1
     fi
-    if [ -z "$3" ]; then
-        echo "No FILE given for setConfigurationValue."
-        return 1
-    fi
     local KEY="$1"
     local VALUE
-    local FILE="$3"
-    local TYPE="$4"
+    local TYPE="$3"
     if [ -z "$TYPE" ]; then
         case "$2" in
             [Tt][Rr][Uu][Ee] | [Ff][Aa][Ll][Ss][Ee] | [Nn]one)
@@ -142,8 +137,8 @@ setConfigurationValue() {
             VALUE="$KEY = '${2//\'/\'}'"
             ;;
     esac
-    echo "$VALUE" >>"$FILE"
-    echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
+    echo "$VALUE" >>"$SETTINGS_PY"
+    echo "Setting key \"$KEY\", type \"$TYPE\"."
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
@@ -284,9 +279,9 @@ secretsConfiguration() {
 }
 databaseConfiguration() {
     echo "Setting database configuration ..."
-    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
-    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "$SETTINGS_PY" "string"
-    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
+    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "string"
+    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "string"
+    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "string"
     # The password will be set in secretsConfiguration
     echo "Database configuration succeeded."
 }
@@ -298,10 +293,10 @@ authenticationBackends() {
     local AUTH_BACKEND
     for AUTH_BACKEND in "${auth_backends[@]}"; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$SETTINGS_PY" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
@@ -353,7 +348,7 @@ zulipConfiguration() {
             || [ "$setting_key" = "EXTERNAL_HOST" ]; then
             type="string"
         fi
-        setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
+        setConfigurationValue "$setting_key" "$setting_var" "$type"
     done
     if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
         echo "Error in the Zulip configuration. Exiting."
