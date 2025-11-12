@@ -34,8 +34,6 @@ RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF"
 
 WORKDIR /home/zulip/zulip
 
-ARG CUSTOM_CA_CERTIFICATES
-
 # Finally, we provision the development environment and build a release tarball
 RUN SKIP_VENV_SHELL_WARNING=1 ./tools/provision --build-release-tarball-only && \
     uv run --no-sync ./tools/build-release-tarball docker && \
@@ -50,8 +48,6 @@ ENV DATA_DIR="/data"
 # Then, with a second image, we install the production release tarball.
 COPY --from=build /tmp/zulip-server-docker.tar.gz /root/
 COPY custom_zulip_files/ /root/custom_zulip
-
-ARG CUSTOM_CA_CERTIFICATES
 
 WORKDIR /root
 RUN \
