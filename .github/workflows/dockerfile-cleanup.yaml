@@ -34,6 +34,7 @@ jobs:
         uses: actions/delete-package-versions@v5
         with:
           package-name: "docker-zulip"
+          package-type: "container"
           min-versions-to-keep: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
           delete-only-untagged-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
