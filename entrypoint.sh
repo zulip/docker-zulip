@@ -276,6 +276,10 @@ secretsConfiguration() {
         [[ "$key" == SECRETS_*([0-9A-Z_a-z-]) ]] || continue
         local SECRET_KEY="${key#SECRETS_}"
         local SECRET_VAR="${!key}"
+        if [[ "$SECRET_KEY" == *"_FILE" ]]; then
+            SECRET_VAR="$(cat "$SECRET_VAR")"
+            SECRET_KEY="${SECRET_KEY%_FILE}"
+        fi
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
         fi
@@ -416,7 +420,9 @@ initialConfiguration() {
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
+    local PGPASSWORD
+    PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
+    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
