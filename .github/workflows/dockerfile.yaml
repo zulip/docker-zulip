@@ -105,11 +105,9 @@ jobs:
                   --lint-conf lintconf.yaml
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1
 
       - name: Log in to GHCR
-        if: steps.list-changed.outputs.changed == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -117,23 +115,21 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Load image into kind
-        if: steps.list-changed.outputs.changed == 'true'
         run: |
           docker pull ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
           kind load docker-image ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }} --name chart-testing
 
       - name: Run chart-testing (install)
         id: chart-testing-install
-        if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct install --github-groups \
                      --chart-dirs kubernetes/chart \
-                     --target-branch ${{ github.event.repository.default_branch }} \
+                     --all \
                      --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
                      --skip-clean-up
 
       - name: Fetch logs
-        if: steps.list-changed.outputs.changed == 'true' && ( success() || failure() )
+        if: success() || failure()
         continue-on-error: true
         run: |
           namespace=$(helm list --all-namespaces --output json \
