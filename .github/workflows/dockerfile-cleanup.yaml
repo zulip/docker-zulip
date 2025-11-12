@@ -27,4 +27,4 @@ jobs:
           package-name: "docker-zulip"
           min-versions-to-keep: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          delete-untagged-versions: true
+          delete-only-untagged-versions: true
