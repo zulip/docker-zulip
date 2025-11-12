@@ -22,10 +22,10 @@ image:
 ## Global Docker registry secret names as an array.
 imagePullSecrets: []
 
-## Partially override common.names.fullname template (will maintain the release name).
+## Partially override zulip.fullname template (will maintain the release name).
 nameOverride: ""
 
-## Fully override common.names.fullname template.
+## Fully override zulip.fullname template.
 fullnameOverride: ""
 
 serviceAccount:
