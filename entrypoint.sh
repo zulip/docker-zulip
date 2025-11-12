@@ -66,7 +66,6 @@ FORCE_FIRST_START_INIT="$(normalize_bool FORCE_FIRST_START_INIT)"
 AUTO_BACKUP_ENABLED="$(normalize_bool AUTO_BACKUP_ENABLED True)"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # Zulip configuration function specific variable(s)
-SPECIAL_SETTING_DETECTION_MODE="$(normalize_bool SPECIAL_SETTING_DETECTION_MODE)"
 MANUAL_CONFIGURATION="$(normalize_bool MANUAL_CONFIGURATION)"
 LINK_SETTINGS_TO_DATA="$(normalize_bool LINK_SETTINGS_TO_DATA)"
 # entrypoint.sh specific variable(s)
@@ -312,7 +311,7 @@ zulipConfiguration() {
         [[ "$key" == SETTING_*([0-9A-Za-z_]) ]] || continue
         local setting_key="${key#SETTING_}"
         local setting_var="${!key}"
-        local type="string"
+        local type=""
         if [ -z "$setting_var" ]; then
             echo "Empty var for key \"$setting_key\"."
             continue
@@ -339,9 +338,6 @@ zulipConfiguration() {
             || [ "$setting_key" = "REALM_HOSTS" ] \
             || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
-        fi
-        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$type" = "string" ]; then
-            type=""
         fi
         if [ "$setting_key" = "EMAIL_HOST_USER" ] \
             || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ] \
