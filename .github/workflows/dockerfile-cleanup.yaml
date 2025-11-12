@@ -16,7 +16,7 @@ jobs:
       - name: Delete PR image
         uses: actions/delete-package-versions@v5
         with:
-          package-name: "zulip/docker-zulip"
+          package-name: "docker-zulip"
           package-type: "container"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag-name: pr-${{ github.event.pull_request.number }}
