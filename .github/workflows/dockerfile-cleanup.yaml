@@ -20,3 +20,11 @@ jobs:
           package-type: "container"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag-name: pr-${{ github.event.pull_request.number }}
+
+      - name: Delete untagged images from GHCR
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: "docker-zulip"
+          min-versions-to-keep: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-untagged-versions: true
