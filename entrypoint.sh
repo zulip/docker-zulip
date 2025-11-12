@@ -286,6 +286,7 @@ secretsConfiguration() {
             echo "ERROR: Secret \"$SECRET_KEY\" contains a newline!"
             exit 1
         fi
+        echo "Setting $SECRET_KEY from environment variable $key"
         crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
     echo "Zulip secrets configuration succeeded."
