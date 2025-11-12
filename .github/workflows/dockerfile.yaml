@@ -43,3 +43,104 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  helm-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run helm-docs
+        uses: losisin/helm-docs-github-action@v1
+        with:
+          fail-on-diff: true
+
+  helm-test:
+    runs-on: ubuntu-latest
+    needs:
+      - helm-docs
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: v3.17.0
+
+      - uses: actions/setup-python@v5.3.0
+        with:
+          python-version: "3.x"
+          check-latest: true
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.7.0
+        with:
+          version: 3.14.0
+          yamllint_version: 1.37.1
+          yamale_version: 6.0.0
+
+      - name: Set up helm repos
+        run: |
+          helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --chart-dirs kubernetes/chart \
+                                    --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          ct lint --github-groups \
+                  --chart-dirs kubernetes/chart \
+                  --target-branch ${{ github.event.repository.default_branch }} \
+                  --lint-conf lintconf.yaml
+
+      - name: Create kind cluster
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1
+
+      - name: Log in to GHCR
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Load image into kind
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          docker pull ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
+          kind load docker-image ghcr.io/${{ github.repository }}:pr-${{ github.event.pull_request.number }} --name chart-testing
+
+      - name: Run chart-testing (install)
+        id: chart-testing-install
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          ct install --github-groups \
+                     --chart-dirs kubernetes/chart \
+                     --target-branch ${{ github.event.repository.default_branch }} \
+                     --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
+                     --skip-clean-up
+
+      - name: Fetch logs
+        if: always()
+        run: |
+          namespace=$(helm list --all-namespaces --output json \
+                    | jq -r '[.[] | select(.namespace | startswith("zulip-"))][0].namespace')
+          kubectl get pods -n "$namespace"
+          for pod in $(kubectl get pods -n "$namespace" -o name); do
+              kubectl describe "$pod" -n "$namespace"
+          done
+          pod=$(kubectl get pods -n "$namespace" -l app.kubernetes.io/name=zulip --output name)
+          kubectl -n "$namespace" logs "$pod"
+          kubectl -n "$namespace" exec "$pod" -c zulip -- cat /var/log/zulip/errors.log

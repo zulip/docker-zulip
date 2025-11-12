@@ -1,0 +1,31 @@
+---
+image:
+  repository: ghcr.io/zulip/docker-zulip
+  pullPolicy: Never
+  # CI will pass tag: of the PR
+
+zulip:
+  password: set-secure-zulip-password
+  environment:
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
+    SETTING_EXTERNAL_HOST: zulip.example.net
+    ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+
+memcached:
+  memcachedPassword: set-secure-memcached-password
+
+rabbitmq:
+  auth:
+    password: set-secure-rabbitmq-password
+    erlangCookie: set-secure-cookie-password
+
+redis:
+  auth:
+    password: set-secure-redis-password
+
+postgresql:
+  auth:
+    # # postgres admin user password
+    postgresqlPassword: set-secure-pg-postgres-password
+    # # postgres zulip user password
+    password: set-secure-pg-zulip-password
