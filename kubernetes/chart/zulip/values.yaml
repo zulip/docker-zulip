@@ -135,16 +135,17 @@ zulip:
     ## Set SSL certificate generation to self-signed because
     ## Kubernetes manages the client-facing SSL certs.
     SSL_CERTIFICATE_GENERATION: self-signed
-    ## Domain Zulip is hosted on.
+    ## Domain Zulip is hosted on; this is required
     SETTING_EXTERNAL_HOST: zulip.example.com
-    ## SMTP email password.
-    SECRETS_email_password: "123456789"
+    ## Administrator's email address; this is required
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    ## Outgoing email configuration
     SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
     SETTING_EMAIL_HOST_USER: "noreply@example.com"
     SETTING_EMAIL_PORT: "587"
     SETTING_EMAIL_USE_SSL: "False"
     SETTING_EMAIL_USE_TLS: "True"
+    SECRETS_email_password: "123456789"
     ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
