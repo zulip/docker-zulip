@@ -62,9 +62,18 @@ services:
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
         ZULIP_GIT_REF: "11.5"
     ports:
-      - "25:25"
-      - "80:80"
-      - "443:443"
+      - name: smtp
+        target: 25
+        published: 25
+        app_protocol: smtp
+      - name: http
+        target: 80
+        published: 80
+        app_protocol: http
+      - name: https
+        target: 443
+        published: 443
+        app_protocol: https
     environment:
       ## See https://github.com/zulip/docker-zulip#configuration for
       ## details on this section and how to discover the many
