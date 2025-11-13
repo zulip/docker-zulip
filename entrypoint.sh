@@ -535,8 +535,7 @@ appBackup() {
         echo "Backup process failed. Exiting."
         exit 1
     fi
-    local BACKUP_FOLDER
-    BACKUP_FOLDER="/tmp/backup-$TIMESTAMP)"
+    local BACKUP_FOLDER="/tmp/backup-$TIMESTAMP"
     mkdir -p "$BACKUP_FOLDER"
     waitingForDatabase
     pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
