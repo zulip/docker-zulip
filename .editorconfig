@@ -14,3 +14,7 @@ switch_case_indent = true
 
 [*.{yaml,yml}]
 indent_size = 2
+
+[*.md]
+indent_size = 2
+max_line_length = 80
