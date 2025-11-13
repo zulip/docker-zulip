@@ -118,11 +118,6 @@ setConfigurationValue() {
         esac
     fi
     case "$TYPE" in
-        emptyreturn)
-            if [ -z "$2" ]; then
-                return 0
-            fi
-            ;;
         literal)
             VALUE="$1"
             ;;
