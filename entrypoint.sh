@@ -9,11 +9,12 @@ set -u
 shopt -s extglob
 
 normalize_bool() {
-    # Returns either "True" or "False"
+    # Returns either "True" or "False", or possibly "None" if a third argument is given
     local varname="$1"
     local raw_value="${!varname:-}"
     local value="${raw_value,,}" # Convert to lowercase
     local default="${2:-False}"
+    local allow_none="${3:-}"
 
     case "$value" in
         true | enable | enabled | yes | y | 1 | on)
@@ -26,8 +27,12 @@ normalize_bool() {
             echo "$default"
             ;;
         *)
-            echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
-            echo "$default"
+            if [ -n "$allow_none" ] && [ "$value" = "none" ]; then
+                echo "None"
+            else
+                echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
+                echo "$default"
+            fi
             ;;
     esac
 }
@@ -137,10 +142,23 @@ setConfigurationValue() {
         literal)
             VALUE="$1"
             ;;
-        bool | boolean | int | integer | array)
+        bool)
+            # Note that if any settings were explicitly set as type
+            # "bool" (which none are at current), this would provide a
+            # slightly confusing error message with "PROVIDED_SETTING"
+            # in it, rather than the actual setting name.
+            # shellcheck disable=SC2034
+            local PROVIDED_SETTING="$2"
+            VALUE="$KEY = $(normalize_bool PROVIDED_SETTING False allow_none)"
+            ;;
+        integer | array)
             VALUE="$KEY = $2"
             ;;
-        string | *)
+        string)
+            VALUE="$KEY = '${2//\'/\'}'"
+            ;;
+        *)
+            echo "WARNING: Unknown type '$TYPE' for '$KEY' -- treating as string." >&2
             VALUE="$KEY = '${2//\'/\'}'"
             ;;
     esac
@@ -276,9 +294,35 @@ secretsConfiguration() {
         [[ "$key" == SECRETS_*([0-9A-Z_a-z-]) ]] || continue
         local SECRET_KEY="${key#SECRETS_}"
         local SECRET_VAR="${!key}"
+        if [[ "$SECRET_KEY" == *"_FILE" ]]; then
+            SECRET_VAR="$(cat "$SECRET_VAR")"
+            SECRET_KEY="${SECRET_KEY%_FILE}"
+        fi
         if [ -z "$SECRET_VAR" ]; then
             echo "Empty secret for key \"$SECRET_KEY\"."
+        elif [[ "$SECRET_VAR" =~ $'\n' ]]; then
+            echo "ERROR: Secret \"$SECRET_KEY\" contains a newline!"
+            exit 1
         fi
+        echo "Setting $SECRET_KEY from environment variable $key"
+        crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
+    done
+    # Secrets detected in /run/secrets/ override those via env vars
+    shopt -s nullglob
+    local secrets_path
+    for secrets_path in /run/secrets/zulip__*; do
+        local secrets_filename
+        secrets_filename="$(basename "$secrets_path")"
+        local SECRET_KEY="${secrets_filename#zulip__}"
+        local SECRET_VAR
+        SECRET_VAR="$(cat "$secrets_path")"
+        if [ -z "$SECRET_VAR" ]; then
+            echo "Empty secret for key \"$SECRET_KEY\"."
+        elif [[ "$SECRET_VAR" =~ $'\n' ]]; then
+            echo "ERROR: Secret \"$SECRET_KEY\" contains a newline!"
+            exit 1
+        fi
+        echo "Setting $SECRET_KEY from secret in $secrets_path"
         crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
     echo "Zulip secrets configuration succeeded."
@@ -416,7 +460,9 @@ initialConfiguration() {
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
+    local PGPASSWORD
+    PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
+    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
