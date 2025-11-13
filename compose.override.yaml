@@ -1,0 +1,89 @@
+---
+secrets:
+  ## You can either set these secrets in a file named .env in this directory, or
+  ## change these from "environment:" to "file:" with a path to store them on
+  ## disk.  Be sure that files, if you use them, do not contain trailing
+  ## newlines!
+  ##
+  ## You may also add additional secrets here, prefixed with zulip__, (and also
+  ## in the "secrets:" block inside the "zulip" service, below) in order to
+  ## propagate them into Zulip's /etc/zulip/zulip-secrets.conf
+  ##
+  ## --> https://docs.docker.com/reference/compose-file/secrets/
+  ##     https://docs.docker.com/compose/how-tos/use-secrets/
+  zulip__postgres_password:
+    ## Note that you need to do a manual `ALTER ROLE` query if you
+    ## change this on a system after booting the postgres container
+    ## the first time on a host.  Instructions are available in README.md.
+    environment: "ZULIP__POSTGRES_PASSWORD"
+  zulip__memcached_password:
+    environment: "ZULIP__MEMCACHED_PASSWORD"
+  zulip__rabbitmq_password:
+    environment: "ZULIP__RABBITMQ_PASSWORD"
+  zulip__redis_password:
+    environment: "ZULIP__REDIS_PASSWORD"
+  zulip__secret_key:
+    environment: "ZULIP__SECRET_KEY"
+  zulip__email_password:
+    environment: "ZULIP__EMAIL_PASSWORD"
+
+services:
+  zulip:
+    build:
+      args:
+        ## If you want to build zulip from a different repo/branch, you can
+        ## change these and run:
+        ##
+        ##  docker compose build zulip
+        ZULIP_GIT_URL: https://github.com/zulip/zulip.git
+        ZULIP_GIT_REF: "11.5"
+    environment:
+      ## See https://github.com/zulip/docker-zulip#configuration for
+      ## details on this section and how to discover the many
+      ## additional settings that are supported here.
+      DB_HOST: "database"
+      DB_HOST_PORT: "5432"
+      DB_USER: "zulip"
+      SSL_CERTIFICATE_GENERATION: "self-signed"
+      SETTING_MEMCACHED_LOCATION: "memcached:11211"
+      SETTING_RABBITMQ_HOST: "rabbitmq"
+      SETTING_REDIS_HOST: "redis"
+      SETTING_EXTERNAL_HOST: "localhost.localdomain"
+      SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+      SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
+      SETTING_EMAIL_HOST_USER: "noreply@example.com"
+      SETTING_EMAIL_PORT: "587"
+      ## It seems that the email server needs to use ssl or tls and can't be used without it
+      SETTING_EMAIL_USE_SSL: "False"
+      SETTING_EMAIL_USE_TLS: "True"
+      ## Uncomment to enable the incoming email gateway.  You will need to
+      ## ensure that email to emaildomain.example.com is routed to this host
+      ## (e.g. via MX record)
+      # SETTING_EMAIL_GATEWAY_PATTERN: "%s@emaildomain.example.com"
+      ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
+      ## Uncomment this when configuring the mobile push notifications service
+      # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
+      # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
+
+      ## If you're using a reverse proxy, you'll want to provide the
+      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
+      # LOADBALANCER_IPS: ""
+
+      ## By default, files uploaded by users and profile pictures are
+      ## stored directly on the Zulip server. You can configure files
+      ## to be stored in Amazon S3 or a compatible data store
+      ## here. See docs at:
+      ##
+      ##   https://zulip.readthedocs.io/en/latest/production/upload-backends.html
+      ##
+      ## If you want to use the S3 backend, you must set
+      ## SETTING_LOCAL_UPLOADS_DIR to None as well as configuring the
+      ## other fields.
+      # SETTING_LOCAL_UPLOADS_DIR: "None"
+      # SETTING_S3_AUTH_UPLOADS_BUCKET: ""
+      # SETTING_S3_AVATAR_BUCKET: ""
+      # SETTING_S3_ENDPOINT_URL: "None"
+      # SETTING_S3_REGION: "None"
+    secrets:
+      ## Add any additional zulip__ secrets that you defined above.
+      []
