@@ -49,7 +49,6 @@ SETTING_MEMCACHED_LOCATION="${SETTING_MEMCACHED_LOCATION:-127.0.0.1:11211}"
 # Nginx settings
 DISABLE_HTTPS="$(normalize_bool DISABLE_HTTPS)"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
-NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
 TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
 # Zulip certificate parameters
@@ -141,7 +140,6 @@ nginxConfiguration() {
     echo "Executing nginx configuration ..."
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
-    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
     echo "Nginx configuration succeeded."
 }
 puppetConfiguration() {
