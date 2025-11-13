@@ -9,11 +9,12 @@ set -u
 shopt -s extglob
 
 normalize_bool() {
-    # Returns either "True" or "False"
+    # Returns either "True" or "False", or possibly "None" if a third argument is given
     local varname="$1"
     local raw_value="${!varname:-}"
     local value="${raw_value,,}" # Convert to lowercase
     local default="${2-False}"   # Only default if not provided; explicit "" is a valid default
+    local allow_none="${3:-}"
 
     case "$value" in
         true | enable | enabled | yes | y | 1 | on)
@@ -26,8 +27,12 @@ normalize_bool() {
             echo "$default"
             ;;
         *)
-            echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
-            echo "$default"
+            if [ -n "$allow_none" ] && [ "$value" = "none" ]; then
+                echo "None"
+            else
+                echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
+                echo "$default"
+            fi
             ;;
     esac
 }
@@ -137,7 +142,16 @@ setConfigurationValue() {
         literal)
             VALUE="$1"
             ;;
-        bool | integer | array)
+        bool)
+            # Note that if any settings were explicitly set as type
+            # "bool" (which none are at current), this would provide a
+            # slightly confusing error message with "PROVIDED_SETTING"
+            # in it, rather than the actual setting name.
+            # shellcheck disable=SC2034
+            local PROVIDED_SETTING="$2"
+            VALUE="$KEY = $(normalize_bool PROVIDED_SETTING False allow_none)"
+            ;;
+        integer | array)
             VALUE="$KEY = $2"
             ;;
         string)
