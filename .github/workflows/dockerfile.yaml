@@ -52,8 +52,21 @@ jobs:
 
       - name: Run helm-docs
         uses: losisin/helm-docs-github-action@v1
+
+      - name: Run prettier over the re-generated docs
+        uses: creyD/prettier_action@v4.6
         with:
-          fail-on-diff: true
+          prettier_options: --write kubernetes/chart/zulip/README.md
+          no_commit: True
+
+      - name: Check for any diff
+        run: |
+          if ! git diff --exit-code; then
+            echo "Changes found!"
+            git status
+            git diff
+            exit 1
+          fi
 
   helm-test:
     runs-on: ubuntu-latest
