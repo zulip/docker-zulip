@@ -141,7 +141,6 @@
 ## [0.3.0] - 2022-04-21
 
 - Update dependencies:
-
   - Helm charts:
 
     | Repository                         | Name       | Version |

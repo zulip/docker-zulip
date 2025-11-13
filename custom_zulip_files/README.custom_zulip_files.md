@@ -1,5 +1,5 @@
 The custom_zulip_files mechanism allows you to test edits to Zulip
-before making changes in the upstream repo.  It works by copying the
+before making changes in the upstream repo. It works by copying the
 contents of this directory on top of the main zulip/zulip checkout as
 part of the Docker build process.
 
