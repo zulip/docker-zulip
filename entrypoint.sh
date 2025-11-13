@@ -47,6 +47,7 @@ MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
 LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
 # entrypoint.sh specific variable(s)
 SETTINGS_PY="/etc/zulip/settings.py"
+GENERATE_CERTBOT_CERT_SCHEDULED=""
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -143,6 +144,7 @@ puppetConfiguration() {
     fi
 
     if [ "$TRUST_GATEWAY_IP" == "True" ] || [ "$TRUST_GATEWAY_IP" == "true" ]; then
+        local GATEWAY_IP
         GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
         echo "Trusting local network gateway $GATEWAY_IP"
         LOADBALANCER_IPS="${LOADBALANCER_IPS:+$LOADBALANCER_IPS,}$GATEWAY_IP"
@@ -174,6 +176,8 @@ puppetConfiguration() {
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
+    local GENERATE_SELF_SIGNED_CERT
+    local GENERATE_CERTBOT_CERT
     case "$SSL_CERTIFICATE_GENERATION" in
         self-signed)
             GENERATE_SELF_SIGNED_CERT="True"
@@ -267,6 +271,7 @@ authenticationBackends() {
     local FIRST=true
     local auth_backends
     IFS=, read -r -a auth_backends <<<"$ZULIP_AUTH_BACKENDS"
+    local AUTH_BACKEND
     for AUTH_BACKEND in "${auth_backends[@]}"; do
         if [ "$FIRST" = true ]; then
             setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
@@ -357,11 +362,11 @@ initialConfiguration() {
         zulipConfiguration
     else
         # Check that the configuration will work
-        root_path="/etc/zulip"
+        local root_path="/etc/zulip"
         if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
             root_path="/data/settings/etc-zulip"
         fi
-        failure=0
+        local failure=0
         for conf_file in zulip.conf zulip-secrets.conf settings.py; do
             if [ ! -f "/etc/zulip/$conf_file" ]; then
                 echo "ERROR: $root_path/$conf_file does not exist!"
@@ -420,8 +425,9 @@ zulipFirstStartInit() {
 zulipMigration() {
     echo "Running new database migrations..."
     set +e
+    local RETURN_CODE=0
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
-    local RETURN_CODE=$?
+    RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
@@ -516,7 +522,7 @@ appInit() {
     bootstrappingEnvironment
 }
 appManagePy() {
-    COMMAND="$1"
+    local COMMAND="$1"
     shift 1
     if [ -z "$COMMAND" ]; then
         echo "No command given for manage.py. Defaulting to \"shell\"."
