@@ -1,0 +1,15 @@
+[project]
+# This version information exists purely for the docs.
+name = "docker-zulip"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "myst-parser",
+    "pyyaml>=6.0.3",
+    "sphinx",
+    "sphinx-autobuild>=2025.8.25",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme",
+]
