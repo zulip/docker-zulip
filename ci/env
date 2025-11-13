@@ -1,0 +1,6 @@
+ZULIP__POSTGRES_PASSWORD=postgres_password
+ZULIP__MEMCACHED_PASSWORD=memcached_password
+ZULIP__RABBITMQ_PASSWORD=rabbitmq_password
+ZULIP__REDIS_PASSWORD=redis_password
+ZULIP__SECRET_KEY=django_secret_key
+ZULIP__EMAIL_PASSWORD=outgoing_email_password

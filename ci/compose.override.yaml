@@ -1,0 +1,21 @@
+---
+secrets:
+  zulip__postgres_password:
+    environment: "ZULIP__POSTGRES_PASSWORD"
+  zulip__memcached_password:
+    environment: "ZULIP__MEMCACHED_PASSWORD"
+  zulip__rabbitmq_password:
+    environment: "ZULIP__RABBITMQ_PASSWORD"
+  zulip__redis_password:
+    environment: "ZULIP__REDIS_PASSWORD"
+  zulip__secret_key:
+    environment: "ZULIP__SECRET_KEY"
+  zulip__email_password:
+    environment: "ZULIP__EMAIL_PASSWORD"
+
+services:
+  zulip:
+    image: "${GITHUB_CI_IMAGE:?error}"
+    environment:
+      SETTING_EXTERNAL_HOST: "zulip.example.net"
+      SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
