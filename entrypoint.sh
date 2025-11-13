@@ -140,7 +140,11 @@ setConfigurationValue() {
         bool | integer | array)
             VALUE="$KEY = $2"
             ;;
-        string | *)
+        string)
+            VALUE="$KEY = '${2//\'/\'}'"
+            ;;
+        *)
+            echo "WARNING: Unknown type '$TYPE' for '$KEY' -- treating as string." >&2
             VALUE="$KEY = '${2//\'/\'}'"
             ;;
     esac
