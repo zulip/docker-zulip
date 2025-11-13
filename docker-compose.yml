@@ -12,6 +12,7 @@ services:
       POSTGRES_PASSWORD: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"
     volumes:
       - "postgresql-14:/var/lib/postgresql/data:rw"
+    attach: false
   memcached:
     image: "memcached:alpine"
     restart: unless-stopped
@@ -27,6 +28,7 @@ services:
       SASL_CONF_PATH: "/home/memcache/memcached.conf"
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
+    attach: false
   rabbitmq:
     image: "rabbitmq:4.1"
     restart: unless-stopped
@@ -35,6 +37,7 @@ services:
       RABBITMQ_DEFAULT_PASS: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
     volumes:
       - "rabbitmq:/var/lib/rabbitmq:rw"
+    attach: false
   redis:
     image: "redis:alpine"
     restart: unless-stopped
@@ -48,6 +51,7 @@ services:
       REDIS_PASSWORD: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
     volumes:
       - "redis:/data:rw"
+    attach: false
   zulip:
     image: "zulip/docker-zulip:11.5-0"
     restart: unless-stopped
