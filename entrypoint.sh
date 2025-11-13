@@ -137,7 +137,7 @@ setConfigurationValue() {
         literal)
             VALUE="$1"
             ;;
-        bool | boolean | int | integer | array)
+        bool | integer | array)
             VALUE="$KEY = $2"
             ;;
         string | *)
