@@ -41,49 +41,88 @@ services:
       ## See https://github.com/zulip/docker-zulip#configuration for
       ## details on this section and how to discover the many
       ## additional settings that are supported here.
-      DB_HOST: "database"
-      DB_HOST_PORT: "5432"
-      DB_USER: "zulip"
-      SSL_CERTIFICATE_GENERATION: "self-signed"
-      SETTING_MEMCACHED_LOCATION: "memcached:11211"
-      SETTING_RABBITMQ_HOST: "rabbitmq"
-      SETTING_REDIS_HOST: "redis"
+      ##
+      ## The following two settings are required:
       SETTING_EXTERNAL_HOST: "localhost.localdomain"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
-      SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
-      SETTING_EMAIL_HOST_USER: "noreply@example.com"
-      SETTING_EMAIL_PORT: "587"
-      ## It seems that the email server needs to use ssl or tls and can't be used without it
-      SETTING_EMAIL_USE_SSL: "False"
-      SETTING_EMAIL_USE_TLS: "True"
+
+      ## Most deploys do SSL termination outside of the container; Zulip
+      ## automatically generates a self-signed certificate to use on port443.
+      ## Uncomment this to set up an auto-renewed Lets Encrypt certificate
+      ## inside the container -- this requires that SETTING_EXTERNAL_HOST be
+      ## accessible from the public network.
+      ##
+      # SSL_CERTIFICATE_GENERATION: "certbot"
+
+      ## By default, port 80 redirects to port 443, as is suitable for exposing
+      ## publicly.  To handle traffic directly on port 80 (if doing SSL
+      ## termination in an outer reverse proxy), uncomment this.
+      ##
+      # DISABLE_HTTPS: True
+
+      ## If you're using a reverse proxy, you will also need to provide the
+      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
+      ##
+      ## --> https://zulip.readthedocs.io/en/stable/production/reverse-proxies.html
+      ##
+      # LOADBALANCER_IPS: "10.0.0.0/8"
+
+      ## Outgoing email settings
+      ##
+      ## --> https://zulip.readthedocs.io/en/stable/production/email.html
+      ##
+      # SETTING_EMAIL_HOST: "smtp.example.com"
+      # SETTING_EMAIL_HOST_USER: "noreply@example.com"
+      # SETTING_EMAIL_PORT: "587"
+      # SETTING_EMAIL_USE_SSL: False
+      # SETTING_EMAIL_USE_TLS: True
+
       ## Uncomment to enable the incoming email gateway.  You will need to
       ## ensure that email to emaildomain.example.com is routed to this host
       ## (e.g. via MX record)
+      ##
+      ## --> https://zulip.readthedocs.io/en/stable/production/email-gateway.html
+      ##
       # SETTING_EMAIL_GATEWAY_PATTERN: "%s@emaildomain.example.com"
-      ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
-      ## Uncomment this when configuring the mobile push notifications service
-      # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: "True"
-      # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
 
-      ## If you're using a reverse proxy, you'll want to provide the
-      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
-      # LOADBALANCER_IPS: ""
+      ## A comma-separated list of authentication backends to enable.  Note that
+      ## this ZULIP_AUTH_BACKENDS takes the place of
+      ## SETTINGS_AUTHENTICATION_BACKENDS.  This defaults to just
+      ## EmailAuthBackend.
+      ##
+      ## --> https://zulip.readthedocs.io/en/stable/production/authentication-methods.html
+      ##
+      # ZULIP_AUTH_BACKENDS: "EmailAuthBackend,GoogleAuthBackend"
+
+      ## Uncomment this when configuring the mobile push notifications service.
+      ## After setting these, you will need to register the server:
+      ##
+      ##   docker compose exec -it -u zulip zulip /home/zulip/deployments/current/manage.py register_server
+      ##
+      ## --> https://zulip.readthedocs.io/en/stable/production/mobile-push-notifications.html
+      ##
+      # SETTING_ZULIP_SERVICE_PUSH_NOTIFICATIONS: True
+      # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: True
 
       ## By default, files uploaded by users and profile pictures are
       ## stored directly on the Zulip server. You can configure files
       ## to be stored in Amazon S3 or a compatible data store
-      ## here. See docs at:
-      ##
-      ##   https://zulip.readthedocs.io/en/latest/production/upload-backends.html
+      ## here.
       ##
       ## If you want to use the S3 backend, you must set
       ## SETTING_LOCAL_UPLOADS_DIR to None as well as configuring the
       ## other fields.
+      ##
+      ## --> https://zulip.readthedocs.io/en/latest/production/upload-backends.html
+      ##
       # SETTING_LOCAL_UPLOADS_DIR: "None"
       # SETTING_S3_AUTH_UPLOADS_BUCKET: ""
       # SETTING_S3_AVATAR_BUCKET: ""
       # SETTING_S3_ENDPOINT_URL: "None"
       # SETTING_S3_REGION: "None"
+
+      ## For a complete list of possible settings, see:
+      ## --> https://github.com/zulip/zulip/blob/11.4/zproject/prod_settings_template.py
     secrets:
       ## Add any additional zulip__ secrets that you defined above.
       []
