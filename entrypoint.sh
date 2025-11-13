@@ -410,7 +410,7 @@ zulipFirstStartInit() {
     su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
     RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start database initi failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
+        echo "Zulip first start database init failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
