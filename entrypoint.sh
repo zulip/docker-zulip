@@ -5,6 +5,7 @@ if [ "$DEBUG" = "true" ] || [ "$DEBUG" = "True" ]; then
     set -o functrace
 fi
 set -e
+set -u
 shopt -s extglob
 
 normalize_bool() {
