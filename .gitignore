@@ -6,6 +6,9 @@
 .idea/
 *.tmproj
 
+# Secrets
+/.env
+
 # dev files
 docker-compose-dev.yml
 kubernetes/*-dev.yml
