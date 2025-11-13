@@ -622,9 +622,9 @@ appHelp() {
     echo "> [COMMAND]    - Run given command with arguments in shell"
 }
 appVersion() {
-    echo "This container contains:"
-    echo "> Zulip server $ZULIP_VERSION"
-    echo "> Checksum: $ZULIP_CHECKSUM"
+    local ZULIP_VERSION
+    ZULIP_VERSION="$(su zulip -c "cd ~/deployments/current && python3 -c 'import version; print(version.ZULIP_VERSION)'")"
+    echo "This container contains Zulip Server $ZULIP_VERSION"
     exit 0
 }
 # END app functions
