@@ -447,8 +447,6 @@ zulipMigration() {
         exit $RETURN_CODE
     fi
     set -e
-    rm -rf "$DATA_DIR/.zulip-*"
-    touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "Database migrations completed."
 }
 runPostSetupScripts() {
