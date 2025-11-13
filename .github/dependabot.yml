@@ -17,3 +17,16 @@ updates:
       prefix: compose
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "uv"
+    directory: "/docs"
+    commit-message:
+      prefix: docs-deps
+    groups:
+      docs-deps:
+        patterns:
+          - "*"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
