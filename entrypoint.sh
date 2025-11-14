@@ -353,7 +353,7 @@ zulipConfiguration() {
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$type"
     done
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
         echo "Error in the Zulip configuration. Exiting."
         exit 1
     fi
@@ -404,7 +404,7 @@ initialConfiguration() {
             ls -l /etc/zulip/
             exit 1
         fi
-        if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+        if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
             echo "Error in the Zulip configuration. Exiting."
             exit 1
         fi
