@@ -9,6 +9,8 @@
 # Secrets
 /.env
 
+/docs/_build/
+
 # dev files
 docker-compose-dev.yml
 kubernetes/*-dev.yml
