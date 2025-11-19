@@ -1,4 +1,6 @@
 ---
+name: docker-zulip
+
 secrets:
   zulip__postgres_password:
     environment: "ZULIP__POSTGRES_PASSWORD"
