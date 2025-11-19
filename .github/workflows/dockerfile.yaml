@@ -155,13 +155,29 @@ jobs:
           kubectl -n "$namespace" logs "$pod"
           kubectl -n "$namespace" exec "$pod" -c zulip -- cat /var/log/zulip/errors.log
 
+  docker-compose-collect:
+    runs-on: ubuntu-latest
+    outputs:
+      dirs: ${{ steps.dirs.outputs.dirs }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - id: dirs
+        run: echo "dirs=$(ls -d ci/*/ | jq -Rnc '[inputs]')" >> ${GITHUB_OUTPUT}
+
   docker-compose-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - build
+      - docker-compose-collect
     env:
       GITHUB_CI_IMAGE: ${{ github.repository }}:pr-${{ github.event.pull_request.number }}
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: ${{ fromJson(needs.docker-compose-collect.outputs.dirs) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -182,16 +198,18 @@ jobs:
         run: |
           docker compose \
             -f compose.yaml \
-            -f ci/compose.override.yaml \
-            --env-file ci/env \
+            -f ci/base.yaml \
+            --env-file ci/base.env \
+            -f ${{ matrix.dir }}/compose.yaml \
             config
 
       - name: Start Docker Compose services
         run: |
           docker compose \
             -f compose.yaml \
-            -f ci/compose.override.yaml \
-            --env-file ci/env \
+            -f ci/base.yaml \
+            --env-file ci/base.env \
+            -f ${{ matrix.dir }}/compose.yaml \
             up -d --no-build
 
       - name: Wait for services to be healthy
@@ -207,6 +225,18 @@ jobs:
           if docker compose ps | grep -E "(Exit|Restarting)"; then
             exit 1
           fi
+
+      - name: Run tests
+        run: |
+          docker=("docker" "compose" \
+                  "-f" "compose.yaml" \
+                  "-f" "ci/base.yaml" \
+                  "--env-file" "ci/base.env" \
+                  "-f" "${{ matrix.dir }}/compose.yaml")
+          manage=("${docker[@]}" "exec" "-u" "zulip" "zulip"
+                  "/home/zulip/deployments/current/manage.py")
+          hostname="localhost"
+          source "${{ matrix.dir }}/test.sh"
 
       - name: Check service logs for critical errors
         if: success() || failure()
