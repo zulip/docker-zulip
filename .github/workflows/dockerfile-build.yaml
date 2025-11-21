@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - next
 
 jobs:
   build:
@@ -32,6 +33,6 @@ jobs:
           context: .
           push: true
           pull: true
-          tags: ghcr.io/${{ github.repository }}:main
+          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
