@@ -1,0 +1,7 @@
+---
+services:
+  zulip:
+    environment:
+      # This is the network's gateway address, set in compose.yaml, and the
+      # Docker Desktop IP VM's address (for local testing).
+      LOADBALANCER_IPS: 172.28.5.254,192.168.65.1

@@ -1,0 +1,44 @@
+---
+services:
+  zulip:
+    environment:
+      SSL_CERTIFICATE_GENERATION: certbot
+    networks:
+      zulip-backend:
+        ipv4_address: 172.28.5.100
+    depends_on:
+      - pebble
+      - challtestsrv
+
+  database:
+    networks: [zulip-backend]
+  memcached:
+    networks: [zulip-backend]
+  rabbitmq:
+    networks: [zulip-backend]
+  redis:
+    networks: [zulip-backend]
+
+  pebble:
+    image: ghcr.io/letsencrypt/pebble:latest
+    volumes:
+      - ./ci/certbot/pebble-config/:/config/
+    command: -config /config/pebble-config.json -strict -dnsserver challtestsrv:8053
+    ports:
+      - 14000:14000 # HTTPS ACME API
+      - 15000:15000 # HTTPS Management API
+    networks: [zulip-backend]
+  challtestsrv:
+    image: ghcr.io/letsencrypt/pebble-challtestsrv:latest
+    command: -defaultIPv6 "" -defaultIPv4 172.28.5.100
+    networks: [zulip-backend]
+
+networks:
+  zulip-backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          ip_range: 172.28.5.0/24
+          gateway: 172.28.5.254
