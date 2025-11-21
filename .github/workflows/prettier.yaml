@@ -1,0 +1,26 @@
+---
+name: Lint markdown files prettier
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: creyD/prettier_action@v4.6
+        with:
+          dry: true
+          prettier_options: "--write **/*.md"
+      - name: Check for any diff
+        run: |
+          if ! git diff --exit-code; then
+            echo "Changes found!"
+            git status
+            git diff
+            exit 1
+          fi

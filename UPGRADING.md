@@ -1,4 +1,4 @@
-# Upgrading instructions for `docker-compose`
+# Upgrading instructions for `docker compose`
 
 You can upgrade your Zulip installation to any newer version of Zulip with the
 following instructions. At a high level, the strategy is to download a new
@@ -58,18 +58,18 @@ All of the instructions below assume you are using the provided
 
    ```shell
    # Stops the old zulip container; this begins your downtime
-   docker-compose stop
+   docker compose stop
    # Boots the new zulip container; this ends your downtime
-   docker-compose up
+   docker compose up
    # Deletes the old container images
-   docker-compose rm
+   docker compose rm
    ```
 
 That's it! Zulip is now running the updated version.
 You can confirm you're running the latest version by running:
 
 ```shell
-docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.py
+docker compose exec -u zulip zulip cat /home/zulip/deployments/current/version.py
 ```
 
 ## Upgrading from a Git repository
@@ -92,7 +92,7 @@ docker-compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
    and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `main` or
    `1.9.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
 
-2. Run `docker-compose build zulip` to build a Zulip Docker image from the
+2. Run `docker compose build zulip` to build a Zulip Docker image from the
    specified Git version.
 
 Then stop and restart the container as described in the previous section.
@@ -110,7 +110,7 @@ If you elect to switch to managed Docker volumes, you can copy the data out of
 
 ```shell
 # Stop the containers
-docker-compose stop
+docker compose stop
 
 # Copy the data into new managed volumes:
 zulip_volume_sync() { docker run -it --rm -v "/opt/docker/zulip/$1:/src" -v "$(basename "$(pwd)")_${2:$1}":/dst ubuntu:20.04 sh -c 'cd /src; cp -a . /dst' ; }
@@ -124,13 +124,13 @@ zulip_volume_sync redis
 $EDITOR docker-compose.yml
 
 # Start the containers again
-docker-compose start
+docker compose start
 ```
 
 ## Upgrading zulip/zulip-postgresql to 14 (version 6.0-0 and above)
 
 As of Docker Zulip 6.0-0, we have upgraded the version of PostgreSQL which our
-docker-compose configuration uses, from PostgreSQL 10 (which is no longer
+`docker compose.yml` configuration uses, from PostgreSQL 10 (which is no longer
 supported) to PostgreSQL 14. Because the on-disk storage is not compatible
 between PostgreSQL versions, this requires more than simply switching which
 PostgreSQL docker image is used — the data must be dumped from PostgreSQL 10,
@@ -149,9 +149,9 @@ You can perform this step either before or after updating to use Docker volumes
 (above). In either case, the updated `docker-compose.yml` will use a new Docker
 volume for the upgraded PostgreSQL 14 data.
 
-The `upgrade-postgresql` tool requires `docker-compose` 2.1.1 or higher.
+The `upgrade-postgresql` tool requires `docker compose` 2.1.1 or higher.
 
-If the tool does not work, you have too old a `docker-compose`, or you would
+If the tool does not work, you have too old a `docker compose`, or you would
 prefer to perform the steps manually, see the steps below. These instructions
 assume that you have not changed the default Postgres data path
 (`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`. If you have
@@ -163,7 +163,7 @@ changed it, please replace all occurrences of
 2. Stop the Zulip container:
 
    ```shell
-   docker-compose stop zulip
+   docker compose stop zulip
    ```
 
 3. Create a new (upgraded) Postgres container using a different data directory:
@@ -183,7 +183,7 @@ changed it, please replace all occurrences of
    upgrade):
 
    ```shell
-   docker-compose exec database pg_dumpall -U zulip | \
+   docker compose exec database pg_dumpall -U zulip | \
        docker exec -i postgresnew psql -U zulip
 
    echo "ALTER USER zulip WITH PASSWORD 'REPLACE_WITH_SECURE_POSTGRES_PASSWORD';" |
@@ -193,7 +193,7 @@ changed it, please replace all occurrences of
 5. Stop and remove both Postgres containers:
 
    ```shell
-   docker-compose rm --stop database
+   docker compose rm --stop database
    docker stop postgresnew
    docker rm postgresnew
    ```
@@ -207,7 +207,7 @@ changed it, please replace all occurrences of
 
 8. Start Zulip up again:
    ```shell
-   docker-compose up
+   docker compose up
    ```
 
 ## Upgrading from the old galexrt/docker-zulip
@@ -219,13 +219,13 @@ image (because we've significantly upgraded the major postgres version).
 
 These instructions assume that you have not changed the default PostgreSQL data
 path (`/opt/docker/zulip/postgresql/data`) in your `docker-compose.yml`. If you
-have changed it, please replace all occurences of
+have changed it, please replace all occurrences of
 `/opt/docker/zulip/postgresql/data` with your path.
 
 1. Make a backup of your Zulip PostgreSQL data directory.
 
 2. Stop all Zulip containers, except the postgres one (e.g. use `docker stop`
-   and not `docker-compose stop`).
+   and not `docker compose stop`).
 
 3. Create a new (upgraded) PostgreSQL container using a different data
    directory:
@@ -244,14 +244,14 @@ have changed it, please replace all occurences of
    the new PostgreSQL container:
 
    ```shell
-   docker-compose exec database pg_dumpall -U postgres | \
+   docker compose exec database pg_dumpall -U postgres | \
        docker exec -i postgresnew psql -U postgres
    ```
 
 5. Stop and remove both PostgreSQL containers:
 
    ```shell
-   docker-compose rm --stop database
+   docker compose rm --stop database
    docker rm --stop postgresnew
    ```
 
@@ -269,11 +269,11 @@ have changed it, please replace all occurences of
 8. Delete the old existing containers:
 
    ```shell
-   docker-compose rm
+   docker compose rm
    ```
 
 9. Start Zulip up again:
 
    ```shell
-   docker-compose up
+   docker compose up
    ```

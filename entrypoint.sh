@@ -5,47 +5,85 @@ if [ "$DEBUG" = "true" ] || [ "$DEBUG" = "True" ]; then
     set -o functrace
 fi
 set -e
+set -u
 shopt -s extglob
 
-# DB aka Database
+normalize_bool() {
+    # Returns either "True" or "False"
+    local varname="$1"
+    local raw_value="${!varname:-}"
+    local value="${raw_value,,}" # Convert to lowercase
+    local default="${2:-False}"
+
+    case "$value" in
+        true | enable | enabled | yes | y | 1 | on)
+            echo "True"
+            ;;
+        false | disable | disabled | no | n | 0 | off)
+            echo "False"
+            ;;
+        "")
+            echo "$default"
+            ;;
+        *)
+            echo "WARNING: Invalid boolean ('$raw_value') for '$varname'; defaulting to $default" >&2
+            echo "$default"
+            ;;
+    esac
+}
+
+## Settings
+
+# PostgreSQL
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_USER="${DB_USER:-zulip}"
 REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
+
 # RabbitMQ
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
 SETTING_RABBITMQ_USER="${SETTING_RABBITMQ_USER:-zulip}"
-export RABBITMQ_NODE="$SETTING_RABBITMQ_HOST"
+
 # Redis
-SETTING_RATE_LIMITING="${SETTING_RATE_LIMITING:-True}"
 SETTING_REDIS_HOST="${SETTING_REDIS_HOST:-127.0.0.1}"
 SETTING_REDIS_PORT="${SETTING_REDIS_PORT:-6379}"
+
 # Memcached
-if [ -z "$SETTING_MEMCACHED_LOCATION" ]; then
-    SETTING_MEMCACHED_LOCATION="127.0.0.1:11211"
-fi
-# Nginx settings
-DISABLE_HTTPS="${DISABLE_HTTPS:-false}"
+SETTING_MEMCACHED_LOCATION="${SETTING_MEMCACHED_LOCATION:-127.0.0.1:11211}"
+
+# Nginx and HTTP(S) settings
+DISABLE_HTTPS="$(normalize_bool DISABLE_HTTPS)"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
-NGINX_PROXY_BUFFERING="${NGINX_PROXY_BUFFERING:-off}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
-# Zulip certifcate parameters
-SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:self-signed}"
-# Zulip related settings
+LOADBALANCER_IPS="${LOADBALANCER_IPS:-}"
+TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
+SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:-self-signed}"
+
+# Outgoing proxy settings
+PROXY_ALLOW_ADDRESSES="${PROXY_ALLOW_ADDRESSES:-}"
+PROXY_ALLOW_RANGES="${PROXY_ALLOW_RANGES:-}"
+
+# Core Zulip settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
-ZULIP_RUN_POST_SETUP_SCRIPTS="${ZULIP_RUN_POST_SETUP_SCRIPTS:-True}"
-# Zulip user setup
-FORCE_FIRST_START_INIT="${FORCE_FIRST_START_INIT:-False}"
+QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS)"
+
+# Configuration controls
+FORCE_FIRST_START_INIT="$(normalize_bool FORCE_FIRST_START_INIT)"
+ZULIP_RUN_POST_SETUP_SCRIPTS="$(normalize_bool ZULIP_RUN_POST_SETUP_SCRIPTS True)"
+ZULIP_CUSTOM_SETTINGS="${ZULIP_CUSTOM_SETTINGS:-}"
+MANUAL_CONFIGURATION="$(normalize_bool MANUAL_CONFIGURATION)"
+LINK_SETTINGS_TO_DATA="$(normalize_bool LINK_SETTINGS_TO_DATA)"
+
 # Auto backup settings
-AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-True}"
+AUTO_BACKUP_ENABLED="$(normalize_bool AUTO_BACKUP_ENABLED True)"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
-# Zulip configuration function specific variable(s)
-SPECIAL_SETTING_DETECTION_MODE="${SPECIAL_SETTING_DETECTION_MODE:-}"
-MANUAL_CONFIGURATION="${MANUAL_CONFIGURATION:-false}"
-LINK_SETTINGS_TO_DATA="${LINK_SETTINGS_TO_DATA:-false}"
-# entrypoint.sh specific variable(s)
+
+## Constants
 SETTINGS_PY="/etc/zulip/settings.py"
+
+## Global state
+GENERATE_CERTBOT_CERT_SCHEDULED=""
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -57,7 +95,7 @@ prepareDirectories() {
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
     chown zulip:zulip -R "$DATA_DIR/uploads"
     # Link settings folder
-    if [ "$LINK_SETTINGS_TO_DATA" = "True" ] || [ "$LINK_SETTINGS_TO_DATA" = "true" ]; then
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
         # Create settings directories
         if [ ! -d "$DATA_DIR/settings" ]; then
             mkdir -p "$DATA_DIR/settings"
@@ -76,71 +114,66 @@ setConfigurationValue() {
         echo "No KEY given for setConfigurationValue."
         return 1
     fi
-    if [ -z "$3" ]; then
-        echo "No FILE given for setConfigurationValue."
-        return 1
-    fi
     local KEY="$1"
     local VALUE
-    local FILE="$3"
-    local TYPE="$4"
+    local TYPE="$3"
     if [ -z "$TYPE" ]; then
         case "$2" in
-            [Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|[Nn]one)
-            TYPE="bool"
-            ;;
+            [Tt][Rr][Uu][Ee] | [Ff][Aa][Ll][Ss][Ee] | [Nn]one)
+                TYPE="bool"
+                ;;
             +([0-9]))
-            TYPE="integer"
-            ;;
+                TYPE="integer"
+                ;;
             [\[\(]*[\]\)])
-            TYPE="array"
-            ;;
+                TYPE="array"
+                ;;
             *)
-            TYPE="string"
-            ;;
+                TYPE="string"
+                ;;
         esac
     fi
     case "$TYPE" in
-        emptyreturn)
-        if [ -z "$2" ]; then
-            return 0
-        fi
-        ;;
         literal)
-        VALUE="$1"
-        ;;
-        bool|boolean|int|integer|array)
-        VALUE="$KEY = $2"
-        ;;
-        string|*)
-        VALUE="$KEY = '${2//\'/\'}'"
-        ;;
+            VALUE="$1"
+            ;;
+        bool | boolean | int | integer | array)
+            VALUE="$KEY = $2"
+            ;;
+        string | *)
+            VALUE="$KEY = '${2//\'/\'}'"
+            ;;
     esac
-    echo "$VALUE" >> "$FILE"
-    echo "Setting key \"$KEY\", type \"$TYPE\" in file \"$FILE\"."
+    echo "$VALUE" >>"$SETTINGS_PY"
+    echo "Setting key \"$KEY\", type \"$TYPE\"."
 }
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
     sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
-    sed -i "s/proxy_buffering .*/proxy_buffering $NGINX_PROXY_BUFFERING;/g" /etc/nginx/zulip-include/proxy_longpolling
     echo "Nginx configuration succeeded."
 }
 puppetConfiguration() {
     echo "Executing puppet configuration ..."
 
-    if [ "$DISABLE_HTTPS" == "True" ] || [ "$DISABLE_HTTPS" == "true" ]; then
+    if [ "$DISABLE_HTTPS" == "True" ]; then
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
-    if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "true" ]; then
+    if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
-    elif [ "$QUEUE_WORKERS_MULTIPROCESS" == "False" ] || [ "$QUEUE_WORKERS_MULTIPROCESS" == "false" ]; then
+    else
         echo "Setting queue workers to run in multithreaded mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     fi
 
+    if [ "$TRUST_GATEWAY_IP" == "True" ]; then
+        local GATEWAY_IP
+        GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
+        echo "Trusting local network gateway $GATEWAY_IP"
+        LOADBALANCER_IPS="${LOADBALANCER_IPS:+$LOADBALANCER_IPS,}$GATEWAY_IP"
+    fi
     if [ -n "$LOADBALANCER_IPS" ]; then
         echo "Setting IPs for load balancer"
         crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
@@ -168,6 +201,8 @@ puppetConfiguration() {
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
+    local GENERATE_SELF_SIGNED_CERT
+    local GENERATE_CERTBOT_CERT
     case "$SSL_CERTIFICATE_GENERATION" in
         self-signed)
             GENERATE_SELF_SIGNED_CERT="True"
@@ -250,9 +285,9 @@ secretsConfiguration() {
 }
 databaseConfiguration() {
     echo "Setting database configuration ..."
-    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "$SETTINGS_PY" "string"
-    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "$SETTINGS_PY" "string"
-    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "$SETTINGS_PY" "string"
+    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "string"
+    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "string"
+    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "string"
     # The password will be set in secretsConfiguration
     echo "Database configuration succeeded."
 }
@@ -260,13 +295,14 @@ authenticationBackends() {
     echo "Activating authentication backends ..."
     local FIRST=true
     local auth_backends
-    IFS=, read -r -a auth_backends <<< "$ZULIP_AUTH_BACKENDS"
+    IFS=, read -r -a auth_backends <<<"$ZULIP_AUTH_BACKENDS"
+    local AUTH_BACKEND
     for AUTH_BACKEND in "${auth_backends[@]}"; do
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "$SETTINGS_PY" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "$SETTINGS_PY" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
@@ -275,51 +311,47 @@ authenticationBackends() {
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
     if [ -n "$ZULIP_CUSTOM_SETTINGS" ]; then
-        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >> "$SETTINGS_PY"
+        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >>"$SETTINGS_PY"
     fi
     local key
     for key in "${!SETTING_@}"; do
         [[ "$key" == SETTING_*([0-9A-Za-z_]) ]] || continue
         local setting_key="${key#SETTING_}"
         local setting_var="${!key}"
-        local type="string"
+        local type=""
         if [ -z "$setting_var" ]; then
             echo "Empty var for key \"$setting_key\"."
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
-        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] || \
-           [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] || \
-           [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] || \
-           [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] || \
-           [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] || \
-           [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] || \
-           { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } || \
-           [ "$setting_key" = "SCIM_CONFIG" ] || \
-           [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] || \
-           [[ "$setting_key" = "CSRF_"* ]] || \
-           [ "$setting_key" = "REALM_HOSTS" ] || \
-           [ "$setting_key" = "ALLOWED_HOSTS" ]; then
+        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] \
+            || [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] \
+            || [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] \
+            || [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] \
+            || [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] \
+            || [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] \
+            || { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } \
+            || [ "$setting_key" = "SCIM_CONFIG" ] \
+            || [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] \
+            || [[ "$setting_key" = "CSRF_"* ]] \
+            || [ "$setting_key" = "REALM_HOSTS" ] \
+            || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
             type="array"
         fi
-        if [ "$SPECIAL_SETTING_DETECTION_MODE" = "True" ] || [ "$SPECIAL_SETTING_DETECTION_MODE" = "true" ] || \
-           [ "$type" = "string" ]; then
-            type=""
-        fi
-        if [ "$setting_key" = "EMAIL_HOST_USER"  ] || \
-           [ "$setting_key" = "EMAIL_HOST_PASSWORD" ]  || \
-           [ "$setting_key" = "EXTERNAL_HOST" ]; then
+        if [ "$setting_key" = "EMAIL_HOST_USER" ] \
+            || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ] \
+            || [ "$setting_key" = "EXTERNAL_HOST" ]; then
             type="string"
         fi
-        setConfigurationValue "$setting_key" "$setting_var" "$SETTINGS_PY" "$type"
+        setConfigurationValue "$setting_key" "$setting_var" "$type"
     done
     if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
         echo "Error in the Zulip configuration. Exiting."
@@ -328,12 +360,12 @@ zulipConfiguration() {
     echo "Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
-    if [ "$AUTO_BACKUP_ENABLED" != "True" ] && [ "$AUTO_BACKUP_ENABLED" != "true" ]; then
+    if [ "$AUTO_BACKUP_ENABLED" != "True" ]; then
         rm -f /etc/cron.d/autobackup
         echo "Auto backup is disabled. Continuing."
         return 0
     fi
-    printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" > /etc/cron.d/autobackup
+    printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" >/etc/cron.d/autobackup
     echo "Auto backup enabled."
 }
 initialConfiguration() {
@@ -342,13 +374,40 @@ initialConfiguration() {
     puppetConfiguration
     nginxConfiguration
     configureCerts
-    if [ "$MANUAL_CONFIGURATION" = "False" ] || [ "$MANUAL_CONFIGURATION" = "false" ]; then
+    if [ "$MANUAL_CONFIGURATION" = "False" ]; then
         # Start with the settings template file.
         cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
         databaseConfiguration
         secretsConfiguration
         authenticationBackends
         zulipConfiguration
+    else
+        # Check that the configuration will work
+        local root_path="/etc/zulip"
+        if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
+            root_path="/data/settings/etc-zulip"
+        fi
+        local failure=0
+        for conf_file in zulip.conf zulip-secrets.conf settings.py; do
+            if [ ! -f "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file does not exist!"
+                failure=1
+            elif ! sudo -u zulip test -r "/etc/zulip/$conf_file"; then
+                echo "ERROR: $root_path/$conf_file is not readable by the zulip user (UID $(id -u zulip))"
+                failure=1
+            elif [ ! -s "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file is empty"
+                failure=1
+            fi
+        done
+        if [ "$failure" = "1" ]; then
+            ls -l /etc/zulip/
+            exit 1
+        fi
+        if ! su zulip -c "/home/zulip/deployments/current/manage.py checkconfig"; then
+            echo "Error in the Zulip configuration. Exiting."
+            exit 1
+        fi
     fi
     autoBackupConfiguration
     echo "=== End Initial Configuration Phase ==="
@@ -357,8 +416,7 @@ initialConfiguration() {
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
-    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1
-    do
+    while ! PGPASSWORD="${SECRETS_postgres_password?}" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
@@ -369,7 +427,7 @@ waitingForDatabase() {
 }
 zulipFirstStartInit() {
     echo "Executing Zulip first start init ..."
-    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ] && [ "$FORCE_FIRST_START_INIT" != "true" ]; then
+    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ]; then
         echo "First Start Init not needed. Continuing."
         return 0
     fi
@@ -378,30 +436,29 @@ zulipFirstStartInit() {
     su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
     RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start database initi failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
+        echo "Zulip first start database init failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
     touch "$DATA_DIR/.initiated"
-    echo "Zulip first start init sucessful."
+    echo "Zulip first start init successful."
 }
 zulipMigration() {
     echo "Running new database migrations..."
     set +e
+    local RETURN_CODE=0
     su zulip -c "/home/zulip/deployments/current/manage.py migrate --noinput"
-    local RETURN_CODE=$?
+    RETURN_CODE=$?
     if [[ $RETURN_CODE != 0 ]]; then
         echo "Zulip migration failed with exit code $RETURN_CODE. Exiting."
         exit $RETURN_CODE
     fi
     set -e
-    rm -rf "$DATA_DIR/.zulip-*"
-    touch "$DATA_DIR/.zulip-$ZULIP_VERSION"
     echo "Database migrations completed."
 }
 runPostSetupScripts() {
     echo "Post setup scripts execution ..."
-    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ] && [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "true" ]; then
+    if [ "$ZULIP_RUN_POST_SETUP_SCRIPTS" != "True" ]; then
         echo "Not running post setup scripts. ZULIP_RUN_POST_SETUP_SCRIPTS isn't true."
         return 0
     fi
@@ -435,7 +492,7 @@ function runCertbotAsNeeded() {
 
     echo "Waiting for nginx to come online before generating certbot certificate ..."
     while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
-        sleep 1;
+        sleep 1
     done
 
     echo "Generating LetsEncrypt/certbot certificate ..."
@@ -484,7 +541,7 @@ appInit() {
     bootstrappingEnvironment
 }
 appManagePy() {
-    COMMAND="$1"
+    local COMMAND="$1"
     shift 1
     if [ -z "$COMMAND" ]; then
         echo "No command given for manage.py. Defaulting to \"shell\"."
@@ -503,11 +560,10 @@ appBackup() {
         echo "Backup process failed. Exiting."
         exit 1
     fi
-    local BACKUP_FOLDER
-    BACKUP_FOLDER="/tmp/backup-$TIMESTAMP)"
+    local BACKUP_FOLDER="/tmp/backup-$TIMESTAMP"
     mkdir -p "$BACKUP_FOLDER"
     waitingForDatabase
-    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" > "$BACKUP_FOLDER/database-postgres.sql"
+    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
     tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
@@ -552,7 +608,7 @@ appRestore() {
     echo "!! WARNING !! Starting restore process ... !! WARNING !!"
     waitingForDatabase
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
-    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" < "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
+    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
@@ -569,13 +625,13 @@ appHelp() {
     echo "> app:restore  - Restore backups of Zulip instances"
     echo "> app:certs    - Create self-signed certificates"
     echo "> app:run      - Run the Zulip server"
-    echo "> app:init     - Run inital setup of Zulip server"
+    echo "> app:init     - Run initial setup of Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
 }
 appVersion() {
-    echo "This container contains:"
-    echo "> Zulip server $ZULIP_VERSION"
-    echo "> Checksum: $ZULIP_CHECKSUM"
+    local ZULIP_VERSION
+    ZULIP_VERSION="$(su zulip -c "cd ~/deployments/current && python3 -c 'import version; print(version.ZULIP_VERSION)'")"
+    echo "This container contains Zulip Server $ZULIP_VERSION"
     exit 0
 }
 # END app functions
@@ -583,30 +639,30 @@ appVersion() {
 case "$1" in
     app:run)
         appRun
-    ;;
+        ;;
     app:init)
         appInit
-    ;;
+        ;;
     app:managepy)
         shift 1
         appManagePy "$@"
-    ;;
+        ;;
     app:backup)
         appBackup
-    ;;
+        ;;
     app:restore)
         appRestore
-    ;;
+        ;;
     app:certs)
         appCerts
-    ;;
+        ;;
     app:help)
         appHelp
-    ;;
+        ;;
     app:version)
         appVersion
-    ;;
+        ;;
     *)
         exec "$@" || appHelp
-    ;;
+        ;;
 esac

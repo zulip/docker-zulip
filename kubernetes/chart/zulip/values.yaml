@@ -17,15 +17,15 @@ image:
   ## Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
   pullPolicy: IfNotPresent
   ## Zulip image tag (immutable tags are recommended)
-  tag: "11.2-0"
+  tag: "11.4-0"
 
 ## Global Docker registry secret names as an array.
 imagePullSecrets: []
 
-## Partially override common.names.fullname template (will maintain the release name).
+## Partially override zulip.fullname template (will maintain the release name).
 nameOverride: ""
 
-## Fully override common.names.fullname template.
+## Fully override zulip.fullname template.
 fullnameOverride: ""
 
 serviceAccount:
@@ -131,19 +131,21 @@ zulip:
     ## certificates are managed by the Kubernetes cluster, so by
     ## default it's disabled inside the container.
     DISABLE_HTTPS: true
+    TRUST_GATEWAY_IP: true
     ## Set SSL certificate generation to self-signed because
     ## Kubernetes manages the client-facing SSL certs.
     SSL_CERTIFICATE_GENERATION: self-signed
-    ## Domain Zulip is hosted on.
+    ## Domain Zulip is hosted on; this is required
     SETTING_EXTERNAL_HOST: zulip.example.com
-    ## SMTP email password.
-    SECRETS_email_password: "123456789"
+    ## Administrator's email address; this is required
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    ## Outgoing email configuration
     SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
     SETTING_EMAIL_HOST_USER: "noreply@example.com"
     SETTING_EMAIL_PORT: "587"
     SETTING_EMAIL_USE_SSL: "False"
     SETTING_EMAIL_USE_TLS: "True"
+    SECRETS_email_password: "123456789"
     ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
@@ -196,11 +198,21 @@ postSetup:
   #         mountPath: /data
 sidecars: []
 
+## Bitnami requires this to override PostgreSQL image
+global:
+  security:
+    allowInsecureImages: true
+
 ## PostgreSQL settings, see [Requirements](#Requirements).
 postgresql:
   primary:
     containerSecurityContext:
-      runAsUser: 0
+      # 70 is the standard uid/gid of the "postgres" user in Alpine, which is
+      # used as the base for zulip/zulip-postgresql
+      # https://github.com/docker-library/postgres/blob/23987751b63ce745bd27b1119ab29dc4a1ffd728/Dockerfile-alpine.template#L7
+      runAsUser: 70
+      runAsGroup: 70
+      readOnlyRootFilesystem: false
   ## We need to override the Postgresql image to get all the plugins Zulip needs
   image:
     repository: zulip/zulip-postgresql
@@ -211,6 +223,10 @@ postgresql:
 
 ## Rabbitmq settings, see [Requirements](#Requirements).
 rabbitmq:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/rabbitmq
+    tag: 4.1.3
   auth:
     username: zulip
   ## Set this to true if you need the rabbitmq to be persistent
@@ -219,10 +235,18 @@ rabbitmq:
 
 ## Memcached settings, see [Requirements](#Requirements).
 memcached:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/memcached
+    tag: latest
   memcachedUsername: "zulip@localhost"
 
 ## Redis settings, see [Requirements](#Requirements).
 redis:
+  image:
+    # TODO: This image is no longer updated, and will need to be updated to one which is.
+    repository: bitnamilegacy/redis
+    tag: latest
   architecture: standalone
   master:
     persistence:
