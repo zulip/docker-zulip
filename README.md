@@ -8,11 +8,11 @@
 Hub](https://hub.docker.com/r/zulip/docker-zulip):
 
 ```console
-$ docker pull zulip/docker-zulip:11.1-0
+$ docker pull zulip/docker-zulip:11.4-0
 ```
 
-Current Zulip version: `11.1`
-Current Docker image version: `11.1-0`
+Current Zulip version: `11.4`
+Current Docker image version: `11.4-0`
 
 We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker
@@ -95,7 +95,7 @@ sample configuration to run that Zulip server with each of the major
 [volumes]: https://docs.docker.com/storage/volumes/
 [persistent-data]: https://zulip.readthedocs.io/en/latest/production/export-and-import.html#backups
 
-## Running a Zulip server with docker-compose
+## Running a Zulip server with `docker compose`
 
 To use this project, we recommend starting by cloning the repository (since
 you'll want to edit the `docker-compose.yml` file in this project):
@@ -112,7 +112,7 @@ generate secrets and do some configuration.
 
 ### Configuration
 
-With `docker-compose`, it is traditional to configure a service by
+With `docker compose`, it is traditional to configure a service by
 setting environment variables declared in the `zulip -> environment`
 section of the `docker-compose.yml` file; this image follows that
 convention.
@@ -216,6 +216,21 @@ proxies][other-proxy].
 [haproxy-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#haproxy-configuration
 [other-proxy]: https://zulip.readthedocs.io/en/latest/production/reverse-proxies.html#other-proxies
 
+**Outgoing proxy**: Zulip uses [Smokescreen][smokescreen] to proxy all
+outgoing HTTP connections and prevent SSRF attacks. If you have
+private IPs (e.g., outgoing webhook hosts on private IPs), you can set
+`PROXY_ALLOW_ADDRESSES` or `PROXY_ALLOW_RANGES` to comma-separated
+lists of IP addresses or CIDR ranges.
+
+[smokescreen]: https://zulip.readthedocs.io/en/latest/production/deployment.html#customizing-the-outgoing-http-proxy
+
+**Incoming email**: The Docker image exposes port 25, which is already
+configured with Zulip's incoming email server. To use it, publish
+port 25 of the Docker container, set `SETTING_EMAIL_GATEWAY_PATTERN`,
+and add an MX record to your DNS configuration pointing to the Docker
+container's public hostname (or wherever you chose to publicly expose
+its port 25).
+
 ### Manual configuration
 
 The way the environment variables configuration process described in
@@ -236,12 +251,12 @@ can provide a `settings.py` file and a `zulip-secrets.conf` file in
 You can boot your Zulip installation with:
 
 ```
-docker-compose pull
-docker-compose up
+docker compose pull
+docker compose up
 ```
 
 This will boot the 5 containers declared in `docker-compose.yml`. The
-`docker-compose` command will print a bunch of output, and then
+`docker compose` command will print a bunch of output, and then
 eventually hang once everything is happily booted, usually ending with
 a bunch of lines like this:
 
@@ -252,15 +267,15 @@ rabbitmq_1   | accepting AMQP connection <0.534.0> (172.18.0.3:49504
 ```
 
 You can inspect what containers are running in another shell with
-`docker-compose ps` (remember to `cd` into the `docker-zulip`
+`docker compose ps` (remember to `cd` into the `docker-zulip`
 directory first).
 
 If you hit `Ctrl-C`, that will stop your Zulip server cluster. If
 you'd prefer to have the containers run in the background, you can use
-`docker-compose up -d`.
+`docker compose up -d`.
 
 If you want to build the Zulip image yourself, you can do that by
-running `docker-compose build`; see also
+running `docker compose build`; see also
 [the documentation on building a custom Git version version](UPGRADING.md#upgrading-from-a-git-repository).
 
 ### Connecting to your Zulip server
@@ -281,8 +296,8 @@ You can now follow the normal Zulip installer instructions for how to
 new Zulip server. You'll generate the realm creation link as follows:
 
 ```bash
-docker-compose exec -u zulip zulip \
-    "/home/zulip/deployments/current/manage.py generate_realm_creation_link"
+docker compose exec -u zulip zulip \
+    /home/zulip/deployments/current/manage.py generate_realm_creation_link
 ```
 
 But don't forget to review the [getting started][next-steps] links at
@@ -298,10 +313,10 @@ The following are helpful examples:
 
 ```bash
 # Get a (root) shell in the container so you can access logs
-docker-compose exec zulip bash
+docker compose exec zulip bash
 # Run a Zulip management command
-docker-compose exec -u zulip zulip \
-    "/home/zulip/deployments/current/manage.py list_realms"
+docker compose exec -u zulip zulip \
+    /home/zulip/deployments/current/manage.py list_realms
 ```
 
 Since that process for running management commands is a pain, we recommend
@@ -338,7 +353,7 @@ instructions.
 A Kubernetes pod file is in the `kubernetes/` folder; you can run it
 with `kubectl create -f ./kubernetes/`.
 
-You should read the `docker-compose` section above to understand how
+You should read the `docker compose` section above to understand how
 this works, since it's a very similar setup. You'll want to clone
 this repository, edit the `zulip-rc.yml` to configure the image, etc.
 
@@ -390,7 +405,7 @@ in the Docker environment (`docker-compose.yml`).
 Common issues include:
 
 - Invalid configuration resulting in the `zulip` container not
-  starting; check `docker-compose ps` to see if it started, and then
+  starting; check `docker compose ps` to see if it started, and then
   read the logs for the Zulip container to see why it failed.
 - A new Zulip setting not being passed through the Docker
   [entrypoint.sh script](/entrypoint.sh) properly. If you

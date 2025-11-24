@@ -86,7 +86,7 @@ spec:
             - name: postgresql-persistent-storage
               mountPath: /var/lib/postgresql/data
         - name: zulip
-          image: zulip/docker-zulip:11.1-0
+          image: zulip/docker-zulip:11.4-0
           resources:
             limits:
               cpu: 100m
@@ -121,7 +121,7 @@ spec:
             - name: ZULIP_USER_PASS
               value: "123456789"
             - name: SECRETS_secret_key
-              value: "REPLCAE_WITH_SECURE_SECRET_KEY"
+              value: "REPLACE_WITH_SECURE_SECRET_KEY"
             ## These should match the passwords configured above
             - name: SECRETS_postgres_password
               value: "REPLACE_WITH_SECURE_POSTGRES_PASSWORD"

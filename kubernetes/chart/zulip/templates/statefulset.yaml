@@ -68,7 +68,7 @@ spec:
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
               httpHeaders:
               - name: Host
@@ -82,7 +82,7 @@ spec:
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
               httpHeaders:
               - name: Host

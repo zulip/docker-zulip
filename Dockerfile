@@ -9,6 +9,7 @@ ENV LANG="C.UTF-8"
 
 ARG UBUNTU_MIRROR
 
+# hadolint ignore=DL3005,DL3008,DL3009
 RUN { [ ! "$UBUNTU_MIRROR" ] || sed -i "s|http://\(\w*\.\)*archive\.ubuntu\.com/ubuntu/\? |$UBUNTU_MIRROR |" /etc/apt/sources.list; } && \
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
@@ -27,15 +28,11 @@ WORKDIR /home/zulip
 # You can specify these in docker-compose.yml or with
 #   docker build --build-arg "ZULIP_GIT_REF=git_branch_name" .
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
-ARG ZULIP_GIT_REF=11.1
+ARG ZULIP_GIT_REF=11.4
 
-RUN git clone "$ZULIP_GIT_URL" && \
-    cd zulip && \
-    git checkout -b current "$ZULIP_GIT_REF"
+RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF"
 
 WORKDIR /home/zulip/zulip
-
-ARG CUSTOM_CA_CERTIFICATES
 
 # Finally, we provision the development environment and build a release tarball
 RUN SKIP_VENV_SHELL_WARNING=1 ./tools/provision --build-release-tarball-only && \
@@ -52,14 +49,12 @@ ENV DATA_DIR="/data"
 COPY --from=build /tmp/zulip-server-docker.tar.gz /root/
 COPY custom_zulip_files/ /root/custom_zulip
 
-ARG CUSTOM_CA_CERTIFICATES
-
+WORKDIR /root
 RUN \
     # Make sure Nginx is started by Supervisor.
     dpkg-divert --add --rename /etc/init.d/nginx && \
     ln -s /bin/true /etc/init.d/nginx && \
     mkdir -p "$DATA_DIR" && \
-    cd /root && \
     tar -xf zulip-server-docker.tar.gz && \
     rm -f zulip-server-docker.tar.gz && \
     mv zulip-server-docker zulip && \

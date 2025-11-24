@@ -5,40 +5,40 @@ new_version=14
 
 # Require the `yq` tool
 if ! command -v yq >/dev/null; then
-	echo "You must install the 'yq' tool to use this script."
-	exit 1
+    echo "You must install the 'yq' tool to use this script."
+    exit 1
 fi
 
-# Require docker-compose 2.1.1 or higher, for `docker-compose up --wait`
-docker_compose_version=$(docker-compose --version --short)
+# Require docker compose 2.1.1 or higher, for `docker compose up --wait`
+docker_compose_version=$(docker compose --version --short)
 if [ "${docker_compose_version}" = "$(echo -e "2.1.0\n${docker_compose_version}" | sort -V | head -n1)" ]; then
-	echo "Your docker-compose is too old (${docker_compose_version}); upgrade to at least 2.1.1."
-	exit 1
+    echo "Your docker compose is too old (${docker_compose_version}); upgrade to at least 2.1.1."
+    exit 1
 fi
 
 image=$(yq ".services.database.image" docker-compose.yml)
 if [[ $image =~ ^zulip/zulip-postgresql:([0-9]+)$ ]]; then
-	old_version="${BASH_REMATCH[1]}"
+    old_version="${BASH_REMATCH[1]}"
 else
-	echo "Unexpected PostgreSQL image: $image"
-	exit 1
+    echo "Unexpected PostgreSQL image: $image"
+    exit 1
 fi
 
 volume_mount=$(yq ".services.database.volumes.0" docker-compose.yml)
 if [[ "$volume_mount" =~ ^([^:]+):/var/lib/postgresql/data:rw$ ]]; then
-	old_mountpoint="${BASH_REMATCH[1]}"
+    old_mountpoint="${BASH_REMATCH[1]}"
 else
-	echo "Unexpected volume mount: $volume_mount"
-	exit 1
+    echo "Unexpected volume mount: $volume_mount"
+    exit 1
 fi
 
 if [ "$new_version" -eq "$old_version" ]; then
-	echo "PostgreSQL image is already version $new_version!"
-	exit 1
+    echo "PostgreSQL image is already version $new_version!"
+    exit 1
 fi
 
 # Create a new volume for the data; scope it with the current
-# directory, like docker-compose
+# directory, like docker compose
 docker_compose_project="$(basename "$(pwd)")"
 new_volume="postgresql-$new_version"
 full_new_volume="${docker_compose_project}_${new_volume}"
@@ -48,51 +48,51 @@ trap 'docker volume --force "$full_new_volume"' EXIT
 # Start a new PostgreSQL container of the right version to read in the
 # dumped database and write a new data dir on the new volume
 temp_container=$(
-	docker run -d \
-		-e POSTGRES_DB=zulip \
-		-e POSTGRES_USER=zulip \
-		-e POSTGRES_PASSWORD=zulip \
-		-v "$full_new_volume:/var/lib/postgresql/data:rw" \
-		--health-cmd 'psql -U zulip -c "select 1"' \
-		--health-interval 10s \
-		"zulip/zulip-postgresql:$new_version"
+    docker run -d \
+        -e POSTGRES_DB=zulip \
+        -e POSTGRES_USER=zulip \
+        -e POSTGRES_PASSWORD=zulip \
+        -v "$full_new_volume:/var/lib/postgresql/data:rw" \
+        --health-cmd 'psql -U zulip -c "select 1"' \
+        --health-interval 10s \
+        "zulip/zulip-postgresql:$new_version"
 )
 trap 'docker rm --force "$temp_container"; docker volume rm --force "$full_new_volume"' EXIT
 
 # Wait for the new PostgreSQL container to become available
 tries=0
 while [ "$(docker inspect --format='{{json .State.Health.Status}}' "$temp_container")" != '"healthy"' ]; do
-	tries=$((tries + 1))
-	if [ "$tries" -gt 5 ]; then
-		echo "PostgreSQL $new_version container failed to start!"
-		exit 1
-	fi
-	sleep 10
+    tries=$((tries + 1))
+    if [ "$tries" -gt 5 ]; then
+        echo "PostgreSQL $new_version container failed to start!"
+        exit 1
+    fi
+    sleep 10
 done
 
 # Ensure database is running
-docker-compose up --wait database
+docker compose up --wait database
 
 # Stop the zulip processes which talk to the database
-zulip_is_running=$(docker-compose ps --filter status=running --services | grep zulip || true)
+zulip_is_running=$(docker compose ps --filter status=running --services | grep zulip || true)
 if [ -n "$zulip_is_running" ]; then
-	docker-compose stop zulip
+    docker compose stop zulip
 fi
 
 # Transfer the data to the new container
-docker-compose exec database pg_dumpall -U zulip |
-	docker exec -i "$temp_container" psql -U zulip
+docker compose exec database pg_dumpall -U zulip \
+    | docker exec -i "$temp_container" psql -U zulip
 
 if [ "$old_version" -eq "10" ]; then
-	# Upgrade MD5 password to SCRAM-SHA-256.  We escape all 's by doubling them.
-	database_password=$(yq .services.database.environment.POSTGRES_PASSWORD docker-compose.yml |
-		perl -pe "s/'/''/g")
-	echo "ALTER USER zulip WITH PASSWORD '$database_password';" |
-		docker exec -i "$temp_container" psql -U zulip
+    # Upgrade MD5 password to SCRAM-SHA-256.  We escape all 's by doubling them.
+    database_password=$(yq .services.database.environment.POSTGRES_PASSWORD docker-compose.yml \
+        | perl -pe "s/'/''/g")
+    echo "ALTER USER zulip WITH PASSWORD '$database_password';" \
+        | docker exec -i "$temp_container" psql -U zulip
 fi
 
 # Stop the running database
-docker-compose rm --force --stop database
+docker compose rm --force --stop database
 
 # Stop the temporary PostgreSQL container
 docker stop "$temp_container"
@@ -105,6 +105,6 @@ VOLUME="$new_volume:/var/lib/postgresql/data:rw" yq -i '.services.database.volum
 VOLUME="$new_volume" yq -i 'with(.volumes.[strenv(VOLUME)]; . = "" | . tag="!!null")' docker-compose.yml
 
 # Restart zulip, and the new database container
-docker-compose up --wait
+docker compose up --wait
 
 echo "Old data from PostgreSQL $old_version is available in $old_mountpoint"

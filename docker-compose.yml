@@ -27,7 +27,7 @@ services:
       MEMCACHED_SASL_PWDB: "/home/memcache/memcached-sasl-db"
       MEMCACHED_PASSWORD: "REPLACE_WITH_SECURE_MEMCACHED_PASSWORD"
   rabbitmq:
-    image: "rabbitmq:4.0.7"
+    image: "rabbitmq:4.1"
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "zulip"
@@ -48,16 +48,14 @@ services:
     volumes:
       - "redis:/data:rw"
   zulip:
-    image: "zulip/docker-zulip:11.1-0"
+    image: "zulip/docker-zulip:11.4-0"
     restart: unless-stopped
     build:
       context: .
       args:
         ## Change these if you want to build zulip from a different repo/branch
         ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: "11.1"
-        ## Set this up if you plan to use your own CA certificate bundle for building
-        # CUSTOM_CA_CERTIFICATES:
+        ZULIP_GIT_REF: "11.4"
     ports:
       - "25:25"
       - "80:80"
@@ -99,7 +97,7 @@ services:
       # SETTING_ZULIP_SERVICE_SUBMIT_USAGE_STATISTICS: "True"
 
       ## If you're using a reverse proxy, you'll want to provide the
-      ## comma-separated set of IP addresses to trust here.
+      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
       # LOADBALANCER_IPS: ""
 
       ## By default, files uploaded by users and profile pictures are
@@ -123,6 +121,11 @@ services:
       nofile:
         soft: 1000000
         hard: 1048576
+    depends_on:
+      - database
+      - memcached
+      - rabbitmq
+      - redis
 volumes:
   zulip:
   postgresql-14:
