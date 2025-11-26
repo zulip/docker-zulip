@@ -129,7 +129,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | statefulSetAnnotations                                             | object | `{}`                        |             |
 | statefulSetLabels                                                  | object | `{}`                        |             |
 | tolerations                                                        | list   | `[]`                        |             |
-| zulip.environment.DISABLE_HTTPS                                    | bool   | `true`                      |             |
+| zulip.environment.CERTIFICATES                                     | string | `""`                        |             |
 | zulip.environment.SECRETS_email_password                           | string | `"123456789"`               |             |
 | zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                        |             |
 | zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`     |             |
@@ -138,7 +138,6 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.environment.SETTING_EMAIL_USE_TLS                            | string | `"True"`                    |             |
 | zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`       |             |
 | zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"admin@example.com"`       |             |
-| zulip.environment.SSL_CERTIFICATE_GENERATION                       | string | `"self-signed"`             |             |
 | zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                      |             |
 | zulip.environment.ZULIP_AUTH_BACKENDS                              | string | `"EmailAuthBackend"`        |             |
 | zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`           |             |
