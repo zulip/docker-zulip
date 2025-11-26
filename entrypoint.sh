@@ -87,14 +87,22 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 ## Constants
 SETTINGS_PY="/etc/zulip/settings.py"
 
-## Global state
-GENERATE_CERTBOT_CERT_SCHEDULED=""
-
 # BEGIN appRun functions
 # === initialConfiguration ===
 prepareDirectories() {
-    mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/certs" "$DATA_DIR/letsencrypt" "$DATA_DIR/uploads"
-    [ -e /etc/letsencrypt ] || ln -ns "$DATA_DIR/letsencrypt" /etc/letsencrypt
+    mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/uploads" "$DATA_DIR/certs/manual"
+    if [ "${SSL_CERTIFICATE_GENERATION}" = "certbot" ]; then
+        if [ -d "$DATA_DIR/certs/letsencrypt" ]; then
+            echo "Linking letsencrypt folder ..."
+            rm -rf /etc/letsencrypt/{accounts,archive,live,renewal}
+        else
+            echo "Preparing letsencrypt folder ..."
+            mkdir "$DATA_DIR/certs/letsencrypt"
+            mkdir -p /etc/letsencrypt/{accounts,archive,live,renewal}/
+            mv /etc/letsencrypt/{accounts,archive,live,renewal}/ "$DATA_DIR/certs/letsencrypt/"
+        fi
+        ln -ns "$DATA_DIR/certs/letsencrypt/"{accounts,archive,live,renewal}/ /etc/letsencrypt/
+    fi
     echo "Preparing and linking the uploads folder ..."
     rm -rf /home/zulip/uploads
     ln -sfT "$DATA_DIR/uploads" /home/zulip/uploads
@@ -219,62 +227,57 @@ puppetConfiguration() {
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
-    local GENERATE_SELF_SIGNED_CERT
-    local GENERATE_CERTBOT_CERT
-    case "$SSL_CERTIFICATE_GENERATION" in
-        self-signed)
-            GENERATE_SELF_SIGNED_CERT="True"
-            GENERATE_CERTBOT_CERT="False"
-            ;;
-
-        certbot)
-            GENERATE_SELF_SIGNED_CERT="False"
-            GENERATE_CERTBOT_CERT="True"
-            ;;
-        *)
-            echo "Not requesting auto-generated self-signed certs."
-            GENERATE_CERTBOT_CERT="False"
-            GENERATE_SELF_SIGNED_CERT="False"
-            ;;
-    esac
-    if [ ! -e "$DATA_DIR/certs/zulip.key" ] && [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-
-        if [ "$GENERATE_CERTBOT_CERT" = "True" ]; then
-            # Zulip isn't yet running, so the certbot's challenge can't be met.
-            # We'll schedule this for later.
-            echo "Scheduling LetsEncrypt cert generation ..."
-            GENERATE_CERTBOT_CERT_SCHEDULED=True
-
-            # Generate self-signed certs just to get Zulip going.
-            GENERATE_SELF_SIGNED_CERT=True
+    if [ "$SSL_CERTIFICATE_GENERATION" == "manual" ]; then
+        if [ ! -e "$DATA_DIR/certs/manual/zulip.key" ]; then
+            echo "SSL private key zulip.key is not present in $DATA_DIR/certs/"
+            echo "Certificates configuration failed."
+            echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
+            exit 1
         fi
-
-        if [ "$GENERATE_SELF_SIGNED_CERT" = "True" ]; then
-            echo "Generating self-signed certificates ..."
-            mkdir -p "$DATA_DIR/certs"
-            /home/zulip/deployments/current/scripts/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
-            mv /etc/ssl/private/zulip.key "$DATA_DIR/certs/zulip.key"
-            mv /etc/ssl/certs/zulip.combined-chain.crt "$DATA_DIR/certs/zulip.combined-chain.crt"
-            echo "Self-signed certificate generation succeeded."
-        else
-            echo "Certificates already exist. No need to generate them. Continuing."
+        if [ ! -e "$DATA_DIR/certs/manual/zulip.combined-chain.crt" ]; then
+            echo "SSL public key zulip.combined-chain.crt is not present in $DATA_DIR/certs/"
+            echo "Certificates configuration failed."
+            echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
+            exit 1
         fi
+        echo "Using manually-provided certificates in $DATA_DIR/certs/"
+        ln -sfT "$DATA_DIR/certs/manual/zulip.key" /etc/ssl/private/zulip.key
+        ln -sfT "$DATA_DIR/certs/manual/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
+        return
     fi
-    if [ ! -e "$DATA_DIR/certs/zulip.key" ]; then
-        echo "SSL private key zulip.key is not present in $DATA_DIR."
-        echo "Certificates configuration failed."
-        echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
-        exit 1
+
+    if [ "$SSL_CERTIFICATE_GENERATION" == "certbot" ]; then
+        echo "Scheduling LetsEncrypt cert generation ..."
+        # This certbot run cannot start until nginx is up, which this
+        # process will do later under supervisor.  This guarantees
+        # there is no race between the symlinking below, and certbot's
+        # own symlinking later, once it potentially gets a new cert.
+        waitAndRunSetupCertbot &
+
+        le_dir="$DATA_DIR/certs/letsencrypt/live/$SETTING_EXTERNAL_HOST/"
+        if [ -d "$le_dir" ] && [ -f "$le_dir/privkey.pem" ] && [ -f "$le_dir/fullchain.pem" ]; then
+            echo "Using existing Lets Encrypt certificate."
+            export ZULIP_DOMAIN="$SETTING_EXTERNAL_HOST"
+            /etc/letsencrypt/renewal-hooks/deploy/020-symlink.sh
+            return
+        fi
+        # We fall through and generate and use self-signed
+        # certificates so nginx has something to use until we can
+        # complete the certbot challenge.
     fi
-    if [ ! -e "$DATA_DIR/certs/zulip.combined-chain.crt" ]; then
-        echo "SSL public key zulip.combined-chain.crt is not present in $DATA_DIR."
-        echo "Certificates configuration failed."
-        echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
-        exit 1
+
+    self_signed_dir="$DATA_DIR/certs/self-signed/"
+    if [ -f "$self_signed_dir/zulip.key" ] && [ -f "$self_signed_dir/zulip.combined-chain.crt" ]; then
+        echo "Using existing self-signed certificates in $self_signed_dir"
+    else
+        echo "Generating self-signed certificates..."
+        mkdir -p "$self_signed_dir"
+        /home/zulip/deployments/current/scripts/setup/generate-self-signed-cert "$SETTING_EXTERNAL_HOST"
+        mv /etc/ssl/private/zulip.key "$self_signed_dir"
+        mv /etc/ssl/certs/zulip.combined-chain.crt "$self_signed_dir"
     fi
-    ln -sfT "$DATA_DIR/certs/zulip.key" /etc/ssl/private/zulip.key
-    ln -sfT "$DATA_DIR/certs/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
-    echo "Certificates configuration succeeded."
+    ln -sfT "$self_signed_dir/zulip.key" /etc/ssl/private/zulip.key
+    ln -sfT "$self_signed_dir/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
@@ -530,12 +533,8 @@ runPostSetupScripts() {
     set -e
     echo "Post setup scripts execution succeeded."
 }
-function runCertbotAsNeeded() {
-    if [ ! "$GENERATE_CERTBOT_CERT_SCHEDULED" = "True" ]; then
-        echo "Certbot is not scheduled to run."
-        return
-    fi
-
+function waitAndRunSetupCertbot() {
+    # This is run backgrounded.
     echo "Waiting for nginx to come online before generating certbot certificate ..."
     while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
         sleep 1
@@ -543,16 +542,16 @@ function runCertbotAsNeeded() {
 
     echo "Generating LetsEncrypt/certbot certificate ..."
 
-    # Remove the self-signed certs which were only needed to get Zulip going.
-    rm -f "$DATA_DIR"/certs/zulip.key "$DATA_DIR"/certs/zulip.combined-chain.crt
-
-    ln -sf /sbin/certbot-deploy-hook /etc/letsencrypt/renewal-hooks/deploy/docker-deploy-hook
+    # Overwrite the nginx hook to use supervisorctl
+    cat <<EOF >/etc/letsencrypt/renewal-hooks/deploy/050-nginx.sh
+#!/bin/env bash
+supervisorctl signal HUP nginx
+EOF
 
     # Accept the terms of service automatically.
     /home/zulip/deployments/current/scripts/setup/setup-certbot \
         --agree-tos \
         --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        --skip-symlink \
         -- \
         "$SETTING_EXTERNAL_HOST"
 
@@ -564,10 +563,6 @@ bootstrappingEnvironment() {
     zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
-    # Hack: We run this in the background, since we need nginx to be
-    # started before we can create the certificate.  See #142 for
-    # details on how we can clean this up.
-    runCertbotAsNeeded &
     echo "=== End Bootstrap Phase ==="
 }
 # END appRun functions
