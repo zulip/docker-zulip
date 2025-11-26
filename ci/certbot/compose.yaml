@@ -1,0 +1,50 @@
+---
+services:
+  zulip:
+    environment:
+      SSL_CERTIFICATE_GENERATION: certbot
+      # This is purely to make the logs easier to skim -- certbot logs this
+      # warning about the connection to pebble.
+      PYTHONWARNINGS: "ignore:Unverified HTTPS request"
+    networks:
+      zulip-backend:
+        ipv4_address: 172.28.5.100
+    depends_on:
+      - pebble
+    volumes: !override
+      - ./ci/certbot/post-setup.d/:/data/post-setup.d/
+    extra_hosts:
+      - "zulip.example.net:172.28.5.100"
+
+  database:
+    networks: [zulip-backend]
+  memcached:
+    networks: [zulip-backend]
+  rabbitmq:
+    networks: [zulip-backend]
+  redis:
+    networks: [zulip-backend]
+
+  pebble:
+    image: ghcr.io/letsencrypt/pebble:latest
+    volumes:
+      - ./ci/certbot/pebble-config/:/config/
+    command: -config /config/pebble-config.json -strict
+    ports:
+      - 14000:14000 # HTTPS ACME API
+      - 15000:15000 # HTTPS Management API
+    networks: [zulip-backend]
+    environment:
+      PEBBLE_VA_NOSLEEP: "1"
+    extra_hosts:
+      - "zulip.example.net:172.28.5.100"
+
+networks:
+  zulip-backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          ip_range: 172.28.5.0/24
+          gateway: 172.28.5.254
