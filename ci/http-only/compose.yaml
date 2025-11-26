@@ -1,8 +1,6 @@
 ---
 services:
   zulip:
-    environment:
-      DISABLE_HTTPS: True
     networks: [zulip-backend]
 
   database:

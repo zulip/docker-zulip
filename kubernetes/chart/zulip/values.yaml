@@ -129,14 +129,10 @@ zulip:
   ## Environment variables based on
   ## https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
   environment:
-    ## Disable the default Zulip requirement of HTTPS.  HTTPS and
-    ## certificates are managed by the Kubernetes cluster, so by
-    ## default it's disabled inside the container.
-    DISABLE_HTTPS: true
     TRUST_GATEWAY_IP: true
-    ## Set SSL certificate generation to self-signed because
-    ## Kubernetes manages the client-facing SSL certs.
-    SSL_CERTIFICATE_GENERATION: self-signed
+    ## We leave the default of only serving over HTTP, with kubernetes handling
+    ## TLS termination.
+    CERTIFICATES: ""
     ## Domain Zulip is hosted on; this is required
     SETTING_EXTERNAL_HOST: zulip.example.com
     ## Administrator's email address; this is required
