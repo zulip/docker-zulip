@@ -1,3 +1,8 @@
+## [1.11.40] - 2025-12-02
+
+- Switch to a new `CERTIFICATES` env var, which combines of `DISABLE_HTTPS` and
+  `SSL_CERTIFICATE_GENERATION`. The chart defaults to HTTP-only.
+
 ## [0.11.43] - 2025-12-02
 
 - Allow setting extraObjects, e.g. for SecretProviderClass or ConfigMap.
