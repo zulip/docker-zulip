@@ -10,9 +10,9 @@ build:
       - asdf plugin add uv
       - asdf install uv 0.6.6
       - asdf global uv 0.6.6
-      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv venv
+      - cd docs && UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv venv
     install:
-      - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --frozen
+      - cd docs && UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --frozen
 
 sphinx:
   configuration: docs/conf.py
