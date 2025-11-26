@@ -1,3 +1,13 @@
+## [1.11.4] - 2025-11-25
+
+- Switch to a new `CERTIFICATES` env var, which combines of `DISABLE_HTTPS` and
+  `SSL_CERTIFICATE_GENERATION`. The chart defaults to HTTP-only.
+- PostgreSQL container now defaults to running as non-root.
+- Chart dependencies remain the bitnamilegacy images, which are unmaintained;
+  they have been updated to their latest versions.
+- Fix startupProbe and livenessProbe to use the healthcheck endpoint.
+- Add ingress.className setting.
+
 ## [0.11.4] - 2025-10-23
 
 - Update to Zulip Server 11.4
@@ -141,6 +151,7 @@
 ## [0.3.0] - 2022-04-21
 
 - Update dependencies:
+
   - Helm charts:
 
     | Repository                         | Name       | Version |
