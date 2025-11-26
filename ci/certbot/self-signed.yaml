@@ -1,0 +1,5 @@
+---
+services:
+  zulip:
+    environment:
+      SSL_CERTIFICATE_GENERATION: self-signed
