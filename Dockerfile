@@ -71,7 +71,6 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
-COPY certbot-deploy-hook /sbin/certbot-deploy-hook
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 25 80 443
