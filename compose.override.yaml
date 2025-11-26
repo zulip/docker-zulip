@@ -47,21 +47,18 @@ services:
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
 
       ## Most deploys do SSL termination outside of the container; Zulip
-      ## automatically generates a self-signed certificate to use on port443.
-      ## Uncomment this to set up an auto-renewed Lets Encrypt certificate
-      ## inside the container -- this requires that SETTING_EXTERNAL_HOST be
-      ## accessible from the public network.
+      ## defaults to only serving traffic over HTTP. If you'd like this
+      ## container to do its own SSL termination, you may uncomment this to set
+      ## up an auto-renewed Lets Encrypt certificate inside the container, or
+      ## set it to "self-signed" to have Zulip generate a self-signed
+      ## certificate.  In either of these cases, the container will only serve
+      ## traffic over port 443.
       ##
-      # SSL_CERTIFICATE_GENERATION: "certbot"
+      # CERTIFICATES: "certbot"
 
-      ## By default, port 80 redirects to port 443, as is suitable for exposing
-      ## publicly.  To handle traffic directly on port 80 (if doing SSL
-      ## termination in an outer reverse proxy), uncomment this.
-      ##
-      # DISABLE_HTTPS: True
-
-      ## If you're using a reverse proxy, you will also need to provide the
-      ## comma-separated set of IP addresses (or CIDR ranges) to trust here.
+      ## If you're using a reverse proxy (as is required if you leave
+      ## CERTIFICATES unset), you will also need to provide the comma-separated
+      ## set of IP addresses (or CIDR ranges) to trust here.
       ##
       ## --> https://zulip.readthedocs.io/en/stable/production/reverse-proxies.html
       ##

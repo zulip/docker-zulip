@@ -2,7 +2,7 @@
 services:
   zulip:
     environment:
-      SSL_CERTIFICATE_GENERATION: certbot
+      CERTIFICATES: certbot
       # This is purely to make the logs easier to skim -- certbot logs this
       # warning about the connection to pebble.
       PYTHONWARNINGS: "ignore:Unverified HTTPS request"

@@ -1,2 +1,5 @@
 ---
-name: docker-zulip
+services:
+  zulip:
+    environment:
+      CERTIFICATES: self-signed

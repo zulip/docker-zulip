@@ -58,12 +58,11 @@ SETTING_REDIS_PORT="${SETTING_REDIS_PORT:-6379}"
 SETTING_MEMCACHED_LOCATION="${SETTING_MEMCACHED_LOCATION:-127.0.0.1:11211}"
 
 # Nginx and HTTP(S) settings
-DISABLE_HTTPS="$(normalize_bool DISABLE_HTTPS)"
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
 NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
 LOADBALANCER_IPS="${LOADBALANCER_IPS:-}"
 TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
-SSL_CERTIFICATE_GENERATION="${SSL_CERTIFICATE_GENERATION:-self-signed}"
+CERTIFICATES="${CERTIFICATES:-}"
 
 # Outgoing proxy settings
 PROXY_ALLOW_ADDRESSES="${PROXY_ALLOW_ADDRESSES:-}"
@@ -91,7 +90,7 @@ SETTINGS_PY="/etc/zulip/settings.py"
 # === initialConfiguration ===
 prepareDirectories() {
     mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/uploads" "$DATA_DIR/certs/manual"
-    if [ "${SSL_CERTIFICATE_GENERATION}" = "certbot" ]; then
+    if [ "${CERTIFICATES}" = "certbot" ]; then
         if [ -d "$DATA_DIR/certs/letsencrypt" ]; then
             echo "Linking letsencrypt folder ..."
             rm -rf /etc/letsencrypt/{accounts,archive,live,renewal}
@@ -182,7 +181,7 @@ nginxConfiguration() {
 puppetConfiguration() {
     echo "Executing puppet configuration ..."
 
-    if [ "$DISABLE_HTTPS" == "True" ]; then
+    if [ "$CERTIFICATES" == "" ]; then
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
@@ -227,26 +226,27 @@ puppetConfiguration() {
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
 configureCerts() {
-    if [ "$SSL_CERTIFICATE_GENERATION" == "manual" ]; then
+    if [ "$CERTIFICATES" == "" ]; then
+        echo "No certificates will be installed; HTTP-only serving configured."
+        rm -f /etc/ssl/private/zulip.key
+        rm -f /etc/ssl/certs/zulip.combined-chain.crt
+        return
+    elif [ "$CERTIFICATES" == "manual" ]; then
         if [ ! -e "$DATA_DIR/certs/manual/zulip.key" ]; then
             echo "SSL private key zulip.key is not present in $DATA_DIR/certs/"
-            echo "Certificates configuration failed."
-            echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
+            echo "Manual certificate configuration failed."
             exit 1
         fi
         if [ ! -e "$DATA_DIR/certs/manual/zulip.combined-chain.crt" ]; then
             echo "SSL public key zulip.combined-chain.crt is not present in $DATA_DIR/certs/"
-            echo "Certificates configuration failed."
-            echo "Consider setting SSL_CERTIFICATE_GENERATION in the environment to auto-generate"
+            echo "Manual certificate configuration failed."
             exit 1
         fi
         echo "Using manually-provided certificates in $DATA_DIR/certs/"
         ln -sfT "$DATA_DIR/certs/manual/zulip.key" /etc/ssl/private/zulip.key
         ln -sfT "$DATA_DIR/certs/manual/zulip.combined-chain.crt" /etc/ssl/certs/zulip.combined-chain.crt
         return
-    fi
-
-    if [ "$SSL_CERTIFICATE_GENERATION" == "certbot" ]; then
+    elif [ "$CERTIFICATES" == "certbot" ]; then
         echo "Scheduling LetsEncrypt cert generation ..."
         # This certbot run cannot start until nginx is up, which this
         # process will do later under supervisor.  This guarantees
@@ -264,6 +264,21 @@ configureCerts() {
         # We fall through and generate and use self-signed
         # certificates so nginx has something to use until we can
         # complete the certbot challenge.
+    elif [ "$CERTIFICATES" == "self-signed" ]; then
+        # Fall through to the below
+        :
+    else
+        echo "Unknown value for CERTIFICATES: $CERTIFICATES"
+        echo "Valid values are:"
+        echo "  (empty)"
+        echo "    HTTP-only serving"
+        echo "  manual"
+        echo "    Place certificates in data/certs/manual/zulip.key and zulip.combined-chain.crt"
+        echo "  letsencrypt"
+        echo "    Ensure that http://$SETTING_EXTERNAL_HOST is externally-accessible"
+        echo "  self-signed"
+        echo "    Generates a self-signed certificate"
+        exit 1
     fi
 
     self_signed_dir="$DATA_DIR/certs/self-signed/"
