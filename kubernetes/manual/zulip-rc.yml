@@ -131,7 +131,7 @@ spec:
               value: "REPLACE_WITH_SECURE_RABBITMQ_PASSWORD"
             - name: SECRETS_redis_password
               value: "REPLACE_WITH_SECURE_REDIS_PASSWORD"
-            - name: SSL_CERTIFICATE_GENERATION
+            - name: CERTIFICATES
               value: "self-signed"
           ## Uncomment this when configuring the mobile push notifications service
           # - name: SETTING_PUSH_NOTIFICATION_BOUNCER_URL

@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 0.11.42](https://img.shields.io/badge/Version-0.11.42-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 11.4-0](https://img.shields.io/badge/AppVersion-11.4--0-informational?style=flat-square)
+![Version: 1.11.4](https://img.shields.io/badge/Version-1.11.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 11.4-0](https://img.shields.io/badge/AppVersion-11.4--0-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
@@ -128,7 +128,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | statefulSetAnnotations                                             | object | `{}`                        |             |
 | statefulSetLabels                                                  | object | `{}`                        |             |
 | tolerations                                                        | list   | `[]`                        |             |
-| zulip.environment.DISABLE_HTTPS                                    | bool   | `true`                      |             |
+| zulip.environment.CERTIFICATES                                     | string | `""`                        |             |
 | zulip.environment.SECRETS_email_password                           | string | `"123456789"`               |             |
 | zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                        |             |
 | zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`     |             |
@@ -137,7 +137,6 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.environment.SETTING_EMAIL_USE_TLS                            | string | `"True"`                    |             |
 | zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`       |             |
 | zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"admin@example.com"`       |             |
-| zulip.environment.SSL_CERTIFICATE_GENERATION                       | string | `"self-signed"`             |             |
 | zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                      |             |
 | zulip.environment.ZULIP_AUTH_BACKENDS                              | string | `"EmailAuthBackend"`        |             |
 | zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`           |             |

@@ -30,6 +30,9 @@ WORKDIR /home/zulip
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=11.x
 
+# This layer will be invalidated when the ref changes
+ADD https://api.github.com/repos/zulip/zulip/git/refs/heads/$ZULIP_GIT_REF /tmp/git-version.json
+
 RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF"
 
 WORKDIR /home/zulip/zulip
@@ -68,7 +71,6 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
-COPY certbot-deploy-hook /sbin/certbot-deploy-hook
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 25 80 443
