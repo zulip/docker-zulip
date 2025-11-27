@@ -167,7 +167,6 @@ jobs:
 
   docker-compose-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs:
       - build
       - docker-compose-collect
@@ -212,10 +211,10 @@ jobs:
             up -d --no-build
 
       - name: Wait for services to be healthy
+        timeout-minutes: 5
         run: |
           echo "Waiting for zulip service to be healthy..."
-          timeout 300 bash -c \
-             'until docker inspect --format "{{.State.Health.Status}}" $(docker compose ps -q zulip) | grep -q healthy; do sleep 5; done'
+          until docker inspect --format "{{.State.Health.Status}}" $(docker compose ps -q zulip) | grep -q healthy; do sleep 5; done
 
       - name: Verify all services are running
         run: |
@@ -226,6 +225,7 @@ jobs:
           fi
 
       - name: Run tests
+        timeout-minutes: 15
         run: |
           docker=("docker" "compose" \
                   "-f" "compose.yaml" \
