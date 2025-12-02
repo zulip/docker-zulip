@@ -190,14 +190,14 @@ postSetup:
     #   #!/bin/bash
     #   echo "This script is executed in the Zulip container after installation/migrations."
 
-  ## You can add any sidecar to Zulip, like a minio client to use for
-  ## uploading backups to a bucket, and mounting the volume for Zulip.
-  # sidecars:
-  #   - image: minio/mc
-  #     name: minio-client
-  #     volumeMounts:
-  #       - name: zulip-data
-  #         mountPath: /data
+## You can add any sidecar to Zulip, like a minio client to use for
+## uploading backups to a bucket, and mounting the volume for Zulip.
+# sidecars:
+#   - image: minio/mc
+#     name: minio-client
+#     volumeMounts:
+#       - name: zulip-data
+#         mountPath: /data
 sidecars: []
 
 ## Bitnami requires this to override PostgreSQL image
