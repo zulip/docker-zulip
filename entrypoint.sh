@@ -549,6 +549,20 @@ initialConfiguration() {
             echo "Error in the Zulip configuration. Exiting."
             exit 1
         fi
+        setting_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SETTING_')
+        if [ -n "$setting_envs" ]; then
+            echo
+            echo "WARNING: SETTING_ environment variables detected; with MANUAL_CONFIGURATION set,"
+            echo "         these will have no effect:"
+            echo "$setting_envs"
+        fi
+        secret_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SECRET_')
+        if [ -n "$secret_envs" ]; then
+            echo
+            echo "WARNING: SECRET_ environment variables detected; with MANUAL_CONFIGURATION set,"
+            echo "         these will have no effect:"
+            echo "$secret_envs"
+        fi
     fi
     autoBackupConfiguration
     waitingForDatabase
