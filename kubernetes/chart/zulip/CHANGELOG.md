@@ -1,3 +1,8 @@
+## [0.11.43] - 2025-12-02
+
+- Allow setting extraObjects, e.g. for SecretProviderClass or ConfigMap.
+- Allow setting an explicit ingress.className
+
 ## [0.11.42] - 2025-11-13
 
 - Switch to bitnamilegacy images.
