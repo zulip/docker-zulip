@@ -73,7 +73,6 @@ ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
 QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS)"
 
 # Configuration controls
-FORCE_FIRST_START_INIT="$(normalize_bool FORCE_FIRST_START_INIT)"
 ZULIP_RUN_POST_SETUP_SCRIPTS="$(normalize_bool ZULIP_RUN_POST_SETUP_SCRIPTS True)"
 ZULIP_CUSTOM_SETTINGS="${ZULIP_CUSTOM_SETTINGS:-}"
 MANUAL_CONFIGURATION="$(normalize_bool MANUAL_CONFIGURATION)"
@@ -489,24 +488,6 @@ waitingForDatabase() {
         sleep 1
     done
 }
-zulipFirstStartInit() {
-    echo "Executing Zulip first start init ..."
-    if [ -e "$DATA_DIR/.initiated" ] && [ "$FORCE_FIRST_START_INIT" != "True" ]; then
-        echo "First Start Init not needed. Continuing."
-        return 0
-    fi
-    local RETURN_CODE=0
-    set +e
-    su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
-    RETURN_CODE=$?
-    if [[ $RETURN_CODE != 0 ]]; then
-        echo "Zulip first start database init failed in \"initialize-database\" exit code $RETURN_CODE. Exiting."
-        exit $RETURN_CODE
-    fi
-    set -e
-    touch "$DATA_DIR/.initiated"
-    echo "Zulip first start init successful."
-}
 zulipMigration() {
     echo "Running new database migrations..."
     set +e
@@ -518,6 +499,7 @@ zulipMigration() {
         exit $RETURN_CODE
     fi
     set -e
+    su zulip -c "/home/zulip/deployments/current/manage.py createcachetable third_party_api_results"
     echo "Database migrations completed."
 }
 runPostSetupScripts() {
@@ -575,7 +557,6 @@ EOF
 bootstrappingEnvironment() {
     echo "=== Begin Bootstrap Phase ==="
     waitingForDatabase
-    zulipFirstStartInit
     zulipMigration
     runPostSetupScripts
     echo "=== End Bootstrap Phase ==="
