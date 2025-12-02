@@ -224,6 +224,30 @@ puppetConfiguration() {
 
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
+waitAndRunSetupCertbot() {
+    # This is run backgrounded.
+    echo "Waiting for nginx to come online before generating certbot certificate ..."
+    while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
+        sleep 1
+    done
+
+    echo "Generating LetsEncrypt/certbot certificate ..."
+
+    # Overwrite the nginx hook to use supervisorctl
+    cat <<EOF >/etc/letsencrypt/renewal-hooks/deploy/050-nginx.sh
+#!/bin/env bash
+supervisorctl signal HUP nginx
+EOF
+
+    # Accept the terms of service automatically.
+    /home/zulip/deployments/current/scripts/setup/setup-certbot \
+        --agree-tos \
+        --email="$SETTING_ZULIP_ADMINISTRATOR" \
+        -- \
+        "$SETTING_EXTERNAL_HOST"
+
+    echo "LetsEncrypt cert generated."
+}
 configureCerts() {
     if [ "$CERTIFICATES" == "" ]; then
         echo "No certificates will be installed; HTTP-only serving configured."
@@ -429,51 +453,6 @@ autoBackupConfiguration() {
     printf 'MAILTO=""\n%s cd /;/sbin/entrypoint.sh app:backup\n' "$AUTO_BACKUP_INTERVAL" >/etc/cron.d/autobackup
     echo "Auto backup enabled."
 }
-initialConfiguration() {
-    echo "=== Begin Initial Configuration Phase ==="
-    prepareDirectories
-    puppetConfiguration
-    nginxConfiguration
-    configureCerts
-    if [ "$MANUAL_CONFIGURATION" = "False" ]; then
-        # Start with the settings template file.
-        cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
-        databaseConfiguration
-        secretsConfiguration
-        authenticationBackends
-        zulipConfiguration
-    else
-        # Check that the configuration will work
-        local root_path="/etc/zulip"
-        if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
-            root_path="/data/settings/etc-zulip"
-        fi
-        local failure=0
-        for conf_file in zulip.conf zulip-secrets.conf settings.py; do
-            if [ ! -f "/etc/zulip/$conf_file" ]; then
-                echo "ERROR: $root_path/$conf_file does not exist!"
-                failure=1
-            elif ! sudo -u zulip test -r "/etc/zulip/$conf_file"; then
-                echo "ERROR: $root_path/$conf_file is not readable by the zulip user (UID $(id -u zulip))"
-                failure=1
-            elif [ ! -s "/etc/zulip/$conf_file" ]; then
-                echo "ERROR: $root_path/$conf_file is empty"
-                failure=1
-            fi
-        done
-        if [ "$failure" = "1" ]; then
-            ls -l /etc/zulip/
-            exit 1
-        fi
-        if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
-            echo "Error in the Zulip configuration. Exiting."
-            exit 1
-        fi
-    fi
-    autoBackupConfiguration
-    echo "=== End Initial Configuration Phase ==="
-}
-# === bootstrappingEnvironment ===
 waitingForDatabase() {
     local TIMEOUT=60
     echo "Waiting for database server to allow connections ..."
@@ -530,42 +509,58 @@ runPostSetupScripts() {
     set -e
     echo "Post setup scripts execution succeeded."
 }
-function waitAndRunSetupCertbot() {
-    # This is run backgrounded.
-    echo "Waiting for nginx to come online before generating certbot certificate ..."
-    while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
-        sleep 1
-    done
-
-    echo "Generating LetsEncrypt/certbot certificate ..."
-
-    # Overwrite the nginx hook to use supervisorctl
-    cat <<EOF >/etc/letsencrypt/renewal-hooks/deploy/050-nginx.sh
-#!/bin/env bash
-supervisorctl signal HUP nginx
-EOF
-
-    # Accept the terms of service automatically.
-    /home/zulip/deployments/current/scripts/setup/setup-certbot \
-        --agree-tos \
-        --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        -- \
-        "$SETTING_EXTERNAL_HOST"
-
-    echo "LetsEncrypt cert generated."
-}
-bootstrappingEnvironment() {
-    echo "=== Begin Bootstrap Phase ==="
+initialConfiguration() {
+    echo "=== Begin Initial Configuration Phase ==="
+    prepareDirectories
+    puppetConfiguration
+    nginxConfiguration
+    configureCerts
+    if [ "$MANUAL_CONFIGURATION" = "False" ]; then
+        # Start with the settings template file.
+        cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
+        databaseConfiguration
+        secretsConfiguration
+        authenticationBackends
+        zulipConfiguration
+    else
+        # Check that the configuration will work
+        local root_path="/etc/zulip"
+        if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
+            root_path="/data/settings/etc-zulip"
+        fi
+        local failure=0
+        for conf_file in zulip.conf zulip-secrets.conf settings.py; do
+            if [ ! -f "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file does not exist!"
+                failure=1
+            elif ! sudo -u zulip test -r "/etc/zulip/$conf_file"; then
+                echo "ERROR: $root_path/$conf_file is not readable by the zulip user (UID $(id -u zulip))"
+                failure=1
+            elif [ ! -s "/etc/zulip/$conf_file" ]; then
+                echo "ERROR: $root_path/$conf_file is empty"
+                failure=1
+            fi
+        done
+        if [ "$failure" = "1" ]; then
+            ls -l /etc/zulip/
+            exit 1
+        fi
+        if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
+            echo "Error in the Zulip configuration. Exiting."
+            exit 1
+        fi
+    fi
+    autoBackupConfiguration
     waitingForDatabase
     zulipMigration
     runPostSetupScripts
-    echo "=== End Bootstrap Phase ==="
+    echo "=== End Initial Configuration Phase ==="
 }
+# === bootstrappingEnvironment ===
 # END appRun functions
 # BEGIN app functions
 appRun() {
     initialConfiguration
-    bootstrappingEnvironment
     echo "=== Begin Run Phase ==="
     echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" config ..."
     echo ""
@@ -575,7 +570,6 @@ appRun() {
 appInit() {
     echo "=== Running initial setup ==="
     initialConfiguration
-    bootstrappingEnvironment
 }
 appManagePy() {
     local COMMAND="$1"
