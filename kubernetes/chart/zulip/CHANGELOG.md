@@ -1,3 +1,8 @@
+## [0.11.44] - 2026-02-03
+
+- Allow setting extraObjects, e.g. for SecretProviderClass or ConfigMap.
+- Allow setting an explicit ingress.className
+
 ## [0.11.43] - 2026-02-03
 
 - Change CI to use artifacts for inter-job caching.
