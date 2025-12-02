@@ -579,7 +579,7 @@ appRun() {
     echo "Starting Zulip using supervisor with \"/etc/supervisor/supervisord.conf\" config ..."
     echo ""
     unset HOME # avoid propagating HOME=/root to subprocesses not running as root
-    exec supervisord -n -c "/etc/supervisor/supervisord.conf"
+    exec supervisord -n -c "/etc/supervisor/supervisord.conf" -u root
 }
 appInit() {
     echo "=== Running initial setup ==="
