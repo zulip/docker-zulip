@@ -1,3 +1,8 @@
+## [0.11.51] - 2026-02-05
+
+- Allow setting extraObjects, e.g. for SecretProviderClass or ConfigMap.
+- Allow setting an explicit ingress.className
+
 ## [0.11.50] - 2026-02-05
 
 - Update to Zulip Server 11.5
