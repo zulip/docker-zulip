@@ -69,6 +69,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | Key                                                                | Type   | Default                     | Description |
 | ------------------------------------------------------------------ | ------ | --------------------------- | ----------- |
 | affinity                                                           | object | `{}`                        |             |
+| extraObjects                                                       | list   | `[]`                        |             |
 | fullnameOverride                                                   | string | `""`                        |             |
 | global.security.allowInsecureImages                                | bool   | `true`                      |             |
 | image.pullPolicy                                                   | string | `"IfNotPresent"`            |             |
