@@ -1,3 +1,16 @@
+## [0.11.42] - 2025-11-13
+
+- Switch to bitnamilegacy images.
+- Fix containerSecurityContext to run PostgreSQL as non-root.
+- Switch to healthchecking the /health endpoint, and add ACL'ing so Zulip allows
+  those checks.
+- Reformat CHART.yaml with Prettier
+
+## [0.11.41] - 2025-10-30
+
+- Add maintainer information
+- Repackage with additional version space
+
 ## [0.11.4] - 2025-10-23
 
 - Update to Zulip Server 11.4
