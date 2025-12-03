@@ -82,6 +82,36 @@ LINK_SETTINGS_TO_DATA="$(normalize_bool LINK_SETTINGS_TO_DATA)"
 AUTO_BACKUP_ENABLED="$(normalize_bool AUTO_BACKUP_ENABLED True)"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 
+# All of the above config vars, minus SETTING_ ones.
+our_vars=(
+    DATA_DIR
+    DB_HOST DB_HOST_PORT DB_NAME DB_USER REMOTE_POSTGRES_SSLMODE
+    NGINX_WORKERS NGINX_MAX_UPLOAD_SIZE LOADBALANCER_IPS TRUST_GATEWAY_IP
+    CERTIFICATES PROXY_ALLOW_ADDRESSES PROXY_ALLOW_RANGES
+    ZULIP_AUTH_BACKENDS QUEUE_WORKERS_MULTIPROCESS
+    ZULIP_RUN_POST_SETUP_SCRIPTS ZULIP_CUSTOM_SETTINGS
+    MANUAL_CONFIGURATION LINK_SETTINGS_TO_DATA
+    AUTO_BACKUP_ENABLED AUTO_BACKUP_INTERVAL
+)
+standard_vars=(
+    HOSTNAME PWD HOME LANG SHLVL PATH _
+)
+failure=0
+for env_var in $(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -vE '^(SECRET|SETTING|KUBERNETES)_'); do
+    if [ "${env_var^^}" != "$env_var" ]; then
+        # Skip if not all upper-case
+        :
+    elif echo " ${our_vars[*]} ${standard_vars[*]} " | grep -q " $env_var "; then
+        # Skip if normal config var or shell variable
+        :
+    elif grep -Eq "\b$env_var\b" /home/zulip/deployments/current/zproject/{default_settings,prod_settings_template}.py; then
+        echo "WARNING: Unexpected environment variable '$env_var'; did you mean SETTING_$env_var ?"
+        failure=1
+    fi
+done
+if [ "$failure" = "1" ]; then
+    echo
+fi
 
 # BEGIN appRun functions
 # === initialConfiguration ===
