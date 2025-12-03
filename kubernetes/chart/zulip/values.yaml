@@ -130,7 +130,7 @@ zulip:
   ## https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
   environment:
     TRUST_GATEWAY_IP: true
-    ## We leave the default of only serving over HTTP, with kubernetes hadling
+    ## We leave the default of only serving over HTTP, with kubernetes handling
     ## TLS termination.
     CERTIFICATES: ""
     ## Domain Zulip is hosted on; this is required
