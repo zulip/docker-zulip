@@ -82,8 +82,6 @@ LINK_SETTINGS_TO_DATA="$(normalize_bool LINK_SETTINGS_TO_DATA)"
 AUTO_BACKUP_ENABLED="$(normalize_bool AUTO_BACKUP_ENABLED True)"
 AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 
-## Constants
-SETTINGS_PY="/etc/zulip/settings.py"
 
 # BEGIN appRun functions
 # === initialConfiguration ===
@@ -168,7 +166,7 @@ setConfigurationValue() {
             VALUE="$KEY = '${2//\'/\'}'"
             ;;
     esac
-    echo "$VALUE" >>"$SETTINGS_PY"
+    echo "$VALUE" >>/etc/zulip/settings.py
     echo "Setting key \"$KEY\", type \"$TYPE\"."
 }
 nginxConfiguration() {
@@ -396,7 +394,7 @@ authenticationBackends() {
 zulipConfiguration() {
     echo "Executing Zulip configuration ..."
     if [ -n "$ZULIP_CUSTOM_SETTINGS" ]; then
-        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >>"$SETTINGS_PY"
+        echo -e "\n$ZULIP_CUSTOM_SETTINGS" >>/etc/zulip/settings.py
     fi
     local key
     for key in "${!SETTING_@}"; do
@@ -517,7 +515,7 @@ initialConfiguration() {
     configureCerts
     if [ "$MANUAL_CONFIGURATION" = "False" ]; then
         # Start with the settings template file.
-        cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py "$SETTINGS_PY"
+        cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py /etc/zulip/settings.py
         databaseConfiguration
         secretsConfiguration
         authenticationBackends
