@@ -135,15 +135,22 @@ prepareDirectories() {
     # Link settings folder
     if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
         # Create settings directories
-        if [ ! -d "$DATA_DIR/settings" ]; then
-            mkdir -p "$DATA_DIR/settings"
-        fi
-        if [ ! -d "$DATA_DIR/settings/etc-zulip" ]; then
-            cp -rf /etc/zulip "$DATA_DIR/settings/etc-zulip"
+        if [ ! -d "$DATA_DIR/etc-zulip" ]; then
+            if [ -d "$DATA_DIR/settings/etc-zulip" ]; then
+                # Migrate older settings/etc-zulip/
+                echo "Migrating old $DATA_DIR/settings/etc-zulip to $DATA_DIR/etc-zulip"
+                mv "$DATA_DIR/settings/etc-zulip" "$DATA_DIR/etc-zulip"
+                rmdir "$DATA_DIR/settings" || true
+            else
+                mkdir -p "$DATA_DIR/etc-zulip"
+                # The trailing "." means that all contents are copied, not the directory
+                cp -a /etc/zulip/. "$DATA_DIR/etc-zulip/"
+                find /etc/zulip "$DATA_DIR/etc-zulip" -ls
+            fi
         fi
         # Link /etc/zulip/ settings folder
         rm -rf /etc/zulip
-        ln -sfT "$DATA_DIR/settings/etc-zulip" /etc/zulip
+        ln -sfT "$DATA_DIR/etc-zulip" /etc/zulip
     fi
     echo "Prepared and linked the uploads directory."
 }
@@ -557,7 +564,7 @@ initialConfiguration() {
         # Check that the configuration will work
         local root_path="/etc/zulip"
         if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
-            root_path="/data/settings/etc-zulip"
+            root_path="/data/etc-zulip"
         fi
         local failure=0
         for conf_file in zulip.conf zulip-secrets.conf settings.py; do
