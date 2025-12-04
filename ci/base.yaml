@@ -18,6 +18,7 @@ secrets:
 services:
   zulip:
     image: "${GITHUB_CI_IMAGE:?error}"
+    restart: no
     environment:
       SETTING_EXTERNAL_HOST: "zulip.example.net"
       SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
