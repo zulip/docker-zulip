@@ -606,7 +606,7 @@ initialConfiguration() {
             exit 1
         fi
         secretsConfiguration
-        setting_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SETTING_')
+        setting_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SETTING_' || true)
         if [ "$bootstrapped_from_env" = "1" ]; then
             if [ -n "$setting_envs" ] || [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
                 echo
