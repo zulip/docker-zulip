@@ -562,6 +562,23 @@ runPostSetupScripts() {
 initialConfiguration() {
     echo "=== Begin Initial Configuration Phase ==="
     prepareDirectories
+    local root_path="/etc/zulip"
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
+        root_path="/data/etc-zulip"
+    fi
+    if [ "$MANUAL_CONFIGURATION" = "True" ]; then
+        # We need to validate zulip.conf before we can run puppet
+        if [ ! -f "/etc/zulip/zulip.conf" ]; then
+            echo "ERROR: $root_path/zulip.conf does not exist!"
+            exit 1
+        elif ! sudo -u zulip test -r "/etc/zulip/zulip.conf"; then
+            echo "ERROR: $root_path/zulip.conf is not readable by the zulip user (UID $(id -u zulip))"
+            exit 1
+        elif [ ! -s "/etc/zulip/zulip.conf" ]; then
+            echo "ERROR: $root_path/zulip.conf is empty"
+            exit 1
+        fi
+    fi
     puppetConfiguration
     nginxConfiguration
     configureCerts
@@ -574,34 +591,16 @@ initialConfiguration() {
         zulipConfiguration
     else
         # Provide some defaults, and check that the configuration will work
-        local root_path="/etc/zulip"
-        if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
-            root_path="/data/etc-zulip"
-        fi
         bootstrapped_from_env=0
         if [ ! -f "/etc/zulip/settings.py" ] || [ ! -s "/etc/zulip/settings.py" ]; then
-            echo "WARNING: Creating a default $root_path/settings.py"
             cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py /etc/zulip/settings.py
             # This first time, pull from SETTING_ if provided.
             databaseConfiguration
             authenticationBackends
             zulipConfiguration
             bootstrapped_from_env=1
-        fi
-        local failure=0
-        for conf_file in zulip.conf settings.py; do
-            if [ ! -f "/etc/zulip/$conf_file" ]; then
-                echo "ERROR: $root_path/$conf_file does not exist!"
-                failure=1
-            elif ! sudo -u zulip test -r "/etc/zulip/$conf_file"; then
-                echo "ERROR: $root_path/$conf_file is not readable by the zulip user (UID $(id -u zulip))"
-                failure=1
-            elif [ ! -s "/etc/zulip/$conf_file" ]; then
-                echo "ERROR: $root_path/$conf_file is empty"
-                failure=1
-            fi
-        done
-        if [ "$failure" = "1" ]; then
+        elif ! sudo -u zulip test -r "/etc/zulip/settings.py"; then
+            echo "ERROR: $root_path/settings.py is not readable by the zulip user (UID $(id -u zulip))"
             ls -l /etc/zulip/
             exit 1
         fi
