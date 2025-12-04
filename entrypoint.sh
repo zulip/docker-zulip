@@ -398,7 +398,7 @@ secretsConfiguration() {
 databaseConfiguration() {
     echo "Setting database configuration ..."
     setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "string"
-    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "string"
+    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "integer"
     if [ -z "${SETTING_REMOTE_POSTGRES_SSLMODE:-}" ]; then
         # We do this defaulting here, so that we don't false-positive the "you
         # used a SETTING_" for MANUAL_CONFIGURATION deploys.
