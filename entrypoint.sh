@@ -44,7 +44,6 @@ DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_HOST_PORT="${DB_HOST_PORT:-5432}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_USER="${DB_USER:-zulip}"
-REMOTE_POSTGRES_SSLMODE="${REMOTE_POSTGRES_SSLMODE:-prefer}"
 
 # RabbitMQ
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
@@ -85,7 +84,7 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # All of the above config vars, minus SETTING_ ones.
 our_vars=(
     DATA_DIR
-    DB_HOST DB_HOST_PORT DB_NAME DB_USER REMOTE_POSTGRES_SSLMODE
+    DB_HOST DB_HOST_PORT DB_NAME DB_USER
     NGINX_WORKERS NGINX_MAX_UPLOAD_SIZE LOADBALANCER_IPS TRUST_GATEWAY_IP
     CERTIFICATES PROXY_ALLOW_ADDRESSES PROXY_ALLOW_RANGES
     ZULIP_AUTH_BACKENDS QUEUE_WORKERS_MULTIPROCESS
@@ -400,7 +399,11 @@ databaseConfiguration() {
     echo "Setting database configuration ..."
     setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "string"
     setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "string"
-    setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "$REMOTE_POSTGRES_SSLMODE" "string"
+    if [ -z "${SETTING_REMOTE_POSTGRES_SSLMODE:-}" ]; then
+        # We do this defaulting here, so that we don't false-positive the "you
+        # used a SETTING_" for MANUAL_CONFIGURATION deploys.
+        setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "prefer" "string"
+    fi
     # The password will be set in secretsConfiguration
     echo "Database configuration succeeded."
 }
