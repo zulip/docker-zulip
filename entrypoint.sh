@@ -97,7 +97,6 @@ standard_vars=(
     HOSTNAME PWD HOME LANG SHLVL PATH _
 )
 failure=0
-env -0 | cut -z -f1 -d= | tr '\0' '\n'
 for env_var in $(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -vE '^(SECRET|SETTING|KUBERNETES)_'); do
     if [ "${env_var^^}" != "$env_var" ]; then
         # Skip if not all upper-case
