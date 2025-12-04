@@ -142,6 +142,13 @@ prepareDirectories() {
                 mv "$DATA_DIR/settings/etc-zulip" "$DATA_DIR/etc-zulip"
                 rmdir "$DATA_DIR/settings" || true
             else
+                if [ -f "$DATA_DIR/zulip-secrets.conf" ]; then
+                    # A non-LINK_SETTINGS_TO_DATA config; move the actual
+                    # secrets file into /etc/zulip/ and let the /etc/zulip
+                    # copy-and-symlink handle backing it up.
+                    echo "Migrating old $DATA_DIR/zulip-secrets.conf to $DATA_DIR/etc-zulip/zulip-secrets.conf"
+                    mv -f "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+                fi
                 mkdir -p "$DATA_DIR/etc-zulip"
                 # The trailing "." means that all contents are copied, not the directory
                 cp -a /etc/zulip/. "$DATA_DIR/etc-zulip/"
