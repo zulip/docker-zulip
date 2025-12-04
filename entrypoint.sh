@@ -573,10 +573,20 @@ initialConfiguration() {
         authenticationBackends
         zulipConfiguration
     else
-        # Check that the configuration will work
+        # Provide some defaults, and check that the configuration will work
         local root_path="/etc/zulip"
         if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
             root_path="/data/etc-zulip"
+        fi
+        bootstrapped_from_env=0
+        if [ ! -f "/etc/zulip/settings.py" ] || [ ! -s "/etc/zulip/settings.py" ]; then
+            echo "WARNING: Creating a default $root_path/settings.py"
+            cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py /etc/zulip/settings.py
+            # This first time, pull from SETTING_ if provided.
+            databaseConfiguration
+            authenticationBackends
+            zulipConfiguration
+            bootstrapped_from_env=1
         fi
         local failure=0
         for conf_file in zulip.conf settings.py; do
@@ -597,16 +607,26 @@ initialConfiguration() {
         fi
         secretsConfiguration
         setting_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SETTING_')
-        if [ -n "$setting_envs" ]; then
-            echo
-            echo "WARNING: SETTING_ environment variables detected; with MANUAL_CONFIGURATION set,"
-            echo "         these will have no effect:"
-            echo "$setting_envs"
-        fi
-        if [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
-            echo
-            echo "WARNING: ZULIP_AUTH_BACKENDS environment variable set; with MANUAL_CONFIGURATION set,"
-            echo "         it will have no effect."
+        if [ "$bootstrapped_from_env" = "1" ]; then
+            if [ -n "$setting_envs" ] || [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
+                echo
+                echo "WARNING: Bootstrapping initial MANUAL_CONFIGURATION from environment variables."
+            else
+                echo
+                echo "WARNING: Created a default $root_path/settings.py"
+            fi
+        else
+            if [ -n "$setting_envs" ]; then
+                echo
+                echo "WARNING: SETTING_ environment variables detected; with MANUAL_CONFIGURATION set,"
+                echo "         these will have no effect:"
+                echo "$setting_envs"
+            fi
+            if [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
+                echo
+                echo "WARNING: ZULIP_AUTH_BACKENDS environment variable set; with MANUAL_CONFIGURATION set,"
+                echo "         it will have no effect."
+            fi
         fi
     fi
     if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
