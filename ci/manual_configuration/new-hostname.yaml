@@ -1,0 +1,5 @@
+---
+services:
+  zulip:
+    environment:
+      SETTING_EXTERNAL_HOST: "other.example.net"
