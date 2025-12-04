@@ -594,6 +594,11 @@ initialConfiguration() {
             echo "         these will have no effect:"
             echo "$secret_envs"
         fi
+        if [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
+            echo
+            echo "WARNING: ZULIP_AUTH_BACKENDS environment variable set; with MANUAL_CONFIGURATION set,"
+            echo "         it will have no effect."
+        fi
     fi
     autoBackupConfiguration
     waitingForDatabase
