@@ -193,7 +193,6 @@ jobs:
             -f ci/base.yaml \
             --env-file ci/base.env \
             -f ${{ matrix.dir }}/compose.yaml \
-            --env-file ${{ matrix.dir }}/env \
             config
 
       - name: Log in to GHCR
@@ -210,7 +209,6 @@ jobs:
             -f ci/base.yaml \
             --env-file ci/base.env \
             -f ${{ matrix.dir }}/compose.yaml \
-            --env-file ${{ matrix.dir }}/env \
             up -d --no-build
 
       - name: Wait for services to be healthy
@@ -234,8 +232,7 @@ jobs:
                   "-f" "compose.yaml" \
                   "-f" "ci/base.yaml" \
                   "--env-file" "ci/base.env" \
-                  "-f" "${{ matrix.dir }}/compose.yaml" \
-                  "--env-file" "${{ matrix.dir }}/env")
+                  "-f" "${{ matrix.dir }}/compose.yaml")
           manage=("${docker[@]}" "exec" "-u" "zulip" "zulip"
                   "/home/zulip/deployments/current/manage.py")
           hostname="localhost"
