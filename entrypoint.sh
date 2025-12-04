@@ -360,17 +360,26 @@ configureCerts() {
 }
 secretsConfiguration() {
     echo "Setting Zulip secrets ..."
-    if [ ! -e "$DATA_DIR/zulip-secrets.conf" ]; then
-        echo "Generating Zulip secrets ..."
-        /root/zulip/scripts/setup/generate_secrets.py --production
-        mv "/etc/zulip/zulip-secrets.conf" "$DATA_DIR/zulip-secrets.conf"
-        ln -ns "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
-    else
+    if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
+        # /etc/zulip is a symlink, and we update or create /etc/zulip/zulip-secrets.conf as usual
+        :
+    elif [ -e "$DATA_DIR/zulip-secrets.conf" ]; then
+        # We have a previous secrets file; symlink it into place, then update it as needed
         ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
-        echo "Generating Zulip secrets ..."
-        /root/zulip/scripts/setup/generate_secrets.py --production
+    elif [ -e "$DATA_DIR/etc-zulip/zulip-secrets.conf" ]; then
+        # This was _previously_ a LINK_SETTINGS_TO_DATA deploy; link to that.
+        ln -nsf "$DATA_DIR/etc-zulip/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+    elif [ -e "/etc/zulip/zulip-secrets.conf" ]; then
+        # Move into $DATA_DIR whatever was somehow in /etc/zulip/zulip-secrets.conf
+        mv /etc/zulip/zulip-secrets.conf "$DATA_DIR/zulip-secrets.conf"
+        ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
+    else
+        # Fresh install; make an empty file to symlink into place, so generate_secrets can write to it.
+        touch "$DATA_DIR/zulip-secrets.conf"
+        ln -nsf "$DATA_DIR/zulip-secrets.conf" "/etc/zulip/zulip-secrets.conf"
     fi
-    echo "Secrets generation succeeded."
+    chmod 640 /etc/zulip/zulip-secrets.conf
+    /root/zulip/scripts/setup/generate_secrets.py --production
     local key
     for key in "${!SECRETS_@}"; do
         [[ "$key" == SECRETS_*([0-9A-Z_a-z-]) ]] || continue
@@ -387,7 +396,7 @@ secretsConfiguration() {
             exit 1
         fi
         echo "Setting $SECRET_KEY from environment variable $key"
-        crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
+        crudini --set "/etc/zulip/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
     # Secrets detected in /run/secrets/ override those via env vars
     shopt -s nullglob
@@ -405,7 +414,7 @@ secretsConfiguration() {
             exit 1
         fi
         echo "Setting $SECRET_KEY from secret in $secrets_path"
-        crudini --set "$DATA_DIR/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
+        crudini --set "/etc/zulip/zulip-secrets.conf" "secrets" "${SECRET_KEY}" "${SECRET_VAR}"
     done
     echo "Zulip secrets configuration succeeded."
 }
@@ -483,10 +492,6 @@ zulipConfiguration() {
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$type"
     done
-    if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
-        echo "Error in the Zulip configuration. Exiting."
-        exit 1
-    fi
     echo "Zulip configuration succeeded."
 }
 autoBackupConfiguration() {
@@ -574,7 +579,7 @@ initialConfiguration() {
             root_path="/data/etc-zulip"
         fi
         local failure=0
-        for conf_file in zulip.conf zulip-secrets.conf settings.py; do
+        for conf_file in zulip.conf settings.py; do
             if [ ! -f "/etc/zulip/$conf_file" ]; then
                 echo "ERROR: $root_path/$conf_file does not exist!"
                 failure=1
@@ -590,10 +595,7 @@ initialConfiguration() {
             ls -l /etc/zulip/
             exit 1
         fi
-        if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
-            echo "Error in the Zulip configuration. Exiting."
-            exit 1
-        fi
+        secretsConfiguration
         setting_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SETTING_')
         if [ -n "$setting_envs" ]; then
             echo
@@ -601,18 +603,15 @@ initialConfiguration() {
             echo "         these will have no effect:"
             echo "$setting_envs"
         fi
-        secret_envs=$(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -E '^SECRET_')
-        if [ -n "$secret_envs" ]; then
-            echo
-            echo "WARNING: SECRET_ environment variables detected; with MANUAL_CONFIGURATION set,"
-            echo "         these will have no effect:"
-            echo "$secret_envs"
-        fi
         if [ "$ZULIP_AUTH_BACKENDS" != "EmailAuthBackend" ]; then
             echo
             echo "WARNING: ZULIP_AUTH_BACKENDS environment variable set; with MANUAL_CONFIGURATION set,"
             echo "         it will have no effect."
         fi
+    fi
+    if ! su zulip -c "/home/zulip/deployments/current/manage.py check"; then
+        echo "Error in the Zulip configuration. Exiting."
+        exit 1
     fi
     autoBackupConfiguration
     waitingForDatabase
