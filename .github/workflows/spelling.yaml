@@ -11,6 +11,6 @@ jobs:
     name: Spellcheck with Typos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Spell Check Repo
         uses: crate-ci/typos@v1.39.0
