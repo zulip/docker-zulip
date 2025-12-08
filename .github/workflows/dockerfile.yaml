@@ -113,18 +113,22 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --chart-dirs ./helm \
-                                    --target-branch ${{ github.event.repository.default_branch }})
+                                    --target-branch "$DEFAULT_BRANCH")
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct lint --github-groups \
                   --chart-dirs ./helm \
-                  --target-branch ${{ github.event.repository.default_branch }} \
+                  --target-branch "$DEFAULT_BRANCH" \
                   --lint-conf lintconf.yaml
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
       - name: Create kind cluster
         uses: helm/kind-action@v1
@@ -208,8 +212,10 @@ jobs:
             -f compose.yaml \
             -f ci/base.yaml \
             --env-file ci/base.env \
-            -f ${{ matrix.dir }}/compose.yaml \
+            -f "$DIR/compose.yaml" \
             config
+        env:
+          DIR: ${{ matrix.dir }}
 
       - name: Start Docker Compose services
         run: |
@@ -217,8 +223,10 @@ jobs:
             -f compose.yaml \
             -f ci/base.yaml \
             --env-file ci/base.env \
-            -f ${{ matrix.dir }}/compose.yaml \
+            -f "$DIR/compose.yaml" \
             up -d --no-build
+        env:
+          DIR: ${{ matrix.dir }}
 
       - name: Wait for services to be healthy
         timeout-minutes: 5
@@ -241,11 +249,13 @@ jobs:
                   "-f" "compose.yaml" \
                   "-f" "ci/base.yaml" \
                   "--env-file" "ci/base.env" \
-                  "-f" "${{ matrix.dir }}/compose.yaml")
+                  "-f" "$DIR/compose.yaml")
           manage=("${docker[@]}" "exec" "-u" "zulip" "zulip"
                   "/home/zulip/deployments/current/manage.py")
           hostname="localhost"
-          source "${{ matrix.dir }}/test.sh"
+          source "$DIR/test.sh"
+        env:
+          DIR: ${{ matrix.dir }}
 
       - name: Check service logs for critical errors
         if: success() || failure()
