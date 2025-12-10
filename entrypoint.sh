@@ -712,7 +712,7 @@ appRestore() {
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
-    PGPASSWORD="$PGPASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$DATA_DIR/backups/$BACKUP_FILE"
+    PGPASSWORD="$PGPASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists "$DATA_DIR/backups/$BACKUP_FILE"
     echo "Restore process succeeded. Exiting."
     exit 0
 }
