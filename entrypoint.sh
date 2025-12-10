@@ -209,11 +209,6 @@ setConfigurationValue() {
     echo "$VALUE" >>/etc/zulip/settings.py
     echo "Setting key \"$KEY\", type \"$TYPE\"."
 }
-nginxConfiguration() {
-    echo "Executing nginx configuration ..."
-    sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
-    echo "Nginx configuration succeeded."
-}
 puppetConfiguration() {
     echo "Executing puppet configuration ..."
 
@@ -229,6 +224,10 @@ puppetConfiguration() {
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     fi
 
+    if [ -n "$NGINX_WORKERS" ]; then
+        echo "Setting nginx workers to $NGINX_WORKERS"
+        crudini --set /etc/zulip/zulip.conf application_server nginx_worker_processes "$NGINX_WORKERS"
+    fi
     if [ "$TRUST_GATEWAY_IP" == "True" ]; then
         local GATEWAY_IP
         GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
@@ -550,7 +549,6 @@ initialConfiguration() {
         fi
     fi
     puppetConfiguration
-    nginxConfiguration
     configureCerts
     if [ "$MANUAL_CONFIGURATION" = "False" ]; then
         # Start with the settings template file.
