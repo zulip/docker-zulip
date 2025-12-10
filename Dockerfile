@@ -30,9 +30,6 @@ WORKDIR /home/zulip
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=11.x
 
-# This layer will be invalidated when the ref changes
-ADD https://api.github.com/repos/zulip/zulip/git/refs/heads/$ZULIP_GIT_REF /tmp/git-version.json
-
 RUN git clone "$ZULIP_GIT_URL" zulip
 
 WORKDIR /home/zulip/zulip
