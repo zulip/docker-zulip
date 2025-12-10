@@ -13,7 +13,7 @@ normalize_bool() {
     local varname="$1"
     local raw_value="${!varname:-}"
     local value="${raw_value,,}" # Convert to lowercase
-    local default="${2:-False}"
+    local default="${2-False}"   # Only default if not provided; explicit "" is a valid default
     local allow_none="${3:-}"
 
     case "$value" in
@@ -69,7 +69,7 @@ PROXY_ALLOW_RANGES="${PROXY_ALLOW_RANGES:-}"
 
 # Core Zulip settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
-QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS)"
+QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS '')"
 
 # Configuration controls
 ZULIP_RUN_POST_SETUP_SCRIPTS="$(normalize_bool ZULIP_RUN_POST_SETUP_SCRIPTS True)"
@@ -228,7 +228,7 @@ puppetConfiguration() {
     if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ]; then
         echo "Setting queue workers to run in multiprocess mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
-    else
+    elif [ "$QUEUE_WORKERS_MULTIPROCESS" == "False" ]; then
         echo "Setting queue workers to run in multithreaded mode ..."
         crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
     fi
