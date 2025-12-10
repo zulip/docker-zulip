@@ -669,7 +669,9 @@ appBackup() {
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
     waitingForDatabase "$DB_HOST" "$DB_PORT"
-    pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
+    local PGPASSWORD
+    PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
+    PGPASSWORD="$PGPASSWORD" pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
     tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
@@ -718,7 +720,9 @@ appRestore() {
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
-    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
+    local PGPASSWORD
+    PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
+    PGPASSWORD="$PGPASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
