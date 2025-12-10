@@ -367,7 +367,7 @@ signing up for a cloud service is to install
 
 ### Helm charts
 
-Read the [Helm Chart README](kubernetes/chart/zulip/README.md) to learn more
+Read the [Helm Chart README](helm/zulip/README.md) to learn more
 about installing Zulip on a Kubernetes cluster with Helm.
 
 Feedback is welcome in the [helm-chart-thread]:
