@@ -672,7 +672,7 @@ appBackup() {
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
     PGPASSWORD="$PGPASSWORD" pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
-    tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
+    tar -C /tmp -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "backup-$TIMESTAMP"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
     exit 0
