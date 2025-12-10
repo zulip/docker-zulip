@@ -675,22 +675,30 @@ appRestore() {
         echo "Restore process failed. Exiting."
         exit 1
     fi
-    while true; do
-        local backups=("$DATA_DIR"/backups/*.sql)
-        printf '|-> %s\n' "${backups[@]#"$DATA_DIR"/backups/}"
-        echo "Please enter backup filename (full filename with extension): "
-        read -r BACKUP_FILE
-        if [ -z "$BACKUP_FILE" ]; then
-            echo "Empty filename given. Please try again."
-            echo ""
-            continue
-        fi
+    if [[ "$#" -eq 0 ]]; then
+        while true; do
+            local backups=("$DATA_DIR"/backups/*.sql)
+            printf '|-> %s\n' "${backups[@]#"$DATA_DIR"/backups/}"
+            echo "Please enter backup filename (full filename with extension): "
+            read -r BACKUP_FILE
+            if [ -z "$BACKUP_FILE" ]; then
+                echo "Empty filename given. Please try again."
+                echo ""
+                continue
+            fi
+            if [ ! -e "$DATA_DIR/backups/$BACKUP_FILE" ]; then
+                echo "File \"$BACKUP_FILE\" not found. Please try again."
+                echo ""
+            fi
+            break
+        done
+    else
+        BACKUP_FILE="$1"
         if [ ! -e "$DATA_DIR/backups/$BACKUP_FILE" ]; then
-            echo "File \"$BACKUP_FILE\" not found. Please try again."
-            echo ""
+            echo "File \"$BACKUP_FILE\" not found!"
+            exit 1
         fi
-        break
-    done
+    fi
     echo "File \"$BACKUP_FILE\" found."
     echo ""
     echo "==============================================================="
@@ -754,7 +762,8 @@ case "$1" in
         appBackup
         ;;
     app:restore)
-        appRestore
+        shift 1
+        appRestore "$@"
         ;;
     app:certs)
         appCerts
