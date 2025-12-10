@@ -40,10 +40,10 @@ normalize_bool() {
 ## Settings
 
 # PostgreSQL
-DB_HOST="${DB_HOST:-127.0.0.1}"
-DB_HOST_PORT="${DB_HOST_PORT:-5432}"
+SETTING_REMOTE_POSTGRES_HOST="${SETTING_REMOTE_POSTGRES_HOST:-127.0.0.1}"
 DB_NAME="${DB_NAME:-zulip}"
 DB_USER="${DB_USER:-zulip}"
+SETTING_REMOTE_POSTGRES_SSLMODE="${SETTING_REMOTE_POSTGRES_SSLMODE:-prefer}"
 
 # RabbitMQ
 SETTING_RABBITMQ_HOST="${SETTING_RABBITMQ_HOST:-127.0.0.1}"
@@ -82,7 +82,7 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # All of the above config vars, minus SETTING_ ones.
 our_vars=(
     DATA_DIR
-    DB_HOST DB_HOST_PORT DB_NAME DB_USER
+    DB_NAME DB_USER
     NGINX_WORKERS NGINX_MAX_UPLOAD_SIZE LOADBALANCER_IPS TRUST_GATEWAY_IP
     CERTIFICATES PROXY_ALLOW_ADDRESSES PROXY_ALLOW_RANGES
     ZULIP_AUTH_BACKENDS QUEUE_WORKERS_MULTIPROCESS
@@ -416,18 +416,6 @@ secretsConfiguration() {
     done
     echo "Zulip secrets configuration succeeded."
 }
-databaseConfiguration() {
-    echo "Setting database configuration ..."
-    setConfigurationValue "REMOTE_POSTGRES_HOST" "$DB_HOST" "string"
-    setConfigurationValue "REMOTE_POSTGRES_PORT" "$DB_HOST_PORT" "integer"
-    if [ -z "${SETTING_REMOTE_POSTGRES_SSLMODE:-}" ]; then
-        # We do this defaulting here, so that we don't false-positive the "you
-        # used a SETTING_" for MANUAL_CONFIGURATION deploys.
-        setConfigurationValue "REMOTE_POSTGRES_SSLMODE" "prefer" "string"
-    fi
-    # The password will be set in secretsConfiguration
-    echo "Database configuration succeeded."
-}
 authenticationBackends() {
     echo "Activating authentication backends ..."
     local FIRST=true
@@ -503,10 +491,15 @@ autoBackupConfiguration() {
 }
 waitingForDatabase() {
     local TIMEOUT=60
+    local DB_HOST
+    DB_HOST=${1:-$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")}
+    local DB_PORT
+    DB_PORT=${2:-$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")}
+
     echo "Waiting for database server to allow connections ..."
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
-    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
+    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
@@ -583,7 +576,6 @@ initialConfiguration() {
     if [ "$MANUAL_CONFIGURATION" = "False" ]; then
         # Start with the settings template file.
         cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py /etc/zulip/settings.py
-        databaseConfiguration
         secretsConfiguration
         authenticationBackends
         zulipConfiguration
@@ -593,7 +585,6 @@ initialConfiguration() {
         if [ ! -f "/etc/zulip/settings.py" ] || [ ! -s "/etc/zulip/settings.py" ]; then
             cp -a /home/zulip/deployments/current/zproject/prod_settings_template.py /etc/zulip/settings.py
             # This first time, pull from SETTING_ if provided.
-            databaseConfiguration
             authenticationBackends
             zulipConfiguration
             bootstrapped_from_env=1
@@ -673,8 +664,12 @@ appBackup() {
     fi
     local BACKUP_FOLDER="/tmp/backup-$TIMESTAMP"
     mkdir -p "$BACKUP_FOLDER"
-    waitingForDatabase
-    pg_dump -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
+    local DB_HOST
+    DB_HOST=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")
+    local DB_PORT
+    DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
+    waitingForDatabase "$DB_HOST" "$DB_PORT"
+    pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
     tar -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "$BACKUP_FOLDER/"
     rm -r "${BACKUP_FOLDER:?}/"
     echo "Backup process succeeded."
@@ -717,9 +712,13 @@ appRestore() {
         sleep 1
     done
     echo "!! WARNING !! Starting restore process ... !! WARNING !!"
-    waitingForDatabase
+    local DB_HOST
+    DB_HOST=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")
+    local DB_PORT
+    DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
+    waitingForDatabase "$DB_HOST" "$DB_PORT"
     tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
-    psql -h "$DB_HOST" -p "$DB_HOST_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
+    psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
     rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
     echo "Restore process succeeded. Exiting."
     exit 0
