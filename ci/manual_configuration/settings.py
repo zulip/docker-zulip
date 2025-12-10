@@ -3,7 +3,6 @@ MEMCACHED_LOCATION = "memcached:11211"
 RABBITMQ_HOST = "rabbitmq"
 REDIS_HOST = "redis"
 REMOTE_POSTGRES_HOST = "database"
-REMOTE_POSTGRES_PORT = 5432
 REMOTE_POSTGRES_SSLMODE = "prefer"
 
 LOCAL_UPLOADS_DIR = "/home/zulip/uploads"

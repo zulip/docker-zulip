@@ -2,9 +2,7 @@
 services:
   zulip:
     environment: !override
-      # The !override removes the default SETTING_ values.  We still need the
-      # DB_HOST so we know what database host to wait for
-      DB_HOST: database
+      # The !override removes the default SETTING_ values.
       MANUAL_CONFIGURATION: True
     volumes:
       - ./ci/manual_configuration/settings.py:/etc/zulip/settings.py
