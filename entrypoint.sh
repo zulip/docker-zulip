@@ -168,7 +168,8 @@ setConfigurationValue() {
     local VALUE
     local TYPE="$3"
     if [ -z "$TYPE" ]; then
-        case "$2" in
+        VALUE_RSTRIP="$(echo -e "$2" | tr -d '[:space:]')"
+        case "$VALUE_RSTRIP" in
             [Tt][Rr][Uu][Ee] | [Ff][Aa][Ll][Ss][Ee] | [Nn]one)
                 TYPE="bool"
                 ;;
