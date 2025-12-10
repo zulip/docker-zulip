@@ -29,12 +29,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Get commit SHA for current 11.x tip
+        id: get-sha
+        run: |
+          COMMIT=$(git ls-remote https://github.com/zulip/zulip.git refs/heads/11.x | cut -f1)
+          echo "commit_sha=$COMMIT" >> $GITHUB_OUTPUT
+
       - name: Build
         uses: docker/build-push-action@v5
         with:
           context: .
           tags: zulip/docker-zulip:pr-${{ github.event.pull_request.number }}
           outputs: type=docker,dest=/tmp/image.tar
+          build-args: |
+            ZULIP_GIT_REF=${{ steps.get-sha.outputs.commit_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
