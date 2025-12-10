@@ -84,7 +84,7 @@ services:
 
       ## A comma-separated list of authentication backends to enable.  Note that
       ## this ZULIP_AUTH_BACKENDS takes the place of
-      ## SETTINGS_AUTHENTICATION_BACKENDS.  This defaults to just
+      ## SETTING_AUTHENTICATION_BACKENDS.  This defaults to just
       ## EmailAuthBackend.
       ##
       ## --> https://zulip.readthedocs.io/en/stable/production/authentication-methods.html
