@@ -56,7 +56,6 @@ SETTING_MEMCACHED_LOCATION="${SETTING_MEMCACHED_LOCATION:-127.0.0.1:11211}"
 
 # Nginx and HTTP(S) settings
 NGINX_WORKERS="${NGINX_WORKERS:-2}"
-NGINX_MAX_UPLOAD_SIZE="${NGINX_MAX_UPLOAD_SIZE:-80m}"
 LOADBALANCER_IPS="${LOADBALANCER_IPS:-}"
 TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
 CERTIFICATES="${CERTIFICATES:-}"
@@ -83,7 +82,7 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 our_vars=(
     DATA_DIR
     DB_NAME DB_USER
-    NGINX_WORKERS NGINX_MAX_UPLOAD_SIZE LOADBALANCER_IPS TRUST_GATEWAY_IP
+    NGINX_WORKERS LOADBALANCER_IPS TRUST_GATEWAY_IP
     CERTIFICATES PROXY_ALLOW_ADDRESSES PROXY_ALLOW_RANGES
     ZULIP_AUTH_BACKENDS QUEUE_WORKERS_MULTIPROCESS
     ZULIP_RUN_POST_SETUP_SCRIPTS ZULIP_CUSTOM_SETTINGS
@@ -213,7 +212,6 @@ setConfigurationValue() {
 nginxConfiguration() {
     echo "Executing nginx configuration ..."
     sed -i "s/worker_processes .*/worker_processes $NGINX_WORKERS;/g" /etc/nginx/nginx.conf
-    sed -i "s/client_max_body_size .*/client_max_body_size $NGINX_MAX_UPLOAD_SIZE;/g" /etc/nginx/nginx.conf
     echo "Nginx configuration succeeded."
 }
 puppetConfiguration() {
