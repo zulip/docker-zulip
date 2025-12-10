@@ -90,8 +90,7 @@ services:
       - zulip__email_password
     environment:
       # Default hostnames; configure your application in compose.override.yaml
-      DB_HOST: "database"
-      DB_HOST_PORT: "5432"
+      SETTING_REMOTE_POSTGRES_HOST: "database"
       SETTING_MEMCACHED_LOCATION: "memcached:11211"
       SETTING_RABBITMQ_HOST: "rabbitmq"
       SETTING_REDIS_HOST: "redis"
