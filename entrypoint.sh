@@ -657,13 +657,6 @@ appBackup() {
     echo "Starting backup process ..."
     local TIMESTAMP
     TIMESTAMP=$(date -u -Iseconds | tr ':' '_')
-    if [ -d "/tmp/backup-$TIMESTAMP" ]; then
-        echo "Temporary backup folder for \"$TIMESTAMP\" already exists. Aborting."
-        echo "Backup process failed. Exiting."
-        exit 1
-    fi
-    local BACKUP_FOLDER="/tmp/backup-$TIMESTAMP"
-    mkdir -p "$BACKUP_FOLDER"
     local DB_HOST
     DB_HOST=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")
     local DB_PORT
@@ -671,9 +664,7 @@ appBackup() {
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
-    PGPASSWORD="$PGPASSWORD" pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$BACKUP_FOLDER/database-postgres.sql"
-    tar -C /tmp -zcvf "$DATA_DIR/backups/backup-$TIMESTAMP.tar.gz" "backup-$TIMESTAMP"
-    rm -r "${BACKUP_FOLDER:?}/"
+    PGPASSWORD="$PGPASSWORD" pg_dump -Fc -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" >"$DATA_DIR/backups/backup-$TIMESTAMP.sql"
     echo "Backup process succeeded."
     exit 0
 }
@@ -685,7 +676,7 @@ appRestore() {
         exit 1
     fi
     while true; do
-        local backups=("$DATA_DIR"/backups/*)
+        local backups=("$DATA_DIR"/backups/*.sql)
         printf '|-> %s\n' "${backups[@]#"$DATA_DIR"/backups/}"
         echo "Please enter backup filename (full filename with extension): "
         read -r BACKUP_FILE
@@ -719,11 +710,9 @@ appRestore() {
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
     waitingForDatabase "$DB_HOST" "$DB_PORT"
-    tar -zxvf "$DATA_DIR/backups/$BACKUP_FILE" -C /tmp
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
-    PGPASSWORD="$PGPASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" <"/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/database-postgres.sql"
-    rm -r "/tmp/$(basename "$BACKUP_FILE" | cut -d. -f1)/"
+    PGPASSWORD="$PGPASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$DATA_DIR/backups/$BACKUP_FILE"
     echo "Restore process succeeded. Exiting."
     exit 0
 }
