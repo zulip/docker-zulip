@@ -33,9 +33,11 @@ ARG ZULIP_GIT_REF=11.x
 # This layer will be invalidated when the ref changes
 ADD https://api.github.com/repos/zulip/zulip/git/refs/heads/$ZULIP_GIT_REF /tmp/git-version.json
 
-RUN git clone "$ZULIP_GIT_URL" -b "$ZULIP_GIT_REF"
+RUN git clone "$ZULIP_GIT_URL" zulip
 
 WORKDIR /home/zulip/zulip
+
+RUN git checkout "$ZULIP_GIT_REF"
 
 # Finally, we provision the development environment and build a release tarball
 RUN SKIP_VENV_SHELL_WARNING=1 ./tools/provision --build-release-tarball-only && \
