@@ -1,7 +1,6 @@
 # A custom settings.py!
 MEMCACHED_LOCATION = "memcached:11211"
 RABBITMQ_HOST = "rabbitmq"
-RABBITMQ_USER = "zulip"
 REDIS_HOST = "redis"
 REDIS_PORT = 6379
 REMOTE_POSTGRES_HOST = "database"
