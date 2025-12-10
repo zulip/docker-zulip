@@ -57,7 +57,7 @@ jobs:
       - name: Run prettier over the re-generated docs
         uses: creyD/prettier_action@v4.6
         with:
-          prettier_options: --write kubernetes/chart/zulip/README.md
+          prettier_options: --write helm/zulip/README.md
           no_commit: True
 
       - name: Check for any diff
@@ -104,7 +104,7 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --chart-dirs kubernetes/chart \
+          changed=$(ct list-changed --chart-dirs ./helm \
                                     --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -114,7 +114,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct lint --github-groups \
-                  --chart-dirs kubernetes/chart \
+                  --chart-dirs ./helm \
                   --target-branch ${{ github.event.repository.default_branch }} \
                   --lint-conf lintconf.yaml
 
@@ -137,7 +137,7 @@ jobs:
         id: chart-testing-install
         run: |
           ct install --github-groups \
-                     --chart-dirs kubernetes/chart \
+                     --chart-dirs ./helm \
                      --all \
                      --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
                      --skip-clean-up
