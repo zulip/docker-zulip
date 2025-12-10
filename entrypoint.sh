@@ -459,7 +459,7 @@ zulipConfiguration() {
         local setting_var="${!key}"
         local type=""
         if [ -z "$setting_var" ]; then
-            echo "Empty var for key \"$setting_key\"."
+            echo "WARNING: Empty var for key \"$setting_key\", skipping."
             continue
         fi
         # Zulip settings.py / zproject specific overrides here
