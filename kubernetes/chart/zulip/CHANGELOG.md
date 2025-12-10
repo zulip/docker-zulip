@@ -1,3 +1,7 @@
+## [0.11.43] - 2026-02-03
+
+- Change CI to use artifacts for inter-job caching.
+
 ## [0.11.42] - 2025-11-13
 
 - Switch to bitnamilegacy images.

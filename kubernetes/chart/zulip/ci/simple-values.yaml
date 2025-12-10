@@ -1,6 +1,5 @@
 ---
 image:
-  repository: ghcr.io/zulip/docker-zulip
   pullPolicy: Never
   # CI will pass tag: of the PR
 
