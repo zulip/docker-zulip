@@ -79,6 +79,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | ingress.enabled                                                    | bool   | `false`                     |             |
 | ingress.hosts[0].host                                              | string | `"zulip.example.com"`       |             |
 | ingress.hosts[0].paths[0].path                                     | string | `"/"`                       |             |
+| ingress.ingressClassName                                           | string | `""`                        |             |
 | ingress.tls                                                        | list   | `[]`                        |             |
 | livenessProbe.enabled                                              | bool   | `true`                      |             |
 | livenessProbe.failureThreshold                                     | int    | `3`                         |             |

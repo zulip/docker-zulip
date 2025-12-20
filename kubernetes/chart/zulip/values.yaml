@@ -74,6 +74,8 @@ service:
 ingress:
   ## Enable this to use an Ingress to reach the Zulip service.
   enabled: false
+  ## Ingress class name to use.
+  ingressClassName: ""
   ## Can be used to add custom Ingress annotations.
   annotations:
     {}
