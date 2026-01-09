@@ -499,7 +499,7 @@ waitingForDatabase() {
     echo "Waiting for database server to allow connections ..."
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
-    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -t 1 >/dev/null 2>&1; do
+    while ! PGPASSWORD="$PGPASSWORD" /usr/bin/pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t 1 >/dev/null 2>&1; do
         if ! ((TIMEOUT--)); then
             echo "Could not connect to database server. Exiting."
             exit 1
