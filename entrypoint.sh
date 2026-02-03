@@ -449,33 +449,12 @@ zulipConfiguration() {
             echo "WARNING: Empty var for key \"$setting_key\", skipping."
             continue
         fi
-        # Zulip settings.py / zproject specific overrides here
-        if [ "$setting_key" = "AUTH_LDAP_CONNECTION_OPTIONS" ] \
-            || [ "$setting_key" = "AUTH_LDAP_GLOBAL_OPTIONS" ] \
-            || [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] \
+        # These setting values are generally objects from django_auth_ldap.config
+        if [ "$setting_key" = "AUTH_LDAP_USER_SEARCH" ] \
             || [ "$setting_key" = "AUTH_LDAP_GROUP_SEARCH" ] \
             || [ "$setting_key" = "AUTH_LDAP_REVERSE_EMAIL_SEARCH" ] \
-            || [ "$setting_key" = "AUTH_LDAP_USER_ATTR_MAP" ] \
-            || [ "$setting_key" = "AUTH_LDAP_USER_FLAGS_BY_GROUP" ] \
-            || [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ] \
-            || [ "$setting_key" = "AUTH_LDAP_ADVANCED_REALM_ACCESS_CONTROL" ] \
-            || [ "$setting_key" = "LDAP_SYNCHRONIZED_GROUPS_BY_REALM" ] \
-            || [ "$setting_key" = "SOCIAL_AUTH_OIDC_ENABLED_IDPS" ] \
-            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ENABLED_IDPS" ] \
-            || [ "$setting_key" = "SOCIAL_AUTH_SAML_ORG_INFO" ] \
-            || [ "$setting_key" = "SOCIAL_AUTH_SYNC_ATTRS_DICT" ] \
-            || { [ "$setting_key" = "LDAP_APPEND_DOMAIN" ] && [ "$setting_var" = "None" ]; } \
-            || [ "$setting_key" = "SCIM_CONFIG" ] \
-            || [ "$setting_key" = "SECURE_PROXY_SSL_HEADER" ] \
-            || [[ "$setting_key" = "CSRF_"* ]] \
-            || [ "$setting_key" = "REALM_HOSTS" ] \
-            || [ "$setting_key" = "ALLOWED_HOSTS" ]; then
+            || [ "$setting_key" = "AUTH_LDAP_GROUP_TYPE" ]; then
             type="array"
-        fi
-        if [ "$setting_key" = "EMAIL_HOST_USER" ] \
-            || [ "$setting_key" = "EMAIL_HOST_PASSWORD" ] \
-            || [ "$setting_key" = "EXTERNAL_HOST" ]; then
-            type="string"
         fi
         setConfigurationValue "$setting_key" "$setting_var" "$type"
     done
