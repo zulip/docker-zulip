@@ -176,7 +176,7 @@ setConfigurationValue() {
             +([0-9]))
                 TYPE="integer"
                 ;;
-            \[*\] | \(*\))
+            \[*\] | \(*\) | \{*\})
                 TYPE="array"
                 ;;
             *)
