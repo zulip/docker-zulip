@@ -1,0 +1,7 @@
+---
+services:
+  zulip:
+    environment:
+      SETTING_FOO_BAR: 1
+      CONFIG_application_server__katex_server: false
+      CONFIG_http_proxy__allow_ranges: 10.0.0.0/8
