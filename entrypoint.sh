@@ -202,7 +202,9 @@ setConfigurationValue() {
             ;;
         *)
             [[ "$TYPE" != "string" ]] && echo "WARNING: Unknown type '$TYPE' for '$KEY' -- treating as string." >&2
-            VALUE="$KEY = '${2//\'/\'}'"
+            VALUE="${2//\\/\\\\}"
+            VALUE="${VALUE//\'/\\\'}"
+            VALUE="$KEY = '$VALUE'"
             ;;
     esac
     echo "$VALUE" >>/etc/zulip/settings.py
@@ -421,11 +423,13 @@ authenticationBackends() {
     IFS=, read -r -a auth_backends <<<"$ZULIP_AUTH_BACKENDS"
     local AUTH_BACKEND
     for AUTH_BACKEND in "${auth_backends[@]}"; do
+        AUTH_BACKEND="${AUTH_BACKEND//\\/\\\\}"
+        AUTH_BACKEND="${AUTH_BACKEND//\'/\\\'}"
         if [ "$FIRST" = true ]; then
-            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "array"
+            setConfigurationValue "AUTHENTICATION_BACKENDS" "('zproject.backends.${AUTH_BACKEND}',)" "array"
             FIRST=false
         else
-            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND//\'/\'}',)" "" "literal"
+            setConfigurationValue "AUTHENTICATION_BACKENDS += ('zproject.backends.${AUTH_BACKEND}',)" "" "literal"
         fi
         echo "Adding authentication backend \"$AUTH_BACKEND\"."
     done
