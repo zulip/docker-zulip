@@ -23,7 +23,7 @@ if [ "$worker_procs" != "1" ]; then
     exit 1
 fi
 
-# We can override this with QUEUE_WORKERS_MULTIPROCESS
+# We can override this with CONFIG_application_server__queue_workers_multiprocess
 "${docker[@]}" "$(with low-memory)" "$(with multiprocess)" up zulip --wait
 worker_procs=$("${docker[@]:?}" exec zulip supervisorctl status zulip-workers:* | wc -l)
 if [ "$worker_procs" = "1" ]; then

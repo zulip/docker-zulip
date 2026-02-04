@@ -184,8 +184,9 @@ which you need to encode in the YAML file. For example,
 whether the system has enough memory to run Zulip queue processors in the
 higher-throughput but more multiprocess mode (or to save 1.5GiB of RAM with
 the multi-threaded mode). This algorithm might see the host's memory, not the
-docker container's memory. Set to `QUEUE_WORKERS_MULTIPROCESS` to `true` or
-`false` to override the automatic calculation.
+docker container's memory. Set
+`CONFIG_application_server__queue_workers_multiprocess` to `true` or `false`
+to override the automatic calculation.
 
 **SSL Certificates**. By default, the image will generate a self-signed certificate.
 You can set `SSL_CERTIFICATE_GENERATION: "certbot"` within `docker-compose.yml`
@@ -219,8 +220,9 @@ proxies][other-proxy].
 **Outgoing proxy**: Zulip uses [Smokescreen][smokescreen] to proxy all
 outgoing HTTP connections and prevent SSRF attacks. If you have
 private IPs (e.g., outgoing webhook hosts on private IPs), you can set
-`PROXY_ALLOW_ADDRESSES` or `PROXY_ALLOW_RANGES` to comma-separated
-lists of IP addresses or CIDR ranges.
+`CONFIG_http_proxy__allow_addresses` or
+`CONFIG_http_proxy__allow_ranges` to comma-separated lists of IP
+addresses or CIDR ranges.
 
 [smokescreen]: https://zulip.readthedocs.io/en/latest/production/deployment.html#customizing-the-outgoing-http-proxy
 

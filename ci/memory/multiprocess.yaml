@@ -2,4 +2,4 @@
 services:
   zulip:
     environment:
-      QUEUE_WORKERS_MULTIPROCESS: True
+      CONFIG_application_server__queue_workers_multiprocess: true

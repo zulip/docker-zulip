@@ -41,8 +41,6 @@ normalize_bool() {
 
 # PostgreSQL
 SETTING_REMOTE_POSTGRES_HOST="${SETTING_REMOTE_POSTGRES_HOST:-127.0.0.1}"
-DB_NAME="${DB_NAME:-zulip}"
-DB_USER="${DB_USER:-zulip}"
 SETTING_REMOTE_POSTGRES_SSLMODE="${SETTING_REMOTE_POSTGRES_SSLMODE:-prefer}"
 
 # RabbitMQ
@@ -55,18 +53,13 @@ SETTING_REDIS_HOST="${SETTING_REDIS_HOST:-127.0.0.1}"
 SETTING_MEMCACHED_LOCATION="${SETTING_MEMCACHED_LOCATION:-127.0.0.1:11211}"
 
 # Nginx and HTTP(S) settings
-NGINX_WORKERS="${NGINX_WORKERS:-2}"
+CONFIG_application_server__nginx_worker_processes="${CONFIG_application_server__nginx_worker_processes:-2}"
 LOADBALANCER_IPS="${LOADBALANCER_IPS:-}"
 TRUST_GATEWAY_IP="$(normalize_bool TRUST_GATEWAY_IP)"
 CERTIFICATES="${CERTIFICATES:-}"
 
-# Outgoing proxy settings
-PROXY_ALLOW_ADDRESSES="${PROXY_ALLOW_ADDRESSES:-}"
-PROXY_ALLOW_RANGES="${PROXY_ALLOW_RANGES:-}"
-
 # Core Zulip settings
 ZULIP_AUTH_BACKENDS="${ZULIP_AUTH_BACKENDS:-EmailAuthBackend}"
-QUEUE_WORKERS_MULTIPROCESS="$(normalize_bool QUEUE_WORKERS_MULTIPROCESS '')"
 
 # Configuration controls
 ZULIP_RUN_POST_SETUP_SCRIPTS="$(normalize_bool ZULIP_RUN_POST_SETUP_SCRIPTS True)"
@@ -81,10 +74,9 @@ AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-30 3 * * *}"
 # All of the above config vars, minus SETTING_ and CONFIG_ ones.
 our_vars=(
     DATA_DIR
-    DB_NAME DB_USER
-    NGINX_WORKERS LOADBALANCER_IPS TRUST_GATEWAY_IP
-    CERTIFICATES PROXY_ALLOW_ADDRESSES PROXY_ALLOW_RANGES
-    ZULIP_AUTH_BACKENDS QUEUE_WORKERS_MULTIPROCESS
+    LOADBALANCER_IPS TRUST_GATEWAY_IP
+    CERTIFICATES
+    ZULIP_AUTH_BACKENDS
     ZULIP_RUN_POST_SETUP_SCRIPTS ZULIP_CUSTOM_SETTINGS
     MANUAL_CONFIGURATION LINK_SETTINGS_TO_DATA
     AUTO_BACKUP_ENABLED AUTO_BACKUP_INTERVAL
@@ -219,18 +211,7 @@ puppetConfiguration() {
         echo "Disabling https in nginx."
         crudini --set /etc/zulip/zulip.conf application_server http_only true
     fi
-    if [ "$QUEUE_WORKERS_MULTIPROCESS" == "True" ]; then
-        echo "Setting queue workers to run in multiprocess mode ..."
-        crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess true
-    elif [ "$QUEUE_WORKERS_MULTIPROCESS" == "False" ]; then
-        echo "Setting queue workers to run in multithreaded mode ..."
-        crudini --set /etc/zulip/zulip.conf application_server queue_workers_multiprocess false
-    fi
 
-    if [ -n "$NGINX_WORKERS" ]; then
-        echo "Setting nginx workers to $NGINX_WORKERS"
-        crudini --set /etc/zulip/zulip.conf application_server nginx_worker_processes "$NGINX_WORKERS"
-    fi
     if [ "$TRUST_GATEWAY_IP" == "True" ]; then
         local GATEWAY_IP
         GATEWAY_IP=$(ip route | grep default | awk '{print $3}')
@@ -238,27 +219,10 @@ puppetConfiguration() {
         LOADBALANCER_IPS="${LOADBALANCER_IPS:+$LOADBALANCER_IPS,}$GATEWAY_IP"
     fi
     if [ -n "$LOADBALANCER_IPS" ]; then
+        # This is primarily for backwards compatibility, since the
+        # 11.x error pages describe setting LOADBALANCER_IPS
         echo "Setting IPs for load balancer"
         crudini --set /etc/zulip/zulip.conf loadbalancer ips "${LOADBALANCER_IPS}"
-    fi
-
-    if [ -n "$PROXY_ALLOW_ADDRESSES" ]; then
-        echo "Setting outgoing proxy allowed private IPs"
-        crudini --set /etc/zulip/zulip.conf http_proxy allow_addresses "${PROXY_ALLOW_ADDRESSES}"
-    fi
-    if [ -n "$PROXY_ALLOW_RANGES" ]; then
-        echo "Setting outgoing proxy allowed private IP ranges"
-        crudini --set /etc/zulip/zulip.conf http_proxy allow_ranges "${PROXY_ALLOW_RANGES}"
-    fi
-
-    if [ "$DB_NAME" != "zulip" ]; then
-        echo "Setting database name to $DB_NAME"
-        crudini --set /etc/zulip/zulip.conf postgresql database_name "$DB_NAME"
-    fi
-
-    if [ "$DB_USER" != "zulip" ]; then
-        echo "Setting database user to $DB_USER"
-        crudini --set /etc/zulip/zulip.conf postgresql database_user "$DB_USER"
     fi
 
     local key
@@ -490,6 +454,10 @@ waitingForDatabase() {
     DB_HOST=${1:-$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")}
     local DB_PORT
     DB_PORT=${2:-$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")}
+    local DB_USER
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    local DB_NAME
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
 
     echo "Waiting for database server to allow connections ..."
     local PGPASSWORD
@@ -655,6 +623,10 @@ appBackup() {
     DB_HOST=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
+    local DB_USER
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    local DB_NAME
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
@@ -711,6 +683,10 @@ appRestore() {
     DB_HOST=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_HOST")
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
+    local DB_USER
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    local DB_NAME
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
