@@ -93,8 +93,11 @@ standard_vars=(
     HOSTNAME PWD HOME LANG SHLVL PATH _
 )
 failure=0
-for env_var in $(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -vE '^(SECRET|SETTING|KUBERNETES)_'); do
-    if [ "${env_var^^}" != "$env_var" ]; then
+for env_var in $(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -vE '^(CONFIG|SECRET|SETTING|KUBERNETES)_'); do
+    if [[ "$env_var" =~ ^[a-z0-9_]+__[a-z0-9_]+$ ]]; then
+        echo "WARNING: Unexpected environment variable '$env_var'; did you mean CONFIG_$env_var ?"
+        failure=1
+    elif [ "${env_var^^}" != "$env_var" ]; then
         # Skip if not all upper-case
         :
     elif echo " ${our_vars[*]} ${standard_vars[*]} " | grep -q " $env_var "; then
@@ -257,6 +260,20 @@ puppetConfiguration() {
         echo "Setting database user to $DB_USER"
         crudini --set /etc/zulip/zulip.conf postgresql database_user "$DB_USER"
     fi
+
+    local key
+    for key in "${!CONFIG_@}"; do
+        [[ "$key" =~ ^CONFIG_([a-z0-9_]+?)__([a-z0-9_]+)$ ]] || continue
+        local config_section="${BASH_REMATCH[1]}"
+        local config_name="${BASH_REMATCH[2]}"
+        local config_var="${!key}"
+        if [ -z "$config_var" ]; then
+            echo "WARNING: Empty value for config \"$setting_key\", skipping."
+            continue
+        fi
+        echo "Setting zulip.conf $config_section.$config_name = $config_var"
+        crudini --set /etc/zulip/zulip.conf "$config_section" "$config_name" "$config_var"
+    done
 
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
