@@ -1,0 +1,22 @@
+name: Daily GHCR untaged docker-zulip cleanup
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  delete-untagged-versions:
+    runs-on: ubuntu-latest
+    permissions:
+      # Needs write permission to delete packages
+      packages: write
+    steps:
+      - name: Delete all untagged container versions
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
+        with:
+          delete-only-untagged-versions: "true"
+          min-versions-to-keep: 10
+          package-name: "docker-zulip"
+          package-type: "container"
+          token: ${{ github.token }}
