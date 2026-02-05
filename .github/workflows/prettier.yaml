@@ -7,13 +7,17 @@ on:
       - main
       - next
 
+permissions: {}
+
 jobs:
   prettier:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: creyD/prettier_action@v4.6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
         with:
           dry: true
           prettier_options: "--write **/*.md"
