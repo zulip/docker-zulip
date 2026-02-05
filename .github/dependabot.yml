@@ -13,5 +13,7 @@ updates:
 
   - package-ecosystem: "docker-compose"
     directory: "/"
+    commit-message:
+      prefix: compose
     schedule:
       interval: "weekly"
