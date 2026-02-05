@@ -30,6 +30,11 @@ WORKDIR /home/zulip
 ARG ZULIP_GIT_URL=https://github.com/zulip/zulip.git
 ARG ZULIP_GIT_REF=11.5
 
+LABEL org.opencontainers.image.source="https://github.com/zulip/docker-zulip"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.title="Zulip Server"
+LABEL org.opencontainers.image.version="$ZULIP_GIT_REF"
+
 RUN git clone "$ZULIP_GIT_URL" zulip
 
 WORKDIR /home/zulip/zulip
