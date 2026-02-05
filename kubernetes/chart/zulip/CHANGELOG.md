@@ -1,3 +1,7 @@
+## [0.11.50] - 2026-02-05
+
+- Update to Zulip Server 11.5
+
 ## [0.11.43] - 2026-02-03
 
 - Change CI to use artifacts for inter-job caching.
