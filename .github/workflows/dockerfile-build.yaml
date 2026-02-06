@@ -7,6 +7,7 @@ on:
       - main
     tags:
       - "[0-9]*.[0-9]*-[0-9]*"
+      - "ghcr-[0-9]*.[0-9]*-[0-9]*"
 
 permissions: {}
 
@@ -40,6 +41,10 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=match,pattern=\d+\.\d+-\d+
+            type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
           labels: |
             org.opencontainers.image.description=Zulip Server
           annotations: |
