@@ -1,6 +1,6 @@
 # Zulip Docker image overview
 
-[![**docker-zulip** stream](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/backend/topic/docker)
+[![**docker** topic in **production-help** channel](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/channel/31-production-help/topic/docker)
 
 `docker-zulip` is the official Docker container image for running a
 [Zulip server](https://zulip.com) in
