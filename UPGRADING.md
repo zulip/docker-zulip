@@ -24,20 +24,19 @@ All of the instructions below assume you are using the provided
    Note that `docker-zulip` did not support for Zulip's built-in
    `restore-backup` tool before Zulip 3.0.
 
-1. Pull the new image version, e.g. for `2.0.8` run:
+1. Pull the new image version, e.g. for `11.5` run:
 
    ```shell
-   docker pull zulip/docker-zulip:2.0.8-0
+   docker pull ghcr.io/zulip/zulip-server:11.5-0
    ```
 
    We recommend always upgrading to the latest minor release within a major
    release series.
 
-2. Update this project to the corresponding `docker-zulip` version and resolve
+2. Update this project to the corresponding image version and resolve
    any merge conflicts in `docker-compose.yml`. This is important as new Zulip
    releases may require additional settings to be specified in
-   `docker-compose.yml` (E.g. authentication settings for `memcached` became
-   mandatory in the `2.1.2` release).
+   `docker-compose.yml`
 
    **Note:** Do not make any changes to the database version or volume. If there
    is a difference in database version, leave those unchanged for now, and
@@ -51,7 +50,7 @@ All of the instructions below assume you are using the provided
 
    ```yaml
    zulip:
-     image: "zulip/docker-zulip:2.0.1-0"
+     image: "ghcr.io/zulip/zulip-server:11.5-0"
    ```
 
 4. You can execute the upgrade by running:
@@ -79,7 +78,7 @@ docker compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
 
    ```yaml
    zulip:
-     # image: "zulip/docker-zulip:2.0.1-0"
+     # image: "ghcr.io:zulip/zulip-server:11.5-0"
      build:
        context: .
        args:
@@ -90,7 +89,7 @@ docker compose exec -u zulip zulip cat /home/zulip/deployments/current/version.p
 
    You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git repository,
    and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `main` or
-   `1.9.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
+   `11.5` or `3ca9cefbb3a380c9563eb665940952e572a1fb60`).
 
 2. Run `docker compose build zulip` to build a Zulip Docker image from the
    specified Git version.
@@ -99,7 +98,7 @@ Then stop and restart the container as described in the previous section.
 
 ## Upgrading to use Docker volumes (version 6.0-0 and above)
 
-As of Docker Zulip 6.0-0, we have switched the volume storage from being in
+As of version 6.0-0, we have switched the volume storage from being in
 directories under `/opt/docker/zulip/` on the Docker host system, to using named
 Docker managed volumes. In your `docker-compose.yml`, you should either preserve
 the previous `/opt/docker/zulip/` paths for your volumes, or migrate the

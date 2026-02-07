@@ -10,9 +10,9 @@
 ## ```
 
 image:
-  ## Defaults to https://hub.docker.com/zulip/docker-zulip, but can be
+  ## Defaults to https://ghcr.io/zulip/zulip-server, but can be
   ## overwritten with a full HTTPS address.
-  repository: zulip/docker-zulip
+  repository: ghcr.io/zulip/zulip-server
   ## Pull policy for Zulip docker image.
   ## Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
   pullPolicy: IfNotPresent

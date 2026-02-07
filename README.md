@@ -2,17 +2,21 @@
 
 [![**docker** topic in **production-help** channel](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/channel/31-production-help/topic/docker)
 
-`docker-zulip` is the official Docker container image for running a
-[Zulip server](https://zulip.com) in
-[production][prod-overview]. Built images are available from: [Docker
-Hub](https://hub.docker.com/r/zulip/docker-zulip):
+This is the official Docker container image for running a [Zulip
+server](https://zulip.com) in [production][prod-overview]. Built images are
+available from [ghcr](https://ghcr.io/zulip/zulip-server/)
 
 ```console
-$ docker pull zulip/docker-zulip:11.5-0
+$ docker pull ghcr.io/zulip/zulip-server:11.5-0
 ```
 
 Current Zulip version: `11.5`
 Current Docker image version: `11.5-0`
+
+> [!NOTE]
+> A previous packaging of Zulip for Docker still exists on Docker Hub, as
+> [zulip/docker-zulip](hub.docker.com/r/zulip/docker-zulip). That version will
+> continue to be supported through the end of the Zulip Server 11.x series.
 
 We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker
@@ -25,7 +29,7 @@ installer][normal-install].
 
 ## Prerequisites
 
-To use `docker-zulip`, you need the following:
+To use this image, you need the following:
 
 - An installation of [Docker][install-docker] and
   [Docker Compose][install-docker-compose] or a Kubernetes runtime
@@ -436,10 +440,9 @@ PRs. Some particularly useful ways to contribute right now are:
 
 ## Credits
 
-Huge thanks to everyone who has contributed. Special thanks to
-[Alexander Trost](http://github.com/galexrt/), who created
-`docker-zulip` and did a huge amount of the early work required to
-make a high-quality Docker image for Zulip possible.
+Huge thanks to everyone who has contributed. Special thanks to [Alexander
+Trost](http://github.com/galexrt/), who created the first Docker packaging of
+Zulip Server.
 
 [install-normal]: https://zulip.readthedocs.io/en/latest/production/install.html#installer-options
 [outgoing-email]: https://zulip.readthedocs.io/en/latest/production/email.html

@@ -66,93 +66,94 @@ Now you're ready to follow [the installation instructions above](#installation).
 
 ## Values
 
-| Key                                                                | Type   | Default                     | Description |
-| ------------------------------------------------------------------ | ------ | --------------------------- | ----------- |
-| affinity                                                           | object | `{}`                        |             |
-| extraObjects                                                       | list   | `[]`                        |             |
-| fullnameOverride                                                   | string | `""`                        |             |
-| global.security.allowInsecureImages                                | bool   | `true`                      |             |
-| image.pullPolicy                                                   | string | `"IfNotPresent"`            |             |
-| image.repository                                                   | string | `"zulip/docker-zulip"`      |             |
-| image.tag                                                          | string | `"11.5-0"`                  |             |
-| imagePullSecrets                                                   | list   | `[]`                        |             |
-| ingress.annotations                                                | object | `{}`                        |             |
-| ingress.className                                                  | string | `nil`                       |             |
-| ingress.enabled                                                    | bool   | `false`                     |             |
-| ingress.hosts[0].host                                              | string | `"zulip.example.com"`       |             |
-| ingress.hosts[0].paths[0].path                                     | string | `"/"`                       |             |
-| ingress.tls                                                        | list   | `[]`                        |             |
-| livenessProbe.enabled                                              | bool   | `true`                      |             |
-| livenessProbe.failureThreshold                                     | int    | `3`                         |             |
-| livenessProbe.initialDelaySeconds                                  | int    | `10`                        |             |
-| livenessProbe.periodSeconds                                        | int    | `10`                        |             |
-| livenessProbe.successThreshold                                     | int    | `1`                         |             |
-| livenessProbe.timeoutSeconds                                       | int    | `5`                         |             |
-| memcached.image.repository                                         | string | `"bitnamilegacy/memcached"` |             |
-| memcached.image.tag                                                | string | `"latest"`                  |             |
-| memcached.memcachedUsername                                        | string | `"zulip@localhost"`         |             |
-| nameOverride                                                       | string | `""`                        |             |
-| nodeSelector                                                       | object | `{}`                        |             |
-| podAnnotations                                                     | object | `{}`                        |             |
-| podLabels                                                          | object | `{}`                        |             |
-| podSecurityContext                                                 | object | `{}`                        |             |
-| postSetup.scripts                                                  | object | `{}`                        |             |
-| postgresql.auth.database                                           | string | `"zulip"`                   |             |
-| postgresql.auth.username                                           | string | `"zulip"`                   |             |
-| postgresql.image.repository                                        | string | `"zulip/zulip-postgresql"`  |             |
-| postgresql.image.tag                                               | int    | `14`                        |             |
-| postgresql.primary.containerSecurityContext.readOnlyRootFilesystem | bool   | `false`                     |             |
-| postgresql.primary.containerSecurityContext.runAsGroup             | int    | `70`                        |             |
-| postgresql.primary.containerSecurityContext.runAsUser              | int    | `70`                        |             |
-| rabbitmq.auth.username                                             | string | `"zulip"`                   |             |
-| rabbitmq.image.repository                                          | string | `"bitnamilegacy/rabbitmq"`  |             |
-| rabbitmq.image.tag                                                 | string | `"4.1.3"`                   |             |
-| rabbitmq.persistence.enabled                                       | bool   | `false`                     |             |
-| redis.architecture                                                 | string | `"standalone"`              |             |
-| redis.image.repository                                             | string | `"bitnamilegacy/redis"`     |             |
-| redis.image.tag                                                    | string | `"latest"`                  |             |
-| redis.master.persistence.enabled                                   | bool   | `false`                     |             |
-| resources                                                          | object | `{}`                        |             |
-| securityContext                                                    | object | `{}`                        |             |
-| service.port                                                       | int    | `80`                        |             |
-| service.type                                                       | string | `"ClusterIP"`               |             |
-| serviceAccount.annotations                                         | object | `{}`                        |             |
-| serviceAccount.create                                              | bool   | `true`                      |             |
-| serviceAccount.name                                                | string | `""`                        |             |
-| sidecars                                                           | list   | `[]`                        |             |
-| startupProbe.enabled                                               | bool   | `true`                      |             |
-| startupProbe.failureThreshold                                      | int    | `30`                        |             |
-| startupProbe.initialDelaySeconds                                   | int    | `10`                        |             |
-| startupProbe.periodSeconds                                         | int    | `10`                        |             |
-| startupProbe.successThreshold                                      | int    | `1`                         |             |
-| startupProbe.timeoutSeconds                                        | int    | `5`                         |             |
-| statefulSetAnnotations                                             | object | `{}`                        |             |
-| statefulSetLabels                                                  | object | `{}`                        |             |
-| tolerations                                                        | list   | `[]`                        |             |
-| zulip.environment.CERTIFICATES                                     | string | `""`                        |             |
-| zulip.environment.SECRETS_email_password                           | string | `"123456789"`               |             |
-| zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                        |             |
-| zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`     |             |
-| zulip.environment.SETTING_EMAIL_PORT                               | string | `"587"`                     |             |
-| zulip.environment.SETTING_EMAIL_USE_SSL                            | string | `"False"`                   |             |
-| zulip.environment.SETTING_EMAIL_USE_TLS                            | string | `"True"`                    |             |
-| zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`       |             |
-| zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"admin@example.com"`       |             |
-| zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                      |             |
-| zulip.environment.ZULIP_AUTH_BACKENDS                              | string | `"EmailAuthBackend"`        |             |
-| zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`           |             |
-| zulip.persistence.enabled                                          | bool   | `true`                      |             |
-| zulip.persistence.size                                             | string | `"10Gi"`                    |             |
-| zulip.persistence.storageClass                                     | string | `nil`                       |             |
+| Key                                                                | Type   | Default                        | Description |
+| ------------------------------------------------------------------ | ------ | ------------------------------ | ----------- |
+| affinity                                                           | object | `{}`                           |             |
+| extraObjects                                                       | list   | `[]`                           |             |
+| fullnameOverride                                                   | string | `""`                           |             |
+| global.security.allowInsecureImages                                | bool   | `true`                         |             |
+| image.pullPolicy                                                   | string | `"IfNotPresent"`               |             |
+| image.repository                                                   | string | `"ghcr.io/zulip/zulip-server"` |             |
+| image.tag                                                          | string | `"11.5-0"`                     |             |
+| imagePullSecrets                                                   | list   | `[]`                           |             |
+| ingress.annotations                                                | object | `{}`                           |             |
+| ingress.className                                                  | string | `nil`                          |             |
+| ingress.enabled                                                    | bool   | `false`                        |             |
+| ingress.hosts[0].host                                              | string | `"zulip.example.com"`          |             |
+| ingress.hosts[0].paths[0].path                                     | string | `"/"`                          |             |
+| ingress.tls                                                        | list   | `[]`                           |             |
+| livenessProbe.enabled                                              | bool   | `true`                         |             |
+| livenessProbe.failureThreshold                                     | int    | `3`                            |             |
+| livenessProbe.initialDelaySeconds                                  | int    | `10`                           |             |
+| livenessProbe.periodSeconds                                        | int    | `10`                           |             |
+| livenessProbe.successThreshold                                     | int    | `1`                            |             |
+| livenessProbe.timeoutSeconds                                       | int    | `5`                            |             |
+| memcached.image.repository                                         | string | `"bitnamilegacy/memcached"`    |             |
+| memcached.image.tag                                                | string | `"latest"`                     |             |
+| memcached.memcachedUsername                                        | string | `"zulip@localhost"`            |             |
+| nameOverride                                                       | string | `""`                           |             |
+| nodeSelector                                                       | object | `{}`                           |             |
+| podAnnotations                                                     | object | `{}`                           |             |
+| podLabels                                                          | object | `{}`                           |             |
+| podSecurityContext                                                 | object | `{}`                           |             |
+| postSetup.scripts                                                  | object | `{}`                           |             |
+| postgresql.auth.database                                           | string | `"zulip"`                      |             |
+| postgresql.auth.username                                           | string | `"zulip"`                      |             |
+| postgresql.image.repository                                        | string | `"zulip/zulip-postgresql"`     |             |
+| postgresql.image.tag                                               | int    | `14`                           |             |
+| postgresql.primary.containerSecurityContext.readOnlyRootFilesystem | bool   | `false`                        |             |
+| postgresql.primary.containerSecurityContext.runAsGroup             | int    | `70`                           |             |
+| postgresql.primary.containerSecurityContext.runAsUser              | int    | `70`                           |             |
+| rabbitmq.auth.username                                             | string | `"zulip"`                      |             |
+| rabbitmq.image.repository                                          | string | `"bitnamilegacy/rabbitmq"`     |             |
+| rabbitmq.image.tag                                                 | string | `"4.1.3"`                      |             |
+| rabbitmq.persistence.enabled                                       | bool   | `false`                        |             |
+| redis.architecture                                                 | string | `"standalone"`                 |             |
+| redis.image.repository                                             | string | `"bitnamilegacy/redis"`        |             |
+| redis.image.tag                                                    | string | `"latest"`                     |             |
+| redis.master.persistence.enabled                                   | bool   | `false`                        |             |
+| resources                                                          | object | `{}`                           |             |
+| securityContext                                                    | object | `{}`                           |             |
+| service.port                                                       | int    | `80`                           |             |
+| service.type                                                       | string | `"ClusterIP"`                  |             |
+| serviceAccount.annotations                                         | object | `{}`                           |             |
+| serviceAccount.create                                              | bool   | `true`                         |             |
+| serviceAccount.name                                                | string | `""`                           |             |
+| sidecars                                                           | list   | `[]`                           |             |
+| startupProbe.enabled                                               | bool   | `true`                         |             |
+| startupProbe.failureThreshold                                      | int    | `30`                           |             |
+| startupProbe.initialDelaySeconds                                   | int    | `10`                           |             |
+| startupProbe.periodSeconds                                         | int    | `10`                           |             |
+| startupProbe.successThreshold                                      | int    | `1`                            |             |
+| startupProbe.timeoutSeconds                                        | int    | `5`                            |             |
+| statefulSetAnnotations                                             | object | `{}`                           |             |
+| statefulSetLabels                                                  | object | `{}`                           |             |
+| tolerations                                                        | list   | `[]`                           |             |
+| zulip.environment.CERTIFICATES                                     | string | `""`                           |             |
+| zulip.environment.SECRETS_email_password                           | string | `"123456789"`                  |             |
+| zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                           |             |
+| zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`        |             |
+| zulip.environment.SETTING_EMAIL_PORT                               | string | `"587"`                        |             |
+| zulip.environment.SETTING_EMAIL_USE_SSL                            | string | `"False"`                      |             |
+| zulip.environment.SETTING_EMAIL_USE_TLS                            | string | `"True"`                       |             |
+| zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`          |             |
+| zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"admin@example.com"`          |             |
+| zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                         |             |
+| zulip.environment.ZULIP_AUTH_BACKENDS                              | string | `"EmailAuthBackend"`           |             |
+| zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`              |             |
+| zulip.persistence.enabled                                          | bool   | `true`                         |             |
+| zulip.persistence.size                                             | string | `"10Gi"`                       |             |
+| zulip.persistence.storageClass                                     | string | `nil`                          |             |
 
 ## About this helm chart
 
-This helm chart sets up a StatefulSet that runs a Zulip pod, that in turn runs
-the [docker-zulip](https://hub.docker.com/r/zulip/docker-zulip/) Dockerized
-Zulip version. Configuration of Zulip happens through environment variables that
-are defined in the `values.yaml` under `zulip.environment`. These environment
-variables are forwarded to the Docker container, you can read more about
-configuring Zulip through environment variables
+This helm chart sets up a StatefulSet that runs a Zulip pod, that in
+turn runs the [Dockerized Zulip](https://ghcr.io/zulip/zulip-server/)
+container. Configuration of Zulip happens through environment
+variables that are defined in the `values.yaml` under
+`zulip.environment`. These environment variables are forwarded to the
+Docker container, you can read more about configuring Zulip through
+environment variables
 [here](https://github.com/zulip/docker-zulip/#configuration).
 
 Variables can be either a plain scalar value (i.e., a string or
