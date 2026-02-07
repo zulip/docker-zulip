@@ -44,4 +44,4 @@ dependencies:
 sources:
   - https://github.com/zulip/zulip
   - https://github.com/zulip/docker-zulip
-  - https://hub.docker.com/r/zulip/docker-zulip
+  - https://ghcr.io/zulip/zulip-server

@@ -1,3 +1,8 @@
+## [1.11.51] - 2026-02-06
+
+- Switch to the image at ghcr.io/zulip/zulip-server, which is compatible with
+  the chart as written.
+
 ## [1.11.50] - 2026-02-05
 
 - Switch to a new `CERTIFICATES` env var, which combines of `DISABLE_HTTPS` and

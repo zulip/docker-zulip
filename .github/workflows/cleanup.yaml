@@ -1,4 +1,4 @@
-name: Daily GHCR untaged docker-zulip cleanup
+name: Daily GHCR untagged docker-zulip cleanup
 
 on:
   schedule:
@@ -17,6 +17,6 @@ jobs:
         with:
           delete-only-untagged-versions: "true"
           min-versions-to-keep: 10
-          package-name: "docker-zulip"
+          package-name: "zulip-server"
           package-type: "container"
           token: ${{ github.token }}
