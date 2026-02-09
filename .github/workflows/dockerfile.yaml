@@ -156,8 +156,7 @@ jobs:
         id: chart-testing-install
         run: |
           ct install --github-groups \
-                     --chart-dirs ./helm \
-                     --all \
+                     --charts=./helm/zulip \
                      --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
                      --skip-clean-up
 
