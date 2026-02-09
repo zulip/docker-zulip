@@ -66,9 +66,9 @@ include all env variables for Zulip pods
 */}}
 {{- define "zulip.env" -}}
 
-- name: REMOTE_POSTGRES_HOST
+- name: SETTING_REMOTE_POSTGRES_HOST
   value: "{{ template "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
-- name: REMOTE_POSTGRES_PORT
+- name: SETTING_REMOTE_POSTGRES_PORT
   value: "{{ template "postgresql.v1.service.port" .Subcharts.postgresql }}"
 - name: SETTING_MEMCACHED_LOCATION
   value: "{{ template "common.names.fullname" .Subcharts.memcached }}:11211"
