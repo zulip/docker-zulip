@@ -158,21 +158,20 @@ jobs:
           ct install --github-groups \
                      --charts=./helm/zulip \
                      --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
+                     --namespace=default \
                      --skip-clean-up
 
       - name: Fetch logs
         if: success() || failure()
         continue-on-error: true
         run: |
-          namespace=$(helm list --all-namespaces --output json \
-                    | jq -r '[.[] | select(.namespace | startswith("zulip-"))][0].namespace')
-          kubectl get pods -n "$namespace"
-          for pod in $(kubectl get pods -n "$namespace" -o name); do
-              kubectl describe "$pod" -n "$namespace"
+          kubectl get pods
+          for pod in $(kubectl get pods -o name); do
+              kubectl describe "$pod"
           done
-          pod=$(kubectl get pods -n "$namespace" -l app.kubernetes.io/name=zulip --output name)
-          kubectl -n "$namespace" logs "$pod"
-          kubectl -n "$namespace" exec "$pod" -c zulip -- cat /var/log/zulip/errors.log
+          pod=$(kubectl get pods -l app.kubernetes.io/name=zulip --output name)
+          kubectl logs "$pod"
+          kubectl exec "$pod" -c zulip -- cat /var/log/zulip/errors.log
 
   docker-compose-collect:
     runs-on: ubuntu-latest
