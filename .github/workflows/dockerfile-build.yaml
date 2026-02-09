@@ -43,7 +43,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
-          images: ${PACKAGE_NAME}
+          images: ${{ env.PACKAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=match,pattern=\d+\.\d+-\d+
@@ -79,7 +79,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           pull: true
-          tags: ${PACKAGE_NAME}
+          tags: ${{ env.PACKAGE_NAME }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
