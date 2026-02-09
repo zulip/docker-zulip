@@ -1,6 +1,7 @@
 ---
 image:
   pullPolicy: Never
+  repository: zulip/zulip-server
   # CI will pass tag: of the PR
 
 zulip:
