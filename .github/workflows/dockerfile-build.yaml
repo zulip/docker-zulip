@@ -122,7 +122,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
-          images: ${PACKAGE_NAME}
+          images: ${{ env.PACKAGE_NAME }}
           labels: |
             org.opencontainers.image.description=Zulip Server
           annotations: |
