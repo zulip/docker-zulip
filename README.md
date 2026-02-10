@@ -15,8 +15,8 @@ Current Docker image version: `11.5-0`
 
 > [!NOTE]
 > A previous packaging of Zulip for Docker still exists on Docker Hub, as
-> [zulip/docker-zulip](hub.docker.com/r/zulip/docker-zulip). That version will
-> continue to be supported through the end of the Zulip Server 11.x series.
+> [zulip/docker-zulip](https://hub.docker.com/r/zulip/docker-zulip). That version
+> will continue to be supported through the end of the Zulip Server 11.x series.
 > See the [upgrade steps][upgrade].
 
 We recommend using the Docker image if your organization has a
