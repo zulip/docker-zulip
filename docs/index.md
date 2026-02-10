@@ -12,11 +12,19 @@ $ docker pull ghcr.io/zulip/zulip-server:11.5-0
 :Current Docker image version: **{{ DOCKER_VERSION }}**
 :Current Helm chart version: **{{ HELM_VERSION }}**
 
+:::{note}
+A previous packaging of Zulip for Docker still exists on Docker Hub, as
+[zulip/docker-zulip](hub.docker.com/r/zulip/docker-zulip). That version will
+continue to be supported through the end of the Zulip Server 11.x series.
+See the [upgrade steps][upgrade].
+:::
+
 We recommend using the Docker image if your organization has a preference for
 deploying services using Docker. Deploying with Docker moderately increases the
 effort required to install, maintain, and upgrade a Zulip installation, compared
 with the [standard Zulip installer][normal-install].
 
+[upgrade]: how-to/compose-upgrading.md#upgrading-from-zulipdocker-zulip-11x-and-earlier
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 
 ## Docker runtime support
