@@ -455,9 +455,9 @@ waitingForDatabase() {
     local DB_PORT
     DB_PORT=${2:-$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")}
     local DB_USER
-    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user 2>/dev/null || echo zulip)
     local DB_NAME
-    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name 2>/dev/null || echo zulip)
 
     echo "Waiting for database server to allow connections ..."
     local PGPASSWORD
@@ -624,9 +624,9 @@ appBackup() {
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
     local DB_USER
-    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user 2>/dev/null || echo zulip)
     local DB_NAME
-    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name 2>/dev/null || echo zulip)
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
@@ -684,9 +684,9 @@ appRestore() {
     local DB_PORT
     DB_PORT=$(su zulip -c "/home/zulip/deployments/current/scripts/get-django-setting REMOTE_POSTGRES_PORT")
     local DB_USER
-    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user || echo zulip)
+    DB_USER=$(crudini --get /etc/zulip/zulip.conf postgresql database_user 2>/dev/null || echo zulip)
     local DB_NAME
-    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name || echo zulip)
+    DB_NAME=$(crudini --get /etc/zulip/zulip.conf postgresql database_name 2>/dev/null || echo zulip)
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
