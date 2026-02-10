@@ -48,6 +48,11 @@ This project doesn't support `docker-rootless` or `uDocker`; Zulip needs root
 access to set properties like the maximum number of open file descriptions via
 `ulimit` (which is important for it to handle thousands of connected clients).
 
+[install-docker]: https://docs.docker.com/install/
+[install-docker-compose]: https://docs.docker.com/compose/install/
+[k8s]: https://kubernetes.io/
+[prod-requirements]: https://zulip.readthedocs.io/en/latest/production/requirements.html
+
 ## Documentation
 
 See our [main documentation][docker-zulip-docs].
