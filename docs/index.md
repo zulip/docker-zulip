@@ -5,7 +5,7 @@ server](https://zulip.com/) in production. Built images are
 available from [ghcr.io](https://ghcr.io/zulip/zulip-server):
 
 ```console
-$ docker pull ghcr.io/zulip/zulip-server:11.5-0
+$ docker pull ghcr.io/zulip/zulip-server:11.5-1
 ```
 
 :Current Zulip version: **{{ ZULIP_VERSION }}**
