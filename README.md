@@ -3,7 +3,7 @@
 [![**docker** topic in **production-help** channel](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/channel/31-production-help/topic/docker)
 
 This is the official Docker container image for running a [Zulip
-server](https://zulip.com) in production.. Built images are
+server](https://zulip.com) in production. Built images are
 available from [ghcr.io](https://ghcr.io/zulip/zulip-server):
 
 ```console
@@ -17,7 +17,7 @@ Current Docker image version: `11.5-0`
 > A previous packaging of Zulip for Docker still exists on Docker Hub, as
 > [zulip/docker-zulip](hub.docker.com/r/zulip/docker-zulip). That version will
 > continue to be supported through the end of the Zulip Server 11.x series.
-> See [upgrade steps][upgrade]
+> See the [upgrade steps][upgrade].
 
 We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker

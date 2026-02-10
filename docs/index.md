@@ -1,6 +1,6 @@
 # Docker
 
-`docker-zulip` is the official Docker container image for running a [Zulip
+This is the official Docker container image for running a [Zulip
 server](https://zulip.com/) in production. Built images are
 available from [ghcr.io](https://ghcr.io/zulip/zulip-server):
 
