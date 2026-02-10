@@ -10,7 +10,7 @@ ENV LANG="C.UTF-8"
 ARG UBUNTU_MIRROR
 
 # hadolint ignore=DL3005,DL3008,DL3009
-RUN (sed -i 's|http://ports.ubuntu.com|https://ports.ubuntu.com|g' /etc/apt/sources.list || true) && \
+RUN sed -i 's|http://ports.ubuntu.com|https://ports.ubuntu.com|g' /etc/apt/sources.list.d/ubuntu.sources && \
     apt-get -q update && \
     apt-get -q dist-upgrade -y && \
     DEBIAN_FRONTEND=noninteractive \
