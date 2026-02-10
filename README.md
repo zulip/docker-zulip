@@ -4,7 +4,7 @@
 
 This is the official Docker container image for running a [Zulip
 server](https://zulip.com) in production.. Built images are
-available from [ghcr](https://ghcr.io/zulip/zulip-server/)
+available from [ghcr.io](https://ghcr.io/zulip/zulip-server):
 
 ```console
 $ docker pull ghcr.io/zulip/zulip-server:11.5-0
