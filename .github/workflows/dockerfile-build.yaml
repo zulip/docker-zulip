@@ -46,8 +46,8 @@ jobs:
           images: ${{ env.PACKAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=match,pattern=\d+\.\d+-\d+
             type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
+            type=match,pattern=\d+\.\d+-\d+
           labels: |
             org.opencontainers.image.description=Zulip Server
           annotations: |
@@ -123,6 +123,10 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ${{ env.PACKAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
+            type=match,pattern=\d+\.\d+-\d+
           labels: |
             org.opencontainers.image.description=Zulip Server
           annotations: |
