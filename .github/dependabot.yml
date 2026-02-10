@@ -10,6 +10,8 @@ updates:
           - "*"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "docker-compose"
     directory: "/"
@@ -17,6 +19,8 @@ updates:
       prefix: compose
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "uv"
     directory: "/docs"
