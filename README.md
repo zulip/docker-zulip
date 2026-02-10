@@ -34,7 +34,7 @@ installer][normal-install].
 To use this image, you need the following:
 
 - An installation of [Docker][install-docker] and [Docker
-  Compose][install-docker-compose] or a [Kubernetes][k8s] runtime engine.
+  Compose][install-docker-compose], or a [Kubernetes][k8s] runtime engine.
 - We [recommend at least 2GB of available RAM][prod-requirements] for running a
   production Zulip server; you'll want 4GB if you're building the container
   (rather than using the pre-built images). If you're just testing and/or aren't
