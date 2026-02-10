@@ -1,3 +1,7 @@
+## [1.11.52] - 2026-02-10
+
+- Upgrade to ghcr.io/zulip/zulip-server:11.5-1
+
 ## [1.11.51] - 2026-02-06
 
 - Switch to the image at ghcr.io/zulip/zulip-server, which is compatible with
