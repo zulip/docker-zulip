@@ -120,7 +120,7 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --chart-dirs ./helm \
+          changed=$(ct list-changed --chart-dirs helm/ \
                                     --target-branch "$DEFAULT_BRANCH")
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -132,7 +132,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct lint --github-groups \
-                  --chart-dirs ./helm \
+                  --chart-dirs helm/ \
                   --target-branch "$DEFAULT_BRANCH" \
                   --lint-conf lintconf.yaml
         env:
@@ -156,7 +156,7 @@ jobs:
         id: chart-testing-install
         run: |
           ct install --github-groups \
-                     --charts=./helm/zulip \
+                     --chart-dirs helm/ \
                      --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
                      --namespace=default \
                      --skip-clean-up
