@@ -1,3 +1,7 @@
+## [1.11.53] - 2026-02-10
+
+- Upgrade to ghcr.io/zulip/zulip-server:11.5-2
+
 ## [1.11.52] - 2026-02-10
 
 - Upgrade to ghcr.io/zulip/zulip-server:11.5-1
