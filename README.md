@@ -55,6 +55,6 @@ access to set properties like the maximum number of open file descriptions via
 
 ## Documentation
 
-See our [main documentation][docker-zulip-docs].
+See [Docker deployment documentation][docker-zulip-docs].
 
 [docker-zulip-docs]: https://zulip.readthedocs.io/projects/docker/
