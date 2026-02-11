@@ -16,7 +16,10 @@ $ docker pull ghcr.io/zulip/zulip-server:11.5-2
 A previous packaging of Zulip for Docker still exists on Docker Hub, as
 [zulip/docker-zulip](https://hub.docker.com/r/zulip/docker-zulip). That version
 will continue to be supported through the end of the Zulip Server 11.x series.
-See the [upgrade steps][upgrade].
+See the [details on how to upgrade to the new image][upgrade].
+
+This documentation is only for the new `ghcr.io/zulip/zulip-server` image.
+Documentation for the previous image can be found [here][docker-hub-docs].
 :::
 
 We recommend using the Docker image if your organization has a preference for
@@ -25,6 +28,7 @@ effort required to install, maintain, and upgrade a Zulip installation, compared
 with the [standard Zulip installer][normal-install].
 
 [upgrade]: how-to/compose-upgrading.md#upgrading-from-zulipdocker-zulip-11x-and-earlier
+[docker-hub-docs]: https://github.com/zulip/docker-zulip/blob/11.x/README.md
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 
 ## Docker runtime support
