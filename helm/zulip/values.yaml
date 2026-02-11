@@ -136,7 +136,7 @@ zulip:
     ## Domain Zulip is hosted on; this is required
     SETTING_EXTERNAL_HOST: zulip.example.com
     ## Administrator's email address; this is required
-    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    SETTING_ZULIP_ADMINISTRATOR: "zulip-admin@example.com"
     ## Outgoing email configuration
     SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
     SETTING_EMAIL_HOST_USER: "noreply@example.com"
