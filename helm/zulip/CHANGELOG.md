@@ -1,3 +1,7 @@
+## [1.11.54] - 2026-02-11
+
+- Reset the `ZULIP_ADMINISTRATOR` in `values.yaml` to the "unset" default.
+
 ## [1.11.53] - 2026-02-10
 
 - Upgrade to ghcr.io/zulip/zulip-server:11.5-2
