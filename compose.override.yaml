@@ -43,8 +43,8 @@ services:
       ## additional settings that are supported here.
       ##
       ## The following two settings are required:
-      SETTING_EXTERNAL_HOST: "localhost.localdomain"
-      SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+      SETTING_EXTERNAL_HOST: "zulip.example.com"
+      SETTING_ZULIP_ADMINISTRATOR: "zulip-admin@example.com"
 
       ## Most deploys do SSL termination outside of the container; Zulip
       ## defaults to only serving traffic over HTTP. If you'd like this
