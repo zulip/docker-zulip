@@ -155,7 +155,7 @@ know which `X-Forwarded-*` headers to trust.
 1. Restart the server for the new settings:
 
    ```bash
-   docker compose up zulip`
+   docker compose up zulip
    ```
 
 1. Configure your reverse proxy to send `X-Forwarded-For` and
