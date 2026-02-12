@@ -17,7 +17,8 @@ Current Docker image version: `11.5-2`
 > A previous packaging of Zulip for Docker still exists on Docker Hub, as
 > [zulip/docker-zulip](https://hub.docker.com/r/zulip/docker-zulip). That version
 > will continue to be supported through the end of the Zulip Server 11.x series.
-> See the [upgrade steps][upgrade].
+> See the [upgrade steps][upgrade], and [documentation for the older
+> packaging][docker-hub-docs].
 
 We recommend using the Docker image if your organization has a
 preference for deploying services using Docker. Deploying with Docker
@@ -26,6 +27,7 @@ upgrade a Zulip installation, compared with the [standard Zulip
 installer][normal-install].
 
 [upgrade]: https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-upgrading.html#upgrading-from-zulip-docker-zulip-11-x-and-earlier
+[docker-hub-docs]: https://github.com/zulip/docker-zulip/blob/11.x/README.md
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 [zulip-architecture]: https://zulip.readthedocs.io/en/latest/overview/architecture-overview.html
 
