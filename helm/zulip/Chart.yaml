@@ -10,7 +10,7 @@ maintainers:
 ## incremented each time you make changes to the chart and its
 ## templates, including the app version.  Versions are expected to
 ## follow Semantic Versioning (https://semver.org/)
-version: 1.11.54
+version: 1.11.55
 
 ## This is the version number of the application being deployed. This
 ## version number should be incremented each time you make changes to
@@ -21,21 +21,25 @@ appVersion: "11.5-2"
 dependencies:
   - name: memcached
     repository: oci://registry-1.docker.io/bitnamicharts
+    condition: memcached.enabled
     tags:
       - memcached
     version: 8.1.5
   - name: rabbitmq
     repository: oci://registry-1.docker.io/bitnamicharts
+    condition: rabbitmq.enabled
     tags:
       - rabbitmq
     version: 16.0.14
   - name: redis
     repository: oci://registry-1.docker.io/bitnamicharts
+    condition: redis.enabled
     tags:
       - redis
     version: 23.2.12
   - name: postgresql
     repository: oci://registry-1.docker.io/bitnamicharts
+    condition: postgresql.enabled
     tags:
       - postgresql
     ## Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
