@@ -70,6 +70,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
+  annotations: {}
 
 ingress:
   ## Enable this to use an Ingress to reach the Zulip service.
