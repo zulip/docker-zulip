@@ -51,6 +51,9 @@ redis:
   auth:
     # password: set-secure-password
 
+service:
+  # annotations: {}  # custom annotations as needed
+
 postgresql:
   auth:
     # # postgres admin user password
