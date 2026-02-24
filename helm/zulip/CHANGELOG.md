@@ -1,3 +1,7 @@
+## [1.11.56] - 2026-02-24
+
+- Support adding annotations to the service.
+
 ## [1.11.55] - 2026-02-24
 
 - Support pre-existing (external) services.
