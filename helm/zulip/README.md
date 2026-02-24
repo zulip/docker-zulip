@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 1.11.54](https://img.shields.io/badge/Version-1.11.54-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 11.5-2](https://img.shields.io/badge/AppVersion-11.5--2-informational?style=flat-square)
+![Version: 1.11.55](https://img.shields.io/badge/Version-1.11.55-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 11.5-2](https://img.shields.io/badge/AppVersion-11.5--2-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 

@@ -1,3 +1,7 @@
+## [1.11.55] - 2026-02-24
+
+- Support pre-existing (external) services.
+
 ## [1.11.54] - 2026-02-11
 
 - Reset the `ZULIP_ADMINISTRATOR` in `values.yaml` to the "unset" default.
