@@ -69,6 +69,23 @@ Now you're ready to follow [the installation instructions above](#installation).
 | Key                                                                | Type   | Default                        | Description |
 | ------------------------------------------------------------------ | ------ | ------------------------------ | ----------- |
 | affinity                                                           | object | `{}`                           |             |
+| externalMemcached.host                                             | string | `""`                           |             |
+| externalMemcached.password                                         | string | `""`                           |             |
+| externalMemcached.port                                             | int    | `11211`                        |             |
+| externalMemcached.user                                             | string | `""`                           |             |
+| externalPostgresql.database                                        | string | `"zulip"`                      |             |
+| externalPostgresql.host                                            | string | `""`                           |             |
+| externalPostgresql.password                                        | string | `""`                           |             |
+| externalPostgresql.port                                            | int    | `5432`                         |             |
+| externalPostgresql.sslmode                                         | string | `""`                           |             |
+| externalPostgresql.user                                            | string | `"zulip"`                      |             |
+| externalRabbitmq.host                                              | string | `""`                           |             |
+| externalRabbitmq.password                                          | string | `""`                           |             |
+| externalRabbitmq.port                                              | int    | `5672`                         |             |
+| externalRabbitmq.user                                              | string | `"zulip"`                      |             |
+| externalRedis.host                                                 | string | `""`                           |             |
+| externalRedis.password                                             | string | `""`                           |             |
+| externalRedis.port                                                 | int    | `6379`                         |             |
 | extraObjects                                                       | list   | `[]`                           |             |
 | fullnameOverride                                                   | string | `""`                           |             |
 | global.security.allowInsecureImages                                | bool   | `true`                         |             |
@@ -88,6 +105,7 @@ Now you're ready to follow [the installation instructions above](#installation).
 | livenessProbe.periodSeconds                                        | int    | `10`                           |             |
 | livenessProbe.successThreshold                                     | int    | `1`                            |             |
 | livenessProbe.timeoutSeconds                                       | int    | `5`                            |             |
+| memcached.enabled                                                  | bool   | `true`                         |             |
 | memcached.image.repository                                         | string | `"bitnamilegacy/memcached"`    |             |
 | memcached.image.tag                                                | string | `"latest"`                     |             |
 | memcached.memcachedUsername                                        | string | `"zulip@localhost"`            |             |
@@ -99,16 +117,19 @@ Now you're ready to follow [the installation instructions above](#installation).
 | postSetup.scripts                                                  | object | `{}`                           |             |
 | postgresql.auth.database                                           | string | `"zulip"`                      |             |
 | postgresql.auth.username                                           | string | `"zulip"`                      |             |
+| postgresql.enabled                                                 | bool   | `true`                         |             |
 | postgresql.image.repository                                        | string | `"zulip/zulip-postgresql"`     |             |
 | postgresql.image.tag                                               | int    | `14`                           |             |
 | postgresql.primary.containerSecurityContext.readOnlyRootFilesystem | bool   | `false`                        |             |
 | postgresql.primary.containerSecurityContext.runAsGroup             | int    | `70`                           |             |
 | postgresql.primary.containerSecurityContext.runAsUser              | int    | `70`                           |             |
 | rabbitmq.auth.username                                             | string | `"zulip"`                      |             |
+| rabbitmq.enabled                                                   | bool   | `true`                         |             |
 | rabbitmq.image.repository                                          | string | `"bitnamilegacy/rabbitmq"`     |             |
 | rabbitmq.image.tag                                                 | string | `"4.1.3"`                      |             |
 | rabbitmq.persistence.enabled                                       | bool   | `false`                        |             |
 | redis.architecture                                                 | string | `"standalone"`                 |             |
+| redis.enabled                                                      | bool   | `true`                         |             |
 | redis.image.repository                                             | string | `"bitnamilegacy/redis"`        |             |
 | redis.image.tag                                                    | string | `"latest"`                     |             |
 | redis.master.persistence.enabled                                   | bool   | `false`                        |             |

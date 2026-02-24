@@ -66,28 +66,90 @@ include all env variables for Zulip pods
 */}}
 {{- define "zulip.env" -}}
 
+{{/* --- PostgreSQL --- */}}
+{{- if .Values.postgresql.enabled }}
 - name: SETTING_REMOTE_POSTGRES_HOST
   value: "{{ template "postgresql.v1.primary.fullname" .Subcharts.postgresql }}"
 - name: SETTING_REMOTE_POSTGRES_PORT
   value: "{{ template "postgresql.v1.service.port" .Subcharts.postgresql }}"
-- name: SETTING_MEMCACHED_LOCATION
-  value: "{{ template "common.names.fullname" .Subcharts.memcached }}:11211"
-- name: SETTING_MEMCACHED_USERNAME
-  value: "{{ .Values.memcached.memcachedUsername }}"
+- name: SECRETS_postgres_password
+  value: "{{ .Values.postgresql.auth.password }}"
+{{- else }}
+- name: SETTING_REMOTE_POSTGRES_HOST
+  value: {{ required "externalPostgresql.host is required when postgresql.enabled is false" .Values.externalPostgresql.host | quote }}
+- name: SETTING_REMOTE_POSTGRES_PORT
+  value: {{ .Values.externalPostgresql.port | toString | quote }}
+- name: SECRETS_postgres_password
+  value: {{ .Values.externalPostgresql.password | quote }}
+{{- if .Values.externalPostgresql.sslmode }}
+- name: SETTING_REMOTE_POSTGRES_SSLMODE
+  value: {{ .Values.externalPostgresql.sslmode | quote }}
+{{- end }}
+{{- if .Values.externalPostgresql.user }}
+- name: CONFIG_postgresql__database_user
+  value: {{ .Values.externalPostgresql.user | quote }}
+{{- end }}
+{{- if .Values.externalPostgresql.database }}
+- name: CONFIG_postgresql__database_name
+  value: {{ .Values.externalPostgresql.database | quote }}
+{{- end }}
+{{- end }}
+
+{{/* --- RabbitMQ --- */}}
+{{- if .Values.rabbitmq.enabled }}
 - name: SETTING_RABBITMQ_HOST
   value: "{{ template "common.names.fullname" .Subcharts.rabbitmq }}"
 - name: SETTING_RABBITMQ_USERNAME
   value: "{{ .Values.rabbitmq.auth.username }}"
-- name: SETTING_REDIS_HOST
-  value: "{{ template "common.names.fullname" .Subcharts.redis }}-headless"
 - name: SECRETS_rabbitmq_password
   value: "{{ .Values.rabbitmq.auth.password }}"
-- name: SECRETS_postgres_password
-  value: "{{ .Values.postgresql.auth.password }}"
+{{- else }}
+- name: SETTING_RABBITMQ_HOST
+  value: {{ required "externalRabbitmq.host is required when rabbitmq.enabled is false" .Values.externalRabbitmq.host | quote }}
+- name: SETTING_RABBITMQ_PORT
+  value: {{ .Values.externalRabbitmq.port | toString | quote }}
+- name: SECRETS_rabbitmq_password
+  value: {{ .Values.externalRabbitmq.password | quote }}
+{{- if .Values.externalRabbitmq.user }}
+- name: SETTING_RABBITMQ_USERNAME
+  value: {{ .Values.externalRabbitmq.user | quote }}
+{{- end }}
+{{- end }}
+
+{{/* --- Memcached --- */}}
+{{- if .Values.memcached.enabled }}
+- name: SETTING_MEMCACHED_LOCATION
+  value: "{{ template "common.names.fullname" .Subcharts.memcached }}:11211"
+- name: SETTING_MEMCACHED_USERNAME
+  value: "{{ .Values.memcached.memcachedUsername }}"
 - name: SECRETS_memcached_password
   value: "{{ .Values.memcached.memcachedPassword }}"
+{{- else }}
+- name: SETTING_MEMCACHED_LOCATION
+  value: "{{ required "externalMemcached.host is required when memcached.enabled is false" .Values.externalMemcached.host }}:{{ .Values.externalMemcached.port }}"
+- name: SECRETS_memcached_password
+  value: {{ .Values.externalMemcached.password | quote }}
+{{- if .Values.externalMemcached.user }}
+- name: SETTING_MEMCACHED_USERNAME
+  value: {{ .Values.externalMemcached.user | quote }}
+{{- end }}
+{{- end }}
+
+{{/* --- Redis --- */}}
+{{- if .Values.redis.enabled }}
+- name: SETTING_REDIS_HOST
+  value: "{{ template "common.names.fullname" .Subcharts.redis }}-headless"
 - name: SECRETS_redis_password
   value: "{{ .Values.redis.auth.password }}"
+{{- else }}
+- name: SETTING_REDIS_HOST
+  value: {{ required "externalRedis.host is required when redis.enabled is false" .Values.externalRedis.host | quote }}
+- name: SETTING_REDIS_PORT
+  value: {{ .Values.externalRedis.port | toString | quote }}
+- name: SECRETS_redis_password
+  value: {{ .Values.externalRedis.password | quote }}
+{{- end }}
+
 - name: SECRETS_secret_key
   value: "{{ .Values.zulip.password }}"
 {{- range $key, $value := .Values.zulip.environment }}

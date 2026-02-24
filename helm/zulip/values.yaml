@@ -217,7 +217,9 @@ global:
     allowInsecureImages: true
 
 ## PostgreSQL settings, see [Requirements](#Requirements).
+## Set postgresql.enabled to false and configure externalPostgresql to use a pre-existing server.
 postgresql:
+  enabled: true
   primary:
     containerSecurityContext:
       # 70 is the standard uid/gid of the "postgres" user in Alpine, which is
@@ -235,7 +237,9 @@ postgresql:
     database: zulip
 
 ## Rabbitmq settings, see [Requirements](#Requirements).
+## Set rabbitmq.enabled to false and configure externalRabbitmq to use a pre-existing server.
 rabbitmq:
+  enabled: true
   image:
     # TODO: This image is no longer updated, and will need to be updated to one which is.
     repository: bitnamilegacy/rabbitmq
@@ -247,7 +251,9 @@ rabbitmq:
     enabled: false
 
 ## Memcached settings, see [Requirements](#Requirements).
+## Set memcached.enabled to false and configure externalMemcached to use a pre-existing server.
 memcached:
+  enabled: true
   image:
     # TODO: This image is no longer updated, and will need to be updated to one which is.
     repository: bitnamilegacy/memcached
@@ -255,7 +261,9 @@ memcached:
   memcachedUsername: "zulip@localhost"
 
 ## Redis settings, see [Requirements](#Requirements).
+## Set redis.enabled to false and configure externalRedis to use a pre-existing server.
 redis:
+  enabled: true
   image:
     # TODO: This image is no longer updated, and will need to be updated to one which is.
     repository: bitnamilegacy/redis
@@ -264,3 +272,36 @@ redis:
   master:
     persistence:
       enabled: false
+
+## External PostgreSQL configuration.
+## Used when postgresql.enabled is set to false.
+externalPostgresql:
+  host: ""
+  port: 5432
+  database: "zulip"
+  user: "zulip"
+  password: ""
+  sslmode: ""
+
+## External RabbitMQ configuration.
+## Used when rabbitmq.enabled is set to false.
+externalRabbitmq:
+  host: ""
+  port: 5672
+  user: "zulip"
+  password: ""
+
+## External Memcached configuration.
+## Used when memcached.enabled is set to false.
+externalMemcached:
+  host: ""
+  port: 11211
+  user: ""
+  password: ""
+
+## External Redis configuration.
+## Used when redis.enabled is set to false.
+externalRedis:
+  host: ""
+  port: 6379
+  password: ""
