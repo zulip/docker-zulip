@@ -72,8 +72,12 @@ include all env variables for Zulip pods
   value: "{{ template "postgresql.v1.service.port" .Subcharts.postgresql }}"
 - name: SETTING_MEMCACHED_LOCATION
   value: "{{ template "common.names.fullname" .Subcharts.memcached }}:11211"
+- name: SETTING_MEMCACHED_USERNAME
+  value: "{{ .Values.memcached.memcachedUsername }}"
 - name: SETTING_RABBITMQ_HOST
   value: "{{ template "common.names.fullname" .Subcharts.rabbitmq }}"
+- name: SETTING_RABBITMQ_USERNAME
+  value: "{{ .Values.rabbitmq.auth.username }}"
 - name: SETTING_REDIS_HOST
   value: "{{ template "common.names.fullname" .Subcharts.redis }}-headless"
 - name: SECRETS_rabbitmq_password
