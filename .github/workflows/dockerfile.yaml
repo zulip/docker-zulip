@@ -87,7 +87,6 @@ jobs:
   helm-test:
     runs-on: ubuntu-latest
     needs:
-      - helm-docs
       - build
     steps:
       - name: Checkout
