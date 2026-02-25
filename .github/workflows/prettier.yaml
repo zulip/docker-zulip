@@ -19,7 +19,7 @@ jobs:
       - uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
         with:
           dry: true
-          prettier_options: "--write **/*.md"
+          prettier_options: "--write **/*.md .*/**.md"
       - name: Check for any diff
         run: |
           if ! git diff --exit-code; then
