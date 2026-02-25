@@ -48,8 +48,7 @@ jobs:
           outputs: type=docker,dest=/tmp/image.tar
           build-args: |
             ZULIP_GIT_REF=${{ steps.get-sha.outputs.commit_sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/zulip/zulip-server:buildcache-linux-amd64
 
       - name: Upload image
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
