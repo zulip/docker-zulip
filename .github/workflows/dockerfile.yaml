@@ -113,10 +113,6 @@ jobs:
           yamllint_version: 1.37.1
           yamale_version: 6.0.0
 
-      - name: Set up helm repos
-        run: |
-          helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
-
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
