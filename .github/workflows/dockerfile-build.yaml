@@ -85,8 +85,8 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             ${{ steps.tip-sha.outputs.override }}
-          cache-from: type=gha,scope=${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+          cache-from: type=registry,ref=ghcr.io/zulip/zulip-server:buildcache-${{ env.PLATFORM_PAIR }}
+          cache-to: type=registry,ref=ghcr.io/zulip/zulip-server:buildcache-${{ env.PLATFORM_PAIR }},mode=max
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
