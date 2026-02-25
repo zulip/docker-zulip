@@ -134,7 +134,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Helm
@@ -142,41 +141,13 @@ jobs:
         with:
           version: v3.17.0
 
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-        with:
-          python-version: "3.x"
-          check-latest: true
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
-        with:
-          version: 3.14.0
-          yamllint_version: 1.37.1
-          yamale_version: 6.0.0
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --chart-dirs helm/ \
-                                    --target-branch "$DEFAULT_BRANCH")
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-
-      - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
-        run: |
-          ct lint --github-groups \
-                  --chart-dirs helm/ \
-                  --target-branch "$DEFAULT_BRANCH" \
-                  --lint-conf lintconf.yaml
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      - name: Build chart dependencies
+        run: helm dependency build helm/zulip/
 
       - name: Create kind cluster
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
+        with:
+          cluster_name: helm-test
 
       - name: Download image
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
@@ -187,16 +158,31 @@ jobs:
       - name: Load image into kind
         run: |
           docker load --input /tmp/image.tar
-          kind load docker-image zulip/zulip-server:pr-${{ github.event.pull_request.number }} --name chart-testing
+          kind load docker-image zulip/zulip-server:pr-${{ github.event.pull_request.number }} --name helm-test
 
-      - name: Run chart-testing (install)
-        id: chart-testing-install
+      - name: Install chart
         run: |
-          ct install --github-groups \
-                     --chart-dirs helm/ \
-                     --helm-extra-set-args "--set image.tag=pr-${{ github.event.pull_request.number }}" \
-                     --namespace=default \
-                     --skip-clean-up
+          helm install zulip helm/zulip/ \
+            -f helm/zulip/ci/simple-values.yaml \
+            --set image.tag=pr-${{ github.event.pull_request.number }} \
+            --wait --timeout 10m
+
+      - name: Run functional tests
+        timeout-minutes: 5
+        run: |
+          pod=$(kubectl get pods -l app.kubernetes.io/name=zulip -o jsonpath='{.items[0].metadata.name}')
+          kubectl port-forward svc/zulip 8080:80 &
+          PF_PID=$!
+          # Wait for port-forward to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health \
+                 -H "Host: zulip.example.net"; then
+              break
+            fi
+            sleep 2
+          done
+          helm/zulip/ci/test.sh "$pod" 8080
+          kill $PF_PID || true
 
       - name: Fetch logs
         if: success() || failure()
