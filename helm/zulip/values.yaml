@@ -143,7 +143,6 @@ zulip:
     SETTING_EMAIL_PORT: "587"
     SETTING_EMAIL_USE_SSL: "False"
     SETTING_EMAIL_USE_TLS: "True"
-    SECRETS_email_password: "123456789"
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
   persistence:
