@@ -1,0 +1,23 @@
+suite: Extra objects
+templates:
+  - extra-objects.yaml
+tests:
+  - it: renders nothing by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders extra ConfigMap with templated name
+    values:
+      - ../ci/extra-objects-values.yaml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchRegex:
+          path: metadata.name
+          pattern: -custom-extra$
+      - equal:
+          path: data.extra-key
+          value: extra-value

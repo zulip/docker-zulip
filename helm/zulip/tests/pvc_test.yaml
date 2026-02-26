@@ -1,0 +1,20 @@
+suite: PVC
+templates:
+  - pvc.yaml
+tests:
+  - it: renders a PVC by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - isKind:
+          of: PersistentVolumeClaim
+      - matchRegex:
+          path: metadata.name
+          pattern: -data$
+
+  - it: is not rendered when existingClaim is set
+    values:
+      - ../ci/existing-pvc-values.yaml
+    asserts:
+      - hasDocuments:
+          count: 0

@@ -1,0 +1,35 @@
+---
+# Test: Ingress with TLS, className, and cert-manager annotations.
+zulip:
+  password: test-password
+  environment:
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    SETTING_EXTERNAL_HOST: zulip.example.com
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: zulip.example.com
+      paths:
+        - path: /
+  tls:
+    - secretName: zulip-tls
+      hosts:
+        - zulip.example.com
+
+memcached:
+  memcachedPassword: test-memcached
+rabbitmq:
+  auth:
+    password: test-rabbitmq
+    erlangCookie: test-cookie
+redis:
+  auth:
+    password: test-redis
+postgresql:
+  auth:
+    postgresqlPassword: test-pg-admin
+    password: test-pg-zulip

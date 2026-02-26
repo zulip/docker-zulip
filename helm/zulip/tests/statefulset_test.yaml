@@ -1,0 +1,84 @@
+suite: StatefulSet
+templates:
+  - statefulset.yaml
+tests:
+  - it: propagates custom labels and annotations
+    values:
+      - ../ci/metadata-values.yaml
+    asserts:
+      - equal:
+          path: metadata.labels.custom/sts-label
+          value: sts-value
+      - equal:
+          path: metadata.annotations.custom/sts-annotation
+          value: sts-annotation-value
+      - equal:
+          path: spec.template.metadata.labels.custom/pod-label
+          value: pod-value
+      - equal:
+          path: spec.template.metadata.annotations.custom/pod-annotation
+          value: pod-annotation-value
+
+  - it: renders valueFrom for secret references
+    values:
+      - ../ci/valuefrom-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_email_password
+            valueFrom:
+              secretKeyRef:
+                name: zulip-email-secret
+                key: password
+
+  - it: includes sidecar containers
+    values:
+      - ../ci/sidecar-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: backup-agent
+            image: busybox:latest
+            command:
+              - sleep
+              - infinity
+
+  - it: references existing PVC when configured
+    values:
+      - ../ci/existing-pvc-values.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.volumes[0].persistentVolumeClaim.claimName
+          pattern: my-existing-pvc
+
+  - it: sets external service env vars when subcharts are disabled
+    values:
+      - ../ci/external-services-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SETTING_REMOTE_POSTGRES_HOST
+            value: pg.example.com
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SETTING_REMOTE_POSTGRES_SSLMODE
+            value: require
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SETTING_RABBITMQ_HOST
+            value: rabbitmq.example.com
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SETTING_MEMCACHED_LOCATION
+            value: "memcached.example.com:11211"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SETTING_REDIS_HOST
+            value: redis.example.com

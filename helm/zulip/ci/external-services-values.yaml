@@ -1,0 +1,41 @@
+---
+# Test: All Bitnami subcharts disabled; external services configured.
+zulip:
+  password: test-password
+  environment:
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    SETTING_EXTERNAL_HOST: zulip.example.com
+
+postgresql:
+  enabled: false
+rabbitmq:
+  enabled: false
+memcached:
+  enabled: false
+redis:
+  enabled: false
+
+externalPostgresql:
+  host: pg.example.com
+  port: 5432
+  user: zulip
+  database: zulip
+  password: external-pg-password
+  sslmode: require
+
+externalRabbitmq:
+  host: rabbitmq.example.com
+  port: 5672
+  user: zulip
+  password: external-rabbitmq-password
+
+externalMemcached:
+  host: memcached.example.com
+  port: 11211
+  user: zulip
+  password: external-memcached-password
+
+externalRedis:
+  host: redis.example.com
+  port: 6379
+  password: external-redis-password
