@@ -42,7 +42,7 @@ dependencies:
     condition: postgresql.enabled
     tags:
       - postgresql
-    ## Note: values.yaml overwrites posgresql image to zulip/zulip-postgresql:14
+    ## Note: values.yaml overwrites postgresql image to zulip/zulip-postgresql:14
     version: 18.1.8
 
 sources:
