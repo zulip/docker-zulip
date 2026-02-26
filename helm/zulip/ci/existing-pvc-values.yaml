@@ -1,0 +1,24 @@
+---
+# Test: Existing PVC is referenced instead of creating a new one.
+zulip:
+  password: test-password
+  environment:
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    SETTING_EXTERNAL_HOST: zulip.example.com
+  persistence:
+    enabled: true
+    existingClaim: my-existing-pvc
+
+memcached:
+  memcachedPassword: test-memcached
+rabbitmq:
+  auth:
+    password: test-rabbitmq
+    erlangCookie: test-cookie
+redis:
+  auth:
+    password: test-redis
+postgresql:
+  auth:
+    postgresqlPassword: test-pg-admin
+    password: test-pg-zulip

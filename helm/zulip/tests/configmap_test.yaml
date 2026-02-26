@@ -1,0 +1,20 @@
+suite: Post-setup scripts ConfigMap
+templates:
+  - cm-post-setup-scripts.yaml
+tests:
+  - it: is empty by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - isKind:
+          of: ConfigMap
+
+  - it: contains post-setup scripts
+    values:
+      - ../ci/post-setup-values.yaml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchRegex:
+          path: data["my-setup.sh"]
+          pattern: post-setup-marker

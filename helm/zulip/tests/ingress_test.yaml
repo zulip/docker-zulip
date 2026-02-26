@@ -1,0 +1,33 @@
+suite: Ingress
+templates:
+  - ingress.yaml
+tests:
+  - it: is not rendered by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders with TLS and className
+    values:
+      - ../ci/ingress-values.yaml
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: spec.ingressClassName
+          value: traefik
+      - equal:
+          path: spec.tls[0].secretName
+          value: zulip-tls
+      - equal:
+          path: spec.tls[0].hosts[0]
+          value: zulip.example.com
+      - equal:
+          path: metadata.annotations
+          value:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+      - equal:
+          path: spec.rules[0].host
+          value: zulip.example.com

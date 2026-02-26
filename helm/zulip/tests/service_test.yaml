@@ -1,0 +1,43 @@
+suite: Service
+templates:
+  - service.yaml
+tests:
+  - it: defaults to ClusterIP on port 80 targeting http
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 80
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+
+  - it: renders LoadBalancer with annotations
+    values:
+      - ../ci/loadbalancer-values.yaml
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[0].port
+          value: 443
+      - equal:
+          path: metadata.annotations
+          value:
+            service.beta.kubernetes.io/aws-load-balancer-type: nlb
+            service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+
+  - it: targets https when CERTIFICATES is set
+    values:
+      - ../ci/certificates-values.yaml
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: https

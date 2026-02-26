@@ -42,7 +42,8 @@ docs/conf.py            # Sphinx config; extracts versions from compose.yaml + C
 ci/                     # Integration tests (bash + curl against running containers)
 ci/test-common.sh       # Shared end-to-end test functions sourced by ci/*/test.sh
 helm/zulip/             # Helm chart for Kubernetes deployment
-helm/zulip/ci/          # Helm-specific CI tests
+helm/zulip/ci/          # Values files for Helm lint/test scenarios
+helm/zulip/tests/       # helm-unittest suites (one per template)
 .github/workflows/      # CI: Docker build, shellcheck, prettier, typos, zizmor
 ```
 
@@ -76,14 +77,25 @@ The entrypoint supports three configuration modes:
 
 ## Testing
 
-There are no unit tests. All testing is integration testing against
-running containers.
+### Docker Compose integration tests
 
 - Each `ci/<scenario>/` directory has a `compose.yaml` and `test.sh`.
 - `ci/test-common.sh` contains shared end-to-end checks: realm
   creation, authentication, message posting, event queue verification.
 - CI runs a matrix over all `ci/*/` directories.
-- Helm tests live in `helm/zulip/ci/`.
+
+### Helm chart tests
+
+- **Unit tests** use [helm-unittest](https://github.com/helm-unittest/helm-unittest).
+  Test suites live in `helm/zulip/tests/`, one file per template.
+  Each suite loads values from `helm/zulip/ci/*-values.yaml` and
+  uses structural assertions (`equal`, `contains`, `matchRegex`,
+  `hasDocuments`) to verify rendered output at specific paths.
+  Run locally with `helm unittest helm/zulip/`.
+- **Schema validation** uses kubeconform against all values
+  scenarios.
+- **Functional tests** deploy into a KIND cluster via
+  `helm/zulip/ci/test.sh`.
 
 ## Workflow
 
