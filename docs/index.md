@@ -37,7 +37,8 @@ We provide a Docker image, along with both [`docker compose`][docker-compose]
 configuration and [Helm charts][]. If you are new to Docker, we suggest starting
 with `docker compose`; see our [Docker Compose manual](manual/docker-compose.md)
 for background, and our [Docker Compose getting started
-how-to](how-to/compose-getting-started.md).
+how-to](how-to/compose-getting-started.md). For Kubernetes deployments, see our
+[Helm getting started how-to](how-to/helm-getting-started.md).
 
 We do not support `docker-rootless` or `uDocker`; Zulip needs root access to set
 properties like the maximum number of open file descriptions via `ulimit` (which
@@ -79,5 +80,6 @@ maxdepth: 3
 
 manual/index
 how-to/compose-index
+how-to/helm-index
 reference/index
 ```
