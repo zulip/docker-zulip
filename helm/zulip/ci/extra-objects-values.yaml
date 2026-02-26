@@ -1,0 +1,32 @@
+---
+# Test: Extra arbitrary Kubernetes objects are rendered with template
+# support.
+zulip:
+  password: test-password
+  environment:
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+    SETTING_EXTERNAL_HOST: zulip.example.com
+
+extraObjects:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ include "zulip.fullname" . }}-custom-extra
+      namespace: {{ .Release.Namespace }}
+    data:
+      extra-key: extra-value
+
+memcached:
+  memcachedPassword: test-memcached
+rabbitmq:
+  auth:
+    password: test-rabbitmq
+    erlangCookie: test-cookie
+redis:
+  auth:
+    password: test-redis
+postgresql:
+  auth:
+    postgresqlPassword: test-pg-admin
+    password: test-pg-zulip
