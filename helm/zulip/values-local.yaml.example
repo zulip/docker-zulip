@@ -25,10 +25,8 @@ zulip:
 ingress:
   enabled: true
   annotations:
-    # Get certificates with cert-manager
-    kubernetes.io/tls-acme: "true"
-    # Uncomment this to use the cert-manager you added to Minikube
-    # cert-manager.io/cluster-issuer: selfsigned
+    # Get certificates with cert-manager; set your issuer name here.
+    cert-manager.io/cluster-issuer: selfsigned
   hosts:
     - host: zulip.example.com
       paths:

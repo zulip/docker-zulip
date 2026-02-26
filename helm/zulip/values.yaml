@@ -78,8 +78,7 @@ ingress:
   ## Can be used to add custom Ingress annotations.
   annotations:
     {}
-    # kubernetes.io/ingress.class: traefik
-    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
     ## Host for the Ingress. Should be the same as
     ## `zulip.environment.SETTING_EXTERNAL_HOST`.
