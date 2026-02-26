@@ -106,7 +106,7 @@ jobs:
       - name: Helm lint and kubeconform
         run: |
           for f in helm/zulip/ci/*-values.yaml; do
-            helm lint helm/zulip/ -f "$f"
+            helm lint helm/zulip/ --strict -f "$f"
 
             helm template test-release helm/zulip/ -f "$f" \
               | kubeconform -strict -summary \
