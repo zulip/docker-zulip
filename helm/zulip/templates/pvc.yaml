@@ -6,9 +6,9 @@ metadata:
   name: {{ template "zulip.fullname" . }}-data
   labels:
     {{- include "zulip.labels" . | nindent 4 }}
-{{- if .Values.zulip.persistence.annotations }}
+{{- with .Values.zulip.persistence.annotations }}
   annotations:
-{{ toYaml .Values.zulip.persistence.annotations | indent 4 }}
+    {{- toYaml . | nindent 4 }}
 {{- end }}
 spec:
   accessModes:
