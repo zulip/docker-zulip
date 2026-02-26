@@ -39,6 +39,7 @@ manage.py               # Wrapper for Zulip's Django manage.py
 upgrade-postgresql      # PostgreSQL major-version upgrade helper
 docs/                   # Sphinx/MyST documentation source (ReadTheDocs)
 docs/conf.py            # Sphinx config; extracts versions from compose.yaml + Chart.yaml
+docs/how-to/helm-*.md   # Helm how-to guides (getting started, TLS, etc.)
 ci/                     # Integration tests (bash + curl against running containers)
 ci/test-common.sh       # Shared end-to-end test functions sourced by ci/*/test.sh
 helm/zulip/             # Helm chart for Kubernetes deployment
