@@ -78,7 +78,7 @@ ingress:
   ## Can be used to add custom Ingress annotations.
   annotations:
     {}
-    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/ingress.class: traefik
     # kubernetes.io/tls-acme: "true"
   hosts:
     ## Host for the Ingress. Should be the same as
