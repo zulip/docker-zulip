@@ -152,7 +152,6 @@ Now you're ready to follow [the installation instructions above](#installation).
 | statefulSetLabels                                                  | object | `{}`                           |             |
 | tolerations                                                        | list   | `[]`                           |             |
 | zulip.environment.CERTIFICATES                                     | string | `""`                           |             |
-| zulip.environment.SECRETS_email_password                           | string | `"123456789"`                  |             |
 | zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                           |             |
 | zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`        |             |
 | zulip.environment.SETTING_EMAIL_PORT                               | string | `"587"`                        |             |
