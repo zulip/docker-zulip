@@ -6,9 +6,8 @@
 zulip:
   # password: set-secure-password
 
-  # Add any other environment variables you want to configure here.
-  # based on; https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
-  # these values will be merged with db secrets and hosts/ports
+  # See https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
+  # for configuration
   environment:
     # Required settings
     SETTING_EXTERNAL_HOST: zulip.example.com
