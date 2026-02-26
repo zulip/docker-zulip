@@ -23,5 +23,5 @@
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
   echo "Visit http://127.0.0.1:{{ .Values.service.port }} to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ .Release.Name }}-http {{ .Values.service.port }}:{{ .Values.service.port }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "zulip.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 {{- end }}
