@@ -126,8 +126,8 @@ tolerations: []
 affinity: {}
 
 zulip:
-  ## Environment variables based on
-  ## https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
+  ## Zulip Docker settings and configuration
+  ## Ref: https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
   environment:
     TRUST_GATEWAY_IP: true
     ## We leave the default of only serving over HTTP, with kubernetes handling
