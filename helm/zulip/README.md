@@ -6,63 +6,20 @@
 
 Helm chart based on https://github.com/zulip/docker-zulip
 
-## Installation
+> **Full documentation:**
+> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-index.html
 
-Copy `values-local.yaml.example`, modify it as instructed in the comments, then
-install with the following commands:
+## Quick start
 
-```
-helm dependency update                      # Get helm dependency charts
-helm install -f ./values-local.yaml zulip . # Install Zulip
-```
-
-This will show a message on how to reach your Zulip installation and how to
-create your first realm. Wait for all your pods to be ready before you continue.
-You can run `kubectl get pods` to their current state. Once all pods are ready,
-you can run the commands to create a Realm, and you can reach Zulip following
-the instructions as well.
-
-### Installing on Minikube
-
-You need to do a few things to make
-[minikube](https://minikube.sigs.k8s.io/docs/) serve Zulip with a TLS
-certificate. Without it, Zulip will not work.
-
-If you haven't already, you need to set up `cert-manager` inside your minikube.
-
-First, enable the "ingress" minikube addon ([more info available
-here](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/#enable-the-ingress-controller))
-
-```
-minikube addons enable ingress
+```bash
+helm dependency build
+helm install zulip . -f values-local.yaml
 ```
 
-Second, [install cert-manager into your minikube
-cluster](https://cert-manager.io/docs/installation/#default-static-install):
-
-```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.0/cert-manager.yaml
-```
-
-Now you'll need to add an issuer that issues self-signed certificates. Copy this
-into a file, `self-signed-issuer.yaml`
-
-```
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: selfsigned
-  namespace: cert-manager
-spec:
-  selfSigned: {}
-```
-
-Now apply the issuer: `kubectl apply -f self-signed-issuer.yaml`
-
-We'll host Zulip on `zulip.local`. Add that to your `/etc/hosts` file and
-point it to the IP address you get with the command `minikube ip`.
-
-Now you're ready to follow [the installation instructions above](#installation).
+See the
+[getting-started guide](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-getting-started.html)
+for detailed installation instructions, including required settings
+and creating your first organization.
 
 ## Values
 
@@ -157,29 +114,11 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.persistence.size                                             | string | `"10Gi"`                       |             |
 | zulip.persistence.storageClass                                     | string | `nil`                          |             |
 
-## About this helm chart
-
-This helm chart sets up a StatefulSet that runs a Zulip pod, that in
-turn runs the [Dockerized Zulip](https://ghcr.io/zulip/zulip-server/)
-container. Configuration of Zulip happens through environment
-variables that are defined in the `values.yaml` under
-`zulip.environment`. These environment variables are forwarded to the
-Docker container, you can read more about configuring Zulip through
-environment variables
-[here](https://github.com/zulip/docker-zulip/#configuration).
-
-Variables can be either a plain scalar value (i.e., a string or
-integer), or a projected value from a secret or configmap. For
-example:
-
-```yaml
-SETTING_EXTERNAL_HOST: zulip.example.com
-SECRETS_email_password:
-  valueFrom:
-    secretKeyRef:
-      name: email
-      key: password
-```
+Environment values can be plain scalars or
+[`valueFrom` references](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-settings.html#referencing-kubernetes-secrets-with-valuefrom)
+to Kubernetes Secrets; see the
+[settings guide](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-settings.html)
+for details.
 
 ### Dependencies
 
