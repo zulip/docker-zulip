@@ -129,20 +129,8 @@ zulip:
   ## Zulip Docker settings and configuration
   ## Ref: https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
   environment:
+    ## Trust the gateway, for health checks and proxy headers
     TRUST_GATEWAY_IP: true
-    ## We leave the default of only serving over HTTP, with kubernetes handling
-    ## TLS termination.
-    CERTIFICATES: ""
-    ## Domain Zulip is hosted on; this is required
-    SETTING_EXTERNAL_HOST: zulip.example.com
-    ## Administrator's email address; this is required
-    SETTING_ZULIP_ADMINISTRATOR: "zulip-admin@example.com"
-    ## Outgoing email configuration
-    SETTING_EMAIL_HOST: "" # e.g. smtp.example.com
-    SETTING_EMAIL_HOST_USER: "noreply@example.com"
-    SETTING_EMAIL_PORT: "587"
-    SETTING_EMAIL_USE_SSL: "False"
-    SETTING_EMAIL_USE_TLS: "True"
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
   persistence:
