@@ -114,6 +114,12 @@ jobs:
                   -ignore-missing-schemas
           done
 
+      - name: Install helm-unittest
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest --version v1.0.3
+
+      - name: Run unit tests
+        run: helm unittest helm/zulip/
+
   helm-test:
     runs-on: ubuntu-latest
     needs:
