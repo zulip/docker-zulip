@@ -101,14 +101,12 @@ jobs:
       - name: Helm lint
         run: |
           helm lint helm/zulip/ \
-            -f helm/zulip/ci/simple-values.yaml \
-            --set image.tag=pr-${{ github.event.pull_request.number }}
+            -f helm/zulip/ci/simple-values.yaml
 
       - name: Render templates
         run: |
           helm template test-release helm/zulip/ \
             -f helm/zulip/ci/simple-values.yaml \
-            --set image.tag=pr-${{ github.event.pull_request.number }} \
             > /tmp/rendered.yaml
 
       - name: Install kubeconform
