@@ -98,28 +98,21 @@ jobs:
       - name: Build chart dependencies
         run: helm dependency build helm/zulip/
 
-      - name: Helm lint
-        run: |
-          helm lint helm/zulip/ \
-            -f helm/zulip/ci/simple-values.yaml
-
-      - name: Render templates
-        run: |
-          helm template test-release helm/zulip/ \
-            -f helm/zulip/ci/simple-values.yaml \
-            > /tmp/rendered.yaml
-
       - name: Install kubeconform
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
             | tar xz -C /usr/local/bin
 
-      - name: Validate rendered manifests
+      - name: Helm lint and kubeconform
         run: |
-          kubeconform -strict -summary \
-            -kubernetes-version 1.32.0 \
-            -ignore-missing-schemas \
-            /tmp/rendered.yaml
+          for f in helm/zulip/ci/*-values.yaml; do
+            helm lint helm/zulip/ -f "$f"
+
+            helm template test-release helm/zulip/ -f "$f" \
+              | kubeconform -strict -summary \
+                  -kubernetes-version 1.32.0 \
+                  -ignore-missing-schemas
+          done
 
   helm-test:
     runs-on: ubuntu-latest
