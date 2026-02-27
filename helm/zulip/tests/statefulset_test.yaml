@@ -92,3 +92,77 @@ tests:
           content:
             name: SECRETS_secret_key
             value: compat-secret-key
+
+  - it: uses valueFrom when subchart existingSecret is set
+    values:
+      - ../ci/existing-secrets-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_postgres_password
+            valueFrom:
+              secretKeyRef:
+                name: my-pg-secret
+                key: password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_rabbitmq_password
+            valueFrom:
+              secretKeyRef:
+                name: my-rabbitmq-secret
+                key: rabbitmq-password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_memcached_password
+            valueFrom:
+              secretKeyRef:
+                name: my-memcached-secret
+                key: memcached-password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_redis_password
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: redis-password
+
+  - it: uses valueFrom for external service passwords
+    values:
+      - ../ci/external-valuefrom-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_postgres_password
+            valueFrom:
+              secretKeyRef:
+                name: external-pg-secret
+                key: password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_rabbitmq_password
+            valueFrom:
+              secretKeyRef:
+                name: external-rabbitmq-secret
+                key: password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_memcached_password
+            valueFrom:
+              secretKeyRef:
+                name: external-memcached-secret
+                key: password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SECRETS_redis_password
+            valueFrom:
+              secretKeyRef:
+                name: external-redis-secret
+                key: password
