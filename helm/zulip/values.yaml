@@ -266,7 +266,8 @@ externalPostgresql:
   port: 5432
   database: "zulip"
   user: "zulip"
-  password: ""
+  ## password supports both scalar values and valueFrom maps.
+  # password: ""
   sslmode: ""
 
 ## External RabbitMQ configuration.
@@ -275,7 +276,8 @@ externalRabbitmq:
   host: ""
   port: 5672
   user: "zulip"
-  password: ""
+  ## password supports both scalar values and valueFrom maps.
+  # password: ""
 
 ## External Memcached configuration.
 ## Used when memcached.enabled is set to false.
@@ -283,11 +285,13 @@ externalMemcached:
   host: ""
   port: 11211
   user: ""
-  password: ""
+  ## password supports both scalar values and valueFrom maps.
+  # password: ""
 
 ## External Redis configuration.
 ## Used when redis.enabled is set to false.
 externalRedis:
   host: ""
   port: 6379
-  password: ""
+  ## password supports both scalar values and valueFrom maps.
+  # password: ""

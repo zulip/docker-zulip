@@ -71,6 +71,58 @@ externalRedis:
   password: your-redis-password
 ```
 
+## Using Kubernetes Secrets for service passwords
+
+### Bundled subcharts
+
+Each Bitnami subchart supports referencing a pre-existing Kubernetes Secret
+instead of placing passwords in your values file. When set, the Zulip container
+also reads the password from the same secret via `valueFrom`:
+
+```yaml
+postgresql:
+  auth:
+    existingSecret: my-pg-secret
+    # Secret must contain a key named "password"
+    # (configurable via auth.secretKeys.userPasswordKey)
+
+rabbitmq:
+  auth:
+    existingPasswordSecret: my-rabbitmq-secret
+    # Secret must contain a key named "rabbitmq-password"
+    # (configurable via auth.existingSecretPasswordKey)
+
+redis:
+  auth:
+    existingSecret: my-redis-secret
+    # Secret must contain a key named "redis-password"
+    # (configurable via auth.existingSecretPasswordKey)
+
+memcached:
+  auth:
+    existingPasswordSecret: my-memcached-secret
+    # Secret must contain a key named "memcached-password"
+    # (configurable via auth.existingSecretPasswordKey)
+```
+
+### External services
+
+When using external services, password fields also accept `valueFrom`
+references:
+
+```yaml
+externalPostgresql:
+  host: pg.example.com
+  password:
+    valueFrom:
+      secretKeyRef:
+        name: my-external-pg-secret
+        key: password
+```
+
+The same pattern works for `externalRabbitmq.password`,
+`externalMemcached.password`, and `externalRedis.password`.
+
 ## Mixed internal and external services
 
 You can mix internal and external services. For example, to use the bundled
