@@ -10,12 +10,12 @@ zulip:
   # based on; https://github.com/zulip/docker-zulip/blob/main/docker-compose.yml#L63
   # these values will be merged with db secrets and hosts/ports
   environment:
-    # Domain
+    # Required settings
     SETTING_EXTERNAL_HOST: zulip.example.com
+    SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
 
     # SMTP settings
     SECRETS_email_password: '123456789'
-    SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
     SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
     SETTING_EMAIL_HOST_USER: 'noreply@example.com'
     SETTING_EMAIL_PORT: '587'
