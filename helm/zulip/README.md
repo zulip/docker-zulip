@@ -151,14 +151,6 @@ Now you're ready to follow [the installation instructions above](#installation).
 | statefulSetAnnotations                                             | object | `{}`                           |             |
 | statefulSetLabels                                                  | object | `{}`                           |             |
 | tolerations                                                        | list   | `[]`                           |             |
-| zulip.environment.CERTIFICATES                                     | string | `""`                           |             |
-| zulip.environment.SETTING_EMAIL_HOST                               | string | `""`                           |             |
-| zulip.environment.SETTING_EMAIL_HOST_USER                          | string | `"noreply@example.com"`        |             |
-| zulip.environment.SETTING_EMAIL_PORT                               | string | `"587"`                        |             |
-| zulip.environment.SETTING_EMAIL_USE_SSL                            | string | `"False"`                      |             |
-| zulip.environment.SETTING_EMAIL_USE_TLS                            | string | `"True"`                       |             |
-| zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`          |             |
-| zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"zulip-admin@example.com"`    |             |
 | zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                         |             |
 | zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`              |             |
 | zulip.persistence.enabled                                          | bool   | `true`                         |             |
