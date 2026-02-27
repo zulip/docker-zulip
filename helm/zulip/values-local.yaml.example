@@ -4,14 +4,13 @@
 # to be reached on.
 
 zulip:
-  # password: set-secure-password
-
   # See https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
   # for configuration
   environment:
     # Required settings
     SETTING_EXTERNAL_HOST: zulip.example.com
     SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+    # SECRETS_secret_key: set-secure-secret-key
 
     # SMTP settings
     SECRETS_email_password: '123456789'

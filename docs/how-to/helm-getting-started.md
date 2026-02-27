@@ -27,10 +27,10 @@
 
    ```yaml
    zulip:
-     password: "replace-with-a-secure-secret-key"
      environment:
        SETTING_EXTERNAL_HOST: zulip.example.com
        SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+       SECRETS_secret_key: "replace-with-a-secure-secret-key"
    ```
 
    You should also set passwords for the dependency services:
