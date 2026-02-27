@@ -12,7 +12,6 @@ zulip:
   environment:
     # Domain
     SETTING_EXTERNAL_HOST: zulip.example.com
-    ZULIP_AUTH_BACKENDS: 'EmailAuthBackend'
 
     # SMTP settings
     SECRETS_email_password: '123456789'

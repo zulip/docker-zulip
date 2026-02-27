@@ -161,7 +161,6 @@ Now you're ready to follow [the installation instructions above](#installation).
 | zulip.environment.SETTING_EXTERNAL_HOST                            | string | `"zulip.example.com"`          |             |
 | zulip.environment.SETTING_ZULIP_ADMINISTRATOR                      | string | `"zulip-admin@example.com"`    |             |
 | zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                         |             |
-| zulip.environment.ZULIP_AUTH_BACKENDS                              | string | `"EmailAuthBackend"`           |             |
 | zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`              |             |
 | zulip.persistence.enabled                                          | bool   | `true`                         |             |
 | zulip.persistence.size                                             | string | `"10Gi"`                       |             |

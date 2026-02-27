@@ -9,7 +9,6 @@ zulip:
   environment:
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
     SETTING_EXTERNAL_HOST: zulip.example.net
-    ZULIP_AUTH_BACKENDS: "EmailAuthBackend"
 
 memcached:
   memcachedPassword: set-secure-memcached-password
