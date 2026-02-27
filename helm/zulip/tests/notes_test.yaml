@@ -1,0 +1,17 @@
+suite: NOTES
+templates:
+  - NOTES.txt
+tests:
+  - it: shows deprecation warning when zulip.password is set
+    values:
+      - ../ci/compat-password-values.yaml
+    asserts:
+      - matchRegexRaw:
+          pattern: "WARNING: zulip.password is deprecated"
+
+  - it: does not show deprecation warning when zulip.password is not set
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - notMatchRegexRaw:
+          pattern: "WARNING: zulip.password is deprecated"

@@ -5,8 +5,8 @@ image:
   # CI will pass tag: of the PR
 
 zulip:
-  password: set-secure-zulip-password
   environment:
+    SECRETS_secret_key: set-secure-zulip-secret-key
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
     SETTING_EXTERNAL_HOST: zulip.example.net
 

@@ -1,8 +1,8 @@
 ---
 # Test: All Bitnami subcharts disabled; external services configured.
 zulip:
-  password: test-password
   environment:
+    SECRETS_secret_key: test-secret-key
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
     SETTING_EXTERNAL_HOST: zulip.example.com
 
