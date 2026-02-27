@@ -92,6 +92,79 @@
 - Learn how to [get your organization
   started](https://zulip.com/help/moving-to-zulip) using Zulip at its best.
 
+## Local development with Minikube
+
+[Minikube](https://minikube.sigs.k8s.io/docs/) provides a local
+single-node Kubernetes cluster for development. Zulip requires TLS
+(or at least an Ingress) to function correctly, so a few extra setup
+steps are needed.
+
+1. Enable the Ingress addon:
+
+   ```bash
+   minikube addons enable ingress
+   ```
+
+1. Install [cert-manager](https://cert-manager.io/docs/installation/)
+   to handle TLS certificates:
+
+   ```bash
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
+   ```
+
+   Wait for the cert-manager pods to be ready:
+
+   ```bash
+   kubectl -n cert-manager wait --for=condition=Ready pods --all --timeout=120s
+   ```
+
+1. Create a `ClusterIssuer` that issues self-signed certificates:
+
+   ```bash
+   kubectl apply -f - <<'EOF'
+   apiVersion: cert-manager.io/v1
+   kind: ClusterIssuer
+   metadata:
+     name: selfsigned
+   spec:
+     selfSigned: {}
+   EOF
+   ```
+
+1. Point a hostname at your Minikube IP. Add a line to `/etc/hosts`:
+
+   ```text
+   <minikube-ip>  zulip.local
+   ```
+
+   You can get the IP with `minikube ip`.
+
+1. Follow the [installation steps above](#installation), setting
+   `SETTING_EXTERNAL_HOST` to `zulip.local` and enabling the Ingress
+   with the self-signed issuer:
+
+   ```yaml
+   zulip:
+     environment:
+       SETTING_EXTERNAL_HOST: zulip.local
+   ingress:
+     enabled: true
+     className: nginx
+     annotations:
+       cert-manager.io/cluster-issuer: selfsigned
+     hosts:
+       - host: zulip.local
+         paths:
+           - path: /
+     tls:
+       - secretName: zulip-tls
+         hosts:
+           - zulip.local
+   ```
+
+   Then open `https://zulip.local` in your browser (accepting the
+   self-signed certificate warning).
+
 ## See also
 
 - {doc}`helm-commands`
