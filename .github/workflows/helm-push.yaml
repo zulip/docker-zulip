@@ -1,0 +1,51 @@
+---
+name: Push Helm chart to ghcr.io/zulip/helm-charts/zulip
+
+on:
+  push:
+    tags:
+      - "helm-*"
+
+permissions: {}
+
+jobs:
+  push:
+    if: github.repository_owner == 'zulip'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Validate tag matches Chart.yaml version
+        run: |
+          set -eu
+          tag_version="${GITHUB_REF_NAME#helm-}"
+          chart_version="$(yq '.version' helm/zulip/Chart.yaml)"
+          if [ "$tag_version" != "$chart_version" ]; then
+            echo "::error::Tag version ($tag_version) does not match Chart.yaml version ($chart_version)"
+            exit 1
+          fi
+          echo "version=$chart_version" >> "$GITHUB_OUTPUT"
+        id: version
+
+      - name: Log in to GHCR
+        run: echo "$GITHUB_TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+
+      - name: Build chart dependencies
+        run: helm dependency build helm/zulip
+
+      - name: Package and push chart
+        run: |
+          set -eu
+          helm package helm/zulip
+          helm push "zulip-${VERSION}.tgz" oci://ghcr.io/zulip/helm-charts
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
