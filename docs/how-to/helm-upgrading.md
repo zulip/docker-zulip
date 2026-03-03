@@ -21,8 +21,8 @@ automatically run the necessary database migrations.
    Or pass it on the command line:
 
    ```bash
-   helm upgrade zulip . -f values-local.yaml \
-       --set image.tag=11.5-2
+   helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip \
+       -f values-local.yaml --set image.tag=11.5-2
    ```
 
 1. Wait for the pod to restart and become ready:
@@ -33,14 +33,11 @@ automatically run the necessary database migrations.
 
 ## Upgrading the chart version
 
-If you are tracking the docker-zulip repository, pull the latest changes and
-rebuild dependencies:
+Upgrade to a newer chart version by specifying the target `--version`:
 
 ```bash
-git pull
-cd helm/zulip
-helm dependency build
-helm upgrade zulip . -f values-local.yaml
+helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip \
+    --version <new-version> -f values-local.yaml
 ```
 
 ## See also

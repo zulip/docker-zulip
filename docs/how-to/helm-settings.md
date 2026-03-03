@@ -37,9 +37,9 @@ The following settings are always required:
 1. Install or upgrade with your values file:
 
    ```bash
-   helm install zulip . -f values-local.yaml
+   helm install zulip oci://ghcr.io/zulip/helm-charts/zulip -f values-local.yaml
    # or, to update an existing release:
-   helm upgrade zulip . -f values-local.yaml
+   helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip -f values-local.yaml
    ```
 
 ## Referencing Kubernetes Secrets with `valueFrom`

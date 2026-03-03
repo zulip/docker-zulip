@@ -64,7 +64,7 @@ which streams write-ahead logs to S3 for point-in-time recovery.
 
 You can use the `sidecars` value to run additional containers alongside Zulip
 that share its persistent volume. The volume name follows the pattern
-`<fullname>-persistent-storage`; for the `helm install zulip .` command from the
+`<fullname>-persistent-storage`; for the `helm install zulip` command from the
 getting-started guide, the full name resolves to `zulip`, so the volume is
 `zulip-persistent-storage`:
 

@@ -64,7 +64,8 @@ provisioning from Let's Encrypt.
 1. Install or upgrade the chart:
 
    ```bash
-   helm upgrade --install zulip . -f values-local.yaml
+   helm upgrade --install zulip oci://ghcr.io/zulip/helm-charts/zulip \
+       -f values-local.yaml
    ```
 
    cert-manager will automatically provision a TLS certificate and store it in
