@@ -9,19 +9,6 @@
 
 ## Installation
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/zulip/docker-zulip.git
-   cd docker-zulip/helm/zulip
-   ```
-
-1. Download the chart's dependency subcharts:
-
-   ```bash
-   helm dependency build
-   ```
-
 1. Create a `values-local.yaml` file with your deployment settings. At minimum,
    you must configure:
 
@@ -51,12 +38,14 @@
        password: "replace-with-secure-password"
    ```
 
-   See {doc}`helm-settings` for more configuration options.
+   See {doc}`helm-settings` for more configuration options, and
+   [`values-local.yaml.example`](https://github.com/zulip/docker-zulip/blob/main/helm/zulip/values-local.yaml.example)
+   for a starting template.
 
-1. Install the chart:
+1. Install the chart from GHCR:
 
    ```bash
-   helm install zulip . -f values-local.yaml
+   helm install zulip oci://ghcr.io/zulip/helm-charts/zulip -f values-local.yaml
    ```
 
    Zulip takes several minutes to start up on first boot. You can watch the pod

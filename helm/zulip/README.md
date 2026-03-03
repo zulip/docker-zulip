@@ -12,8 +12,7 @@ Helm chart based on https://github.com/zulip/docker-zulip
 ## Quick start
 
 ```bash
-helm dependency build
-helm install zulip . -f values-local.yaml
+helm install zulip oci://ghcr.io/zulip/helm-charts/zulip -f values-local.yaml
 ```
 
 See the
