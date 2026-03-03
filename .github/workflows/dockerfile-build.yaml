@@ -51,6 +51,7 @@ jobs:
             type=match,pattern=\d+\.\d+-\d+
           labels: |
             org.opencontainers.image.description=Zulip Server
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
           annotations: |
             org.opencontainers.image.description=Zulip Server
         env:
@@ -130,6 +131,7 @@ jobs:
             type=match,pattern=\d+\.\d+-\d+
           labels: |
             org.opencontainers.image.description=Zulip Server
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
           annotations: |
             org.opencontainers.image.description=Zulip Server
         env:
