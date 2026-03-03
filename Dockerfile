@@ -33,6 +33,7 @@ LABEL org.opencontainers.image.source="https://github.com/zulip/docker-zulip"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
 LABEL org.opencontainers.image.title="Zulip Server"
 LABEL org.opencontainers.image.version="$ZULIP_GIT_REF"
+LABEL org.opencontainers.image.documentation="https://zulip.readthedocs.io/projects/docker/en/latest/"
 
 RUN git clone "$ZULIP_GIT_URL" zulip
 
