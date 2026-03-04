@@ -54,4 +54,4 @@ your local edits, and then run `docker compose build zulip`.
 ## See also
 
 - [Compose Build specification](https://docs.docker.com/reference/compose-file/build/)
-- {doc}`../reference/environment-vars#zulip-run-post-setup-scripts`
+- {doc}`/reference/environment-vars`
