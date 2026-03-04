@@ -1,38 +1,52 @@
-# Replace each occurrence of "set-secure-password" with a different random
-# password and uncomment it.
-# Replace each occurrence of "zulip.example.com" with the domain you want Zulip
-# to be reached on.
+## 1. Replace each occurrence of "set-secure-password" with a
+##    different random password and uncomment it.
+##
+## 2. Replace each occurrence of "zulip.example.com" with the domain
+##    you want Zulip to be reached on.
+##
+## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-getting-started.html
 
 zulip:
-  # See https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
-  # for configuration
+  ## See https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
+  ## for configuration
   environment:
-    # Required settings
+    ## All standard Zulip settings are prefixed with SETTING_
+    ##
+    ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-settings.html
+    ##     https://zulip.readthedocs.io/en/stable/production/settings.html
+    ##
+    ## The following settings are required:
     SETTING_EXTERNAL_HOST: zulip.example.com
     SETTING_ZULIP_ADMINISTRATOR: 'admin@example.com'
+
+    ## The secret_key secret is also required.  You can provide it
+    ## explicitly, or pull it from a Kubernetes Secret:
+    ##
+    ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-settings.html#referencing-kubernetes-secrets-with-valuefrom
+    ##
     # SECRETS_secret_key: set-secure-secret-key
 
-    # SMTP settings
-    SECRETS_email_password: '123456789'
-    SETTING_EMAIL_HOST: ''  # e.g. smtp.example.com
-    SETTING_EMAIL_HOST_USER: 'noreply@example.com'
-    SETTING_EMAIL_PORT: '587'
-    SETTING_EMAIL_USE_SSL: 'False'
-    SETTING_EMAIL_USE_TLS: 'True'
-
+## To deploy behind an ingress controller (e.g., Traefik) and cert-manager:
+##
+## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-ssl.html
 ingress:
   enabled: true
+  className: traefik
   annotations:
-    # Get certificates with cert-manager; set your issuer name here.
-    cert-manager.io/cluster-issuer: selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
     - host: zulip.example.com
       paths:
       - path: /
   tls:
-    - secretName: zulip-tls-secret
+    - secretName: zulip-tls
       hosts:
         - zulip.example.com
+
+## To use existing external services, and have this chart omit its
+## dependent services:
+##
+## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-existing-services.html
 
 memcached:
   # memcachedPassword: set-secure-password
@@ -51,8 +65,8 @@ service:
 
 postgresql:
   auth:
-    # # postgres admin user password
+    ## postgres admin user password
     # postgresqlPassword: set-secure-password
-    # # postgres zulip user password
+    ## postgres zulip user password
     # password: set-secure-password
 
