@@ -9,7 +9,8 @@ secrets:
   ## in the "secrets:" block inside the "zulip" service, below) in order to
   ## propagate them into Zulip's /etc/zulip/zulip-secrets.conf
   ##
-  ## --> https://docs.docker.com/reference/compose-file/secrets/
+  ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-secrets.html
+  ##     https://docs.docker.com/reference/compose-file/secrets/
   ##     https://docs.docker.com/compose/how-tos/use-secrets/
   zulip__postgres_password:
     ## Note that you need to do a manual `ALTER ROLE` query if you
@@ -29,18 +30,11 @@ secrets:
 
 services:
   zulip:
-    build:
-      args:
-        ## If you want to build zulip from a different repo/branch, you can
-        ## change these and run:
-        ##
-        ##  docker compose build zulip
-        ZULIP_GIT_URL: https://github.com/zulip/zulip.git
-        ZULIP_GIT_REF: "11.5"
     environment:
-      ## See https://github.com/zulip/docker-zulip#configuration for
-      ## details on this section and how to discover the many
-      ## additional settings that are supported here.
+      ## All standard Zulip settings are prefixed with SETTING_
+      ##
+      ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-settings.html
+      ##     https://zulip.readthedocs.io/en/stable/production/settings.html
       ##
       ## The following two settings are required:
       SETTING_EXTERNAL_HOST: "zulip.example.com"
@@ -54,13 +48,15 @@ services:
       ## certificate.  In either of these cases, the container will only serve
       ## traffic over port 443.
       ##
+      ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-ssl.html
+      ##
       # CERTIFICATES: "certbot"
 
       ## If you're using a reverse proxy (as is required if you leave
       ## CERTIFICATES unset), you will also need to provide the comma-separated
       ## set of IP addresses (or CIDR ranges) to trust here.
       ##
-      ## --> https://zulip.readthedocs.io/en/stable/production/reverse-proxies.html
+      ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-ssl.html#deploying-behind-a-reverse-proxy
       ##
       # LOADBALANCER_IPS: "10.0.0.0/8"
       ## Alternately, you can default to trusting the Docker gateway IP:
@@ -80,7 +76,7 @@ services:
       ## ensure that email to emaildomain.example.com is routed to this host
       ## (e.g. via MX record)
       ##
-      ## --> https://zulip.readthedocs.io/en/stable/production/email-gateway.html
+      ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-incoming-email.html
       ##
       # SETTING_EMAIL_GATEWAY_PATTERN: "%s@emaildomain.example.com"
 
@@ -89,14 +85,14 @@ services:
       ## SETTING_AUTHENTICATION_BACKENDS.  This defaults to just
       ## EmailAuthBackend.
       ##
-      ## --> https://zulip.readthedocs.io/en/stable/production/authentication-methods.html
+      ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-authentication.html
       ##
       # ZULIP_AUTH_BACKENDS: "EmailAuthBackend,GoogleAuthBackend"
 
       ## Uncomment this when configuring the mobile push notifications service.
       ## After setting these, you will need to register the server:
       ##
-      ##   docker compose exec -it -u zulip zulip /home/zulip/deployments/current/manage.py register_server
+      ##   ./manage.py register_server
       ##
       ## --> https://zulip.readthedocs.io/en/stable/production/mobile-push-notifications.html
       ##
@@ -122,6 +118,7 @@ services:
 
       ## For a complete list of possible settings, see:
       ## --> https://github.com/zulip/zulip/blob/11.x/zproject/prod_settings_template.py
+      ##     https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
     secrets:
       ## Add any additional zulip__ secrets that you defined above.
       []
