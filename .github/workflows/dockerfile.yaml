@@ -68,17 +68,14 @@ jobs:
         uses: losisin/helm-docs-github-action@6f957579ac122ecc167bf515fe84e828686c9a15 # v1
 
       - name: Run prettier over the re-generated docs
-        uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
-        with:
-          prettier_options: --write helm/zulip/README.md
-          no_commit: True
+        run: npx prettier --write helm/zulip/README.md
 
       - name: Check for any diff
         run: |
-          if ! git diff --exit-code; then
+          if ! git diff HEAD --exit-code; then
             echo "Changes found!"
             git status
-            git diff
+            git diff HEAD
             exit 1
           fi
 
