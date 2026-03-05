@@ -15,5 +15,8 @@
 # Cached sub-charts
 /helm/zulip/charts/
 
+# Node (prettier is a dev dependency for CI linting)
+/node_modules/
+
 # Built docs
 /docs/_build/
