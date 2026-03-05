@@ -67,8 +67,7 @@ fi
 
 # Simulating an old-style settings/etc-zulip migration
 "${docker[@]}" down zulip
-"${docker[@]}" run --rm zulip mkdir -p /data/settings
-"${docker[@]}" run --rm zulip mv /data/etc-zulip /data/settings/etc-zulip
+"${docker[@]}" run --rm --no-deps zulip sh -c "mkdir -p /data/settings && mv /data/etc-zulip /data/settings/etc-zulip"
 "${docker[@]}" "$(with link-settings)" up zulip --wait
 logs | grep "Migrating old /data/settings/etc-zulip"
 "${docker[@]}" exec zulip cat /etc/zulip/settings.py | grep "zulip.example.net"
@@ -103,7 +102,7 @@ fi
 logs | grep "ImportError: cannot import name 'EXTERNAL_HOST'"
 
 # Break zulip.conf
-"${docker[@]}" run --rm zulip truncate -s 0 /data/etc-zulip/zulip.conf
+"${docker[@]}" run --rm --no-deps zulip truncate -s 0 /data/etc-zulip/zulip.conf
 if "${docker[@]}" "$(with link-settings)" up zulip --wait; then
     exit 1
 fi
