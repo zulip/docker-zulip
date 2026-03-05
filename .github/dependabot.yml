@@ -22,6 +22,15 @@ updates:
     cooldown:
       default-days: 7
 
+  - package-ecosystem: "npm"
+    directory: "/"
+    commit-message:
+      prefix: ci-deps
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+
   - package-ecosystem: "uv"
     directory: "/docs"
     commit-message:
