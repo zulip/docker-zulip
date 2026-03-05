@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "valueFrom": {
+      "type": "object",
+      "description": "Kubernetes valueFrom reference for environment variables.",
+      "properties": {
+        "valueFrom": {
+          "type": "object",
+          "properties": {
+            "secretKeyRef": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "key": { "type": "string" }
+              },
+              "required": ["name", "key"]
+            },
+            "configMapKeyRef": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "key": { "type": "string" }
+              },
+              "required": ["name", "key"]
+            },
+            "fieldRef": {
+              "type": "object",
+              "properties": {
+                "fieldPath": { "type": "string" }
+              },
+              "required": ["fieldPath"]
+            },
+            "resourceFieldRef": {
+              "type": "object",
+              "properties": {
+                "containerName": { "type": "string" },
+                "resource": { "type": "string" }
+              },
+              "required": ["resource"]
+            }
+          }
+        }
+      },
+      "required": ["valueFrom"]
+    },
+    "scalarOrValueFrom": {
+      "description": "A scalar value or a Kubernetes valueFrom reference.",
+      "oneOf": [
+        { "type": ["string", "number", "boolean"] },
+        { "$ref": "#/definitions/valueFrom" }
+      ]
+    },
+    "probeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "initialDelaySeconds": { "type": "integer", "minimum": 0 },
+        "periodSeconds": { "type": "integer", "minimum": 1 },
+        "timeoutSeconds": { "type": "integer", "minimum": 1 },
+        "failureThreshold": { "type": "integer", "minimum": 1 },
+        "successThreshold": { "type": "integer", "minimum": 1 }
+      }
+    }
+  },
+  "properties": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Zulip Docker image repository."
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Image pull policy.",
+          "enum": ["Always", "IfNotPresent", "Never"]
+        },
+        "tag": {
+          "type": ["string", "number"],
+          "description": "Zulip image tag (immutable tags are recommended)."
+        }
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "Global Docker registry secret names.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" }
+        },
+        "required": ["name"]
+      }
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Partially override zulip.fullname template (will maintain the release name)."
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Fully override zulip.fullname template."
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Service account configuration.",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created."
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service account."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use."
+        }
+      }
+    },
+    "statefulSetLabels": {
+      "type": "object",
+      "description": "Custom labels to add to the Zulip StatefulSet."
+    },
+    "statefulSetAnnotations": {
+      "type": "object",
+      "description": "Custom annotations to add to the Zulip StatefulSet."
+    },
+    "podLabels": {
+      "type": "object",
+      "description": "Custom labels to add to the Zulip Pod."
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Custom annotations to add to the Zulip Pod."
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Pod-level security context."
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Container-level security context."
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Kubernetes service configuration.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Service type.",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"]
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service."
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Ingress configuration.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Ingress to reach the Zulip service."
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Custom Ingress annotations."
+        },
+        "hosts": {
+          "type": "array",
+          "description": "Ingress host configuration.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname for the Ingress."
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path for the Ingress rule."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "description": "TLS configuration for the Ingress.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string",
+                "description": "TLS secret name."
+              },
+              "hosts": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "className": {
+          "type": ["string", "null"],
+          "description": "Ingress class name."
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "CPU/memory resource requests and limits.",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": { "type": ["string", "number"] },
+            "memory": { "type": ["string", "number"] }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": { "type": ["string", "number"] },
+            "memory": { "type": ["string", "number"] }
+          }
+        }
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for pod assignment."
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod assignment.",
+      "items": { "type": "object" }
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity for pod assignment."
+    },
+    "zulip": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Zulip application configuration.",
+      "properties": {
+        "environment": {
+          "type": "object",
+          "description": "Environment variables passed to the Zulip container. Values can be scalars or valueFrom maps.",
+          "additionalProperties": {
+            "$ref": "#/definitions/scalarOrValueFrom"
+          }
+        },
+        "password": {
+          "type": "string",
+          "description": "Deprecated: use SECRETS_secret_key in zulip.environment instead. Backwards-compatible Zulip secret key."
+        },
+        "persistence": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Persistent storage configuration.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable persistent storage."
+            },
+            "accessMode": {
+              "type": "string",
+              "description": "PVC access mode.",
+              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+            },
+            "size": {
+              "type": "string",
+              "description": "PVC storage size."
+            },
+            "storageClass": {
+              "type": ["string", "null"],
+              "description": "Storage class name. Use '-' for empty storageClassName."
+            },
+            "existingClaim": {
+              "type": "string",
+              "description": "Use an existing PVC instead of creating one."
+            },
+            "annotations": {
+              "type": "object",
+              "description": "Annotations to add to the PVC."
+            }
+          }
+        }
+      }
+    },
+    "livenessProbe": {
+      "$ref": "#/definitions/probeConfig",
+      "description": "Liveness probe configuration."
+    },
+    "startupProbe": {
+      "$ref": "#/definitions/probeConfig",
+      "description": "Startup probe configuration."
+    },
+    "postSetup": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Post-setup script configuration.",
+      "properties": {
+        "scripts": {
+          "type": "object",
+          "description": "Scripts to run after Zulip setup. Keys are filenames, values are script contents.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "sidecars": {
+      "type": "array",
+      "description": "Sidecar containers to add to the Zulip pod.",
+      "items": { "type": "object" }
+    },
+    "extraObjects": {
+      "type": "array",
+      "description": "Extra Kubernetes objects to create (supports templating).",
+      "items": {}
+    },
+    "global": {
+      "type": "object",
+      "description": "Global configuration shared across subcharts."
+    },
+    "postgresql": {
+      "type": "object",
+      "description": "Bitnami PostgreSQL subchart configuration."
+    },
+    "externalPostgresql": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "External PostgreSQL configuration. Used when postgresql.enabled is false.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "External PostgreSQL hostname."
+        },
+        "port": {
+          "type": "integer",
+          "description": "External PostgreSQL port.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "database": {
+          "type": "string",
+          "description": "PostgreSQL database name."
+        },
+        "user": {
+          "type": "string",
+          "description": "PostgreSQL username."
+        },
+        "password": {
+          "$ref": "#/definitions/scalarOrValueFrom",
+          "description": "PostgreSQL password. Supports scalar values and valueFrom maps."
+        },
+        "sslmode": {
+          "type": "string",
+          "description": "PostgreSQL SSL mode."
+        }
+      }
+    },
+    "rabbitmq": {
+      "type": "object",
+      "description": "Bitnami RabbitMQ subchart configuration."
+    },
+    "externalRabbitmq": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "External RabbitMQ configuration. Used when rabbitmq.enabled is false.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "External RabbitMQ hostname."
+        },
+        "port": {
+          "type": "integer",
+          "description": "External RabbitMQ port.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "user": {
+          "type": "string",
+          "description": "RabbitMQ username."
+        },
+        "password": {
+          "$ref": "#/definitions/scalarOrValueFrom",
+          "description": "RabbitMQ password. Supports scalar values and valueFrom maps."
+        }
+      }
+    },
+    "memcached": {
+      "type": "object",
+      "description": "Bitnami Memcached subchart configuration."
+    },
+    "externalMemcached": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "External Memcached configuration. Used when memcached.enabled is false.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "External Memcached hostname."
+        },
+        "port": {
+          "type": "integer",
+          "description": "External Memcached port.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "user": {
+          "type": "string",
+          "description": "Memcached username."
+        },
+        "password": {
+          "$ref": "#/definitions/scalarOrValueFrom",
+          "description": "Memcached password. Supports scalar values and valueFrom maps."
+        }
+      }
+    },
+    "redis": {
+      "type": "object",
+      "description": "Bitnami Redis subchart configuration."
+    },
+    "externalRedis": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "External Redis configuration. Used when redis.enabled is false.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "External Redis hostname."
+        },
+        "port": {
+          "type": "integer",
+          "description": "External Redis port.",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "password": {
+          "$ref": "#/definitions/scalarOrValueFrom",
+          "description": "Redis password. Supports scalar values and valueFrom maps."
+        }
+      }
+    }
+  }
+}
