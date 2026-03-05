@@ -16,15 +16,12 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
-      - uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
-        with:
-          dry: true
-          prettier_options: "--write **/*.md .*/**.md"
+      - run: npm install && npx prettier --write "**/*.md" ".*/**.md"
       - name: Check for any diff
         run: |
-          if ! git diff --exit-code; then
+          if ! git diff HEAD --exit-code; then
             echo "Changes found!"
             git status
-            git diff
+            git diff HEAD
             exit 1
           fi
