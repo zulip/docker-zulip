@@ -1,3 +1,22 @@
+## [1.11.57] - 2026-03-05
+
+- Support `valueFrom` for all dependent service passwords, enabling
+  secret-free values files.
+- Support `SECRETS_secret_key` via `zulip.environment` with `valueFrom`;
+  deprecate `zulip.password`.
+- Fix post-setup-scripts ConfigMap name mismatch when the release name
+  does not contain "zulip".
+- Fix port-forward service name in NOTES.txt.
+- Fix "posgresql" typo in Chart.yaml.
+- Guard service annotations with a `with` block to avoid empty output.
+- Replace deprecated Ingress annotations with modern equivalents.
+- Remove placeholder defaults (`ZULIP_AUTH_BACKENDS`,
+  `SECRETS_email_password`, and other non-real configuration).
+- Add Helm chart how-to documentation and move Minikube setup from
+  chart README to docs.
+- Add CI workflow to publish Helm chart to GHCR on `helm-*` tags.
+- Update documentation in example values-local.yaml file.
+
 ## [1.11.56] - 2026-02-24
 
 - Support adding annotations to the service.
