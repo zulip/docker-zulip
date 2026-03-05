@@ -27,21 +27,17 @@ and creating your first organization.
 | ------------------------------------------------------------------ | ------ | ------------------------------ | ----------- |
 | affinity                                                           | object | `{}`                           |             |
 | externalMemcached.host                                             | string | `""`                           |             |
-| externalMemcached.password                                         | string | `""`                           |             |
 | externalMemcached.port                                             | int    | `11211`                        |             |
 | externalMemcached.user                                             | string | `""`                           |             |
 | externalPostgresql.database                                        | string | `"zulip"`                      |             |
 | externalPostgresql.host                                            | string | `""`                           |             |
-| externalPostgresql.password                                        | string | `""`                           |             |
 | externalPostgresql.port                                            | int    | `5432`                         |             |
 | externalPostgresql.sslmode                                         | string | `""`                           |             |
 | externalPostgresql.user                                            | string | `"zulip"`                      |             |
 | externalRabbitmq.host                                              | string | `""`                           |             |
-| externalRabbitmq.password                                          | string | `""`                           |             |
 | externalRabbitmq.port                                              | int    | `5672`                         |             |
 | externalRabbitmq.user                                              | string | `"zulip"`                      |             |
 | externalRedis.host                                                 | string | `""`                           |             |
-| externalRedis.password                                             | string | `""`                           |             |
 | externalRedis.port                                                 | int    | `6379`                         |             |
 | extraObjects                                                       | list   | `[]`                           |             |
 | fullnameOverride                                                   | string | `""`                           |             |
