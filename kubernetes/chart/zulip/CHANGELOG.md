@@ -1,3 +1,10 @@
+## [0.11.60] - 2026-03-31
+
+- Update to Zulip Zerver 11.6.
+- **Note**: This will be the last release of this version of the Helm chart;
+  future versions will be published at ghcr.io/zulip/helm-charts/zulip and will
+  use the new ghcr.io/zulip/zulip-server Docker image.
+
 ## [0.11.50] - 2026-02-05
 
 - Update to Zulip Server 11.5
