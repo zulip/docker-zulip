@@ -1,3 +1,10 @@
+## [1.11.60] - 2026-03-31
+
+- Update install instruction to use GHCR OCI repository
+- Remove commented-out annotations in example values.
+- Add values.schema.json for chart validation.
+- Update to Zulip Server 11.6-0
+
 ## [1.11.57] - 2026-03-05
 
 - Support `valueFrom` for all dependent service passwords, enabling
