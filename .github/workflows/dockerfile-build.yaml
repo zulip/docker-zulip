@@ -126,10 +126,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
-          labels: |
-            org.opencontainers.image.description=Zulip Server
-            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
           annotations: |
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
             org.opencontainers.image.description=Zulip Server
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
