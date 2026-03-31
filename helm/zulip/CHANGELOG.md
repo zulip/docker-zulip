@@ -1,3 +1,8 @@
+## [1.11.61] - 2026-03-31
+
+- Improved helm values schema.
+- Update to Zulip Server 11.6-1
+
 ## [1.11.60] - 2026-03-31
 
 - Update install instruction to use GHCR OCI repository
