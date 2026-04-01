@@ -67,6 +67,24 @@
     }
   },
   "required": ["zulip"],
+  "allOf": [
+    {
+      "if": {"properties": {"postgresql": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"externalPostgresql": {"required": ["host", "port", "password"]}}}
+    },
+    {
+      "if": {"properties": {"rabbitmq": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"externalRabbitmq": {"required": ["host", "port", "password"]}}}
+    },
+    {
+      "if": {"properties": {"memcached": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"externalMemcached": {"required": ["host", "port", "password"]}}}
+    },
+    {
+      "if": {"properties": {"redis": {"properties": {"enabled": {"const": false}}}}},
+      "then": {"properties": {"externalRedis": {"required": ["host", "port", "password"]}}}
+    }
+  ],
   "properties": {
     "image": {
       "type": "object",
