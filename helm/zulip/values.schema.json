@@ -288,6 +288,13 @@
       "additionalProperties": false,
       "description": "Zulip application configuration.",
       "required": ["environment"],
+      "allOf": [
+        {
+          "if": {"required": ["password"], "properties": {"password": {"minLength": 1}}},
+          "then": {},
+          "else": {"properties": {"environment": {"required": ["SECRETS_secret_key"]}}}
+        }
+      ],
       "properties": {
         "environment": {
           "type": "object",
