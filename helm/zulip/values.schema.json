@@ -66,6 +66,7 @@
       }
     }
   },
+  "required": ["zulip"],
   "properties": {
     "image": {
       "type": "object",
@@ -268,13 +269,23 @@
       "type": "object",
       "additionalProperties": false,
       "description": "Zulip application configuration.",
+      "required": ["environment"],
       "properties": {
         "environment": {
           "type": "object",
           "description": "Environment variables passed to the Zulip container. Values can be scalars or valueFrom maps.",
+          "properties": {
+            "SETTING_EXTERNAL_HOST": {
+              "$ref": "#/definitions/scalarOrValueFrom"
+            },
+            "SETTING_ZULIP_ADMINISTRATOR": {
+              "$ref": "#/definitions/scalarOrValueFrom"
+            }
+          },
           "additionalProperties": {
             "$ref": "#/definitions/scalarOrValueFrom"
-          }
+          },
+          "required": ["SETTING_EXTERNAL_HOST", "SETTING_ZULIP_ADMINISTRATOR"]
         },
         "password": {
           "type": "string",
