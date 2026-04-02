@@ -100,7 +100,7 @@
           "enum": ["Always", "IfNotPresent", "Never"]
         },
         "tag": {
-          "type": ["string"],
+          "type": "string",
           "description": "Zulip image tag (immutable tags are recommended)."
         }
       }
