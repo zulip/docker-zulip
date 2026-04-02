@@ -207,6 +207,7 @@
           "description": "Ingress host configuration.",
           "items": {
             "type": "object",
+            "required": ["host", "paths"],
             "properties": {
               "host": {
                 "type": "string",
@@ -216,6 +217,7 @@
                 "type": "array",
                 "items": {
                   "type": "object",
+                  "required": ["path"],
                   "properties": {
                     "path": {
                       "type": "string",
@@ -232,6 +234,7 @@
           "description": "TLS configuration for the Ingress.",
           "items": {
             "type": "object",
+            "required": ["secretName", "hosts"],
             "properties": {
               "secretName": {
                 "type": "string",
