@@ -1,0 +1,33 @@
+# This file teaches `git log` and friends the canonical names
+# and email addresses to use for our contributors.
+#
+# For details on the format, see:
+#   https://git.github.io/htmldocs/gitmailmap.html
+#
+# Handy commands for examining or adding to this file:
+#
+#     # shows all names/emails after mapping, sorted:
+#   $ git shortlog -es | sort -k2
+#
+#     # shows raw names/emails, filtered by mapped name:
+#   $ git log --format='%an %ae' --author=$NAME | uniq -c
+
+Alessandro Ogier <alessandro.ogier@gmail.com>
+Alessandro Ogier <alessandro.ogier@gmail.com> <alessandro.ogier.ext@leonardo.com>
+Alex Vandiver <alexmv@zulip.com> <alex@chmrr.net>
+Alexander Trost <galexrt@googlemail.com>
+Alexander Trost <galexrt@googlemail.com> <Galexrt@googlemail.com>
+Alexander Trost <galexrt@googlemail.com> <galexrt@users.noreply.github.com>
+Anders Kaseorg <anders@zulip.com> <anders@zulipchat.com>
+Anders Kaseorg <anders@zulip.com> <andersk@mit.edu>
+Carson McNeil <carson.mcneil@gmail.com> <carson@convox.org>
+Hanno Jaspers <hanno.jaspers@googlemail.com>
+Jason Michalski <armooo@armooo.net>
+Jeaye Wilkerson <contact@jeaye.com>
+Jennifer Hwang <jmhwang7@gmail.com>
+Jennifer Hwang <jmhwang7@gmail.com> <jennifer@render.com>
+Mateusz Mandera <mateusz.mandera@zulip.com> <mateusz.mandera@protonmail.com>
+Peter Nagy <xificurC@gmail.com>
+Rein Zustand (rht) <rhtbot@protonmail.com>
+Robert Seidler <Robert.Seidler1@googlemail.com>
+Tim Abbott <tabbott@zulip.com> <tabbott@zulipchat.com>
