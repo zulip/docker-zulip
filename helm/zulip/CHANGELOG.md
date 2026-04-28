@@ -1,3 +1,8 @@
+## [1.12.0] - 2026-04-27
+
+- Update to Zulip Server 12.0-0
+- Minor fixes to schema
+
 ## [1.11.61] - 2026-03-31
 
 - Improved helm values schema.
