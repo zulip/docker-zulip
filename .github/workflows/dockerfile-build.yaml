@@ -65,11 +65,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get commit SHA for current 11.x tip
+      - name: Get commit SHA for current 12.x tip
         id: tip-sha
         if: github.ref_type == 'branch'
         run: |
-          COMMIT=$(git ls-remote https://github.com/zulip/zulip.git refs/heads/11.x | cut -f1)
+          COMMIT=$(git ls-remote https://github.com/zulip/zulip.git refs/heads/12.x | cut -f1)
           echo "override=ZULIP_GIT_REF=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image

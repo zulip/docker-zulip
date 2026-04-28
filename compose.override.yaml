@@ -117,7 +117,7 @@ services:
       # SETTING_S3_REGION: "None"
 
       ## For a complete list of possible settings, see:
-      ## --> https://github.com/zulip/zulip/blob/11.x/zproject/prod_settings_template.py
+      ## --> https://github.com/zulip/zulip/blob/12.x/zproject/prod_settings_template.py
       ##     https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
     secrets:
       ## Add any additional zulip__ secrets that you defined above.

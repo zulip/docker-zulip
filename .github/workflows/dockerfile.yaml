@@ -33,10 +33,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
-      - name: Get commit SHA for current 11.x tip
+      - name: Get commit SHA for current 12.x tip
         id: get-sha
         run: |
-          COMMIT=$(git ls-remote https://github.com/zulip/zulip.git refs/heads/11.x | cut -f1)
+          COMMIT=$(git ls-remote https://github.com/zulip/zulip.git refs/heads/12.x | cut -f1)
           echo "commit_sha=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Build
