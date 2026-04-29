@@ -156,7 +156,7 @@ Specifically:
    services:
      zulip:
        environment:
-         ## Include all settings starting with SETTINGS_ in your docker-compose.yaml
+         ## Include all settings starting with SETTING_ in your docker-compose.yaml
    ```
 
 1. If you had _not_ set `DISABLE_HTTPS`, or had set `SSL_CERTIFICATE_GENERATION`,
