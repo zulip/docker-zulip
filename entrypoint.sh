@@ -241,31 +241,37 @@ puppetConfiguration() {
 
     /home/zulip/deployments/current/scripts/zulip-puppet-apply -f
 }
-waitAndRunSetupCertbot() {
-    # This is run backgrounded.
-    echo "Waiting for nginx to come online before generating certbot certificate ..."
-    while ! curl -sk "$SETTING_EXTERNAL_HOST" >/dev/null 2>&1; do
-        sleep 1
+writeCertbotSupervisorConf() {
+    # Generate the supervisord drop-in that runs zulip-certbot-setup
+    # as a one-shot program after nginx comes up.  Written into
+    # /etc/supervisor/conf.d/ (not the puppet-purged
+    # /etc/supervisor/conf.d/zulip/ subdir) so it survives the
+    # zulip-puppet-apply run on each container start.
+    local v
+    for v in "$SETTING_EXTERNAL_HOST" "$SETTING_ZULIP_ADMINISTRATOR"; do
+        if [[ "$v" == *[\"$'\n',]* || "$v" == *\\* ]]; then
+            echo "ERROR: SETTING_EXTERNAL_HOST and SETTING_ZULIP_ADMINISTRATOR"
+            echo "must not contain quotes, backslashes, commas, or newlines."
+            exit 1
+        fi
     done
-
-    echo "Generating LetsEncrypt/certbot certificate ..."
-
-    # Overwrite the nginx hook to use supervisorctl
-    cat <<EOF >/etc/letsencrypt/renewal-hooks/deploy/050-nginx.sh
-#!/bin/env bash
-supervisorctl signal HUP nginx
+    cat >/etc/supervisor/conf.d/zulip-certbot-setup.conf <<EOF
+[program:zulip-certbot-setup]
+command=/usr/local/sbin/zulip-certbot-setup
+autostart=true
+autorestart=false
+startsecs=0
+exitcodes=0
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+environment=EXTERNAL_HOST="$SETTING_EXTERNAL_HOST",ZULIP_ADMINISTRATOR="$SETTING_ZULIP_ADMINISTRATOR"
 EOF
-
-    # Accept the terms of service automatically.
-    /home/zulip/deployments/current/scripts/setup/setup-certbot \
-        --agree-tos \
-        --email="$SETTING_ZULIP_ADMINISTRATOR" \
-        -- \
-        "$SETTING_EXTERNAL_HOST"
-
-    echo "LetsEncrypt cert generated."
 }
 configureCerts() {
+    # Stale supervisor drop-in from a prior CERTIFICATES=certbot
+    # boot must not survive a switch to another mode.
+    rm -f /etc/supervisor/conf.d/zulip-certbot-setup.conf
     if [ "$CERTIFICATES" == "" ]; then
         echo "No certificates will be installed; HTTP-only serving configured."
         rm -f /etc/ssl/private/zulip.key
@@ -288,11 +294,12 @@ configureCerts() {
         return
     elif [ "$CERTIFICATES" == "certbot" ]; then
         echo "Scheduling LetsEncrypt cert generation ..."
-        # This certbot run cannot start until nginx is up, which this
-        # process will do later under supervisor.  This guarantees
-        # there is no race between the symlinking below, and certbot's
-        # own symlinking later, once it potentially gets a new cert.
-        waitAndRunSetupCertbot &
+        # The certbot run cannot start until nginx is up, so it is
+        # registered as a supervisord one-shot program; supervisord
+        # launches it alongside nginx and tracks its exit cleanly,
+        # rather than letting it become an orphan reaped as an
+        # unknown pid by PID 1.
+        writeCertbotSupervisorConf
 
         le_dir="$DATA_DIR/certs/letsencrypt/live/$SETTING_EXTERNAL_HOST/"
         if [ -d "$le_dir" ] && [ -f "$le_dir/privkey.pem" ] && [ -f "$le_dir/fullchain.pem" ]; then

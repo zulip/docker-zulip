@@ -75,6 +75,7 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
+COPY zulip-certbot-setup /usr/local/sbin/zulip-certbot-setup
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 25 80 443
