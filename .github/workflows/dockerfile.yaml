@@ -260,6 +260,7 @@ jobs:
 
       - name: Verify all services are running
         run: |
+          docker compose logs zulip
           docker compose ps
           # Check that no services are in a failed state
           if docker compose ps | grep -E "(Exit|Restarting)"; then

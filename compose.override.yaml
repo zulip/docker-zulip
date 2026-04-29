@@ -37,8 +37,8 @@ services:
       ##     https://zulip.readthedocs.io/en/stable/production/settings.html
       ##
       ## The following two settings are required:
-      SETTING_EXTERNAL_HOST: "zulip.example.com"
-      SETTING_ZULIP_ADMINISTRATOR: "zulip-admin@example.com"
+      SETTING_EXTERNAL_HOST: "zulip.example.net"
+      SETTING_ZULIP_ADMINISTRATOR: "zulip-admin@example.net"
 
       ## Most deploys do SSL termination outside of the container; Zulip
       ## defaults to only serving traffic over HTTP. If you'd like this
@@ -50,7 +50,7 @@ services:
       ##
       ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-ssl.html
       ##
-      # CERTIFICATES: "certbot"
+      CERTIFICATES: "certbot"
 
       ## If you're using a reverse proxy (as is required if you leave
       ## CERTIFICATES unset), you will also need to provide the comma-separated
