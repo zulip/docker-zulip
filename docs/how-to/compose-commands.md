@@ -30,3 +30,4 @@ We provide a helper `manage.py` in the repository file to make this simpler:
 
 - [`docker compose exec` reference](https://docs.docker.com/reference/cli/docker/compose/exec/)
 - {doc}`zulip:production/management-commands`
+- {doc}`/reference/app-commands`
