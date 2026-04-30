@@ -38,6 +38,17 @@ backed up separately.
 A `cron`-style string describing the cadence on which automated database backups
 will be taken. Defaults to daily at 3:30am UTC (i.e. `30 3 * * *`).
 
+(debug)=
+
+### `DEBUG`
+
+Set to `true` or `True` (case-sensitive) to make `entrypoint.sh` run with
+`set -x` and `set -o functrace`, printing every command and function call
+the entrypoint executes. Useful when diagnosing why first-boot configuration
+or a `CERTIFICATES` setup is failing; otherwise leave unset, since the trace
+output is voluminous and includes interpolated secret values in commands like
+`PGPASSWORD="…" pg_dump`.
+
 (certificates)=
 
 ### `CERTIFICATES`
