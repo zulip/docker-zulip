@@ -35,11 +35,11 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
    ```
 
    We recommend always upgrading to the latest minor release within a major
-   release series. We do not publish floating tags such as `latest`, `12`, or
-   `12.0`; pin to a specific `<zulip-version>-<docker-revision>` tag, and bump
-   it deliberately. The
+   release series. The
    [GitHub releases page](https://github.com/zulip/docker-zulip/releases)
-   lists available tags.
+   lists available tags. See {doc}`/reference/versioning` for an explanation
+   of the tag format and why no floating tags (such as `latest` or `12`) are
+   published.
 
 1. Update this repository to the corresponding `docker-zulip` version.
    Your `compose.override.yaml` is not tracked in git and will not be
