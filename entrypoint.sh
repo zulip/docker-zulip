@@ -695,26 +695,15 @@ appRestore() {
     echo "Restore process succeeded. Exiting."
     exit 0
 }
-appCerts() {
-    configureCerts
-}
 appHelp() {
     echo "Available commands:"
     echo "> app:help     - Show this help menu and exit"
-    echo "> app:version  - Container Zulip server version"
     echo "> app:managepy - Run Zulip's manage.py script (defaults to \"shell\")"
     echo "> app:backup   - Create backups of Zulip instances"
     echo "> app:restore  - Restore backups of Zulip instances"
-    echo "> app:certs    - Create self-signed certificates"
     echo "> app:run      - Run the Zulip server"
     echo "> app:init     - Run initial setup of Zulip server"
     echo "> [COMMAND]    - Run given command with arguments in shell"
-}
-appVersion() {
-    local ZULIP_VERSION
-    ZULIP_VERSION="$(su zulip -c "cd ~/deployments/current && python3 -c 'import version; print(version.ZULIP_VERSION)'")"
-    echo "This container contains Zulip Server $ZULIP_VERSION"
-    exit 0
 }
 # END app functions
 
@@ -736,14 +725,8 @@ case "$1" in
         shift 1
         appRestore "$@"
         ;;
-    app:certs)
-        appCerts
-        ;;
     app:help)
         appHelp
-        ;;
-    app:version)
-        appVersion
         ;;
     *)
         exec "$@" || appHelp
