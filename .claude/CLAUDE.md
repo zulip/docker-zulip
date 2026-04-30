@@ -74,7 +74,7 @@ The entrypoint supports three configuration modes:
 - **Certificate modes**: manual, certbot/Let's Encrypt, self-signed,
   or HTTP-only (`DISABLE_HTTPS`).
 - **App commands**: `app:run`, `app:init`, `app:managepy`,
-  `app:backup`, `app:restore`, `app:certs`, `app:help`.
+  `app:backup`, `app:restore`, `app:help`.
 
 ## Helm Chart Conventions (helm/zulip/)
 
