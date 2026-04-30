@@ -7,6 +7,18 @@
    cd docker-zulip
    ```
 
+1. Create your local configuration file from the example:
+
+   ```bash
+   cp compose.override.yaml.example compose.override.yaml
+   ```
+
+   `compose.override.yaml` is where deployment-specific configuration
+   lives, and is not tracked in git so that pulling repository updates
+   never conflicts with your local edits. The example file is the
+   starting template; future upgrades may add new commented-out
+   options to it that you can copy across.
+
 1. Configure the server settings; see {doc}`compose-settings`.
 
 1. Configure {doc}`compose-ssl`.
