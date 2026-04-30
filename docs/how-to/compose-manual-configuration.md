@@ -1,7 +1,7 @@
 # Compose: Providing settings using files
 
-With the Docker Compose deployment, the `MANUAL_CONFIGURATION` and
-`LINK_SETTINGS_TO_DATA` environment settings can be used to provide
+With the Docker Compose deployment, the {ref}`manual-configuration`
+and {ref}`link-settings-to-data` environment settings can be used to provide
 {doc}`settings <zulip:production/settings>`, and possibly secrets, manually.
 This takes the place of [providing `SETTING_` environment values](compose-settings).
 

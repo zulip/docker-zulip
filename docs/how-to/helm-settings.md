@@ -70,7 +70,8 @@ for production deployments.
 ## Post-setup scripts
 
 The Docker entrypoint runs scripts from `/data/post-setup.d/` after the
-application's setup phase completes. You can add scripts using
+application's setup phase completes (controlled by
+{ref}`zulip-run-post-setup-scripts`). You can add scripts using
 `postSetup.scripts` in your values file:
 
 ```yaml

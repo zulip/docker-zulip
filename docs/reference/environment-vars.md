@@ -19,6 +19,8 @@ mapped to Zulip secrets, in `/etc/zulip/zulip-secrets.conf`.
 
 ## Specific settings
 
+(auto-backup-enabled)=
+
 ### `AUTO_BACKUP_ENABLED`
 
 If set to True (the default), then will take database backups on an interval
@@ -28,6 +30,8 @@ their timestamp, in `/data/backups/`.
 Note that these backups contain _only_ the database. The configuration and
 user-uploaded files (stored by default in the named Docker volume) must be
 backed up separately.
+
+(auto-backup-interval)=
 
 ### `AUTO_BACKUP_INTERVAL`
 
@@ -70,6 +74,8 @@ One of the following values:
 
 :::
 
+(link-settings-to-data)=
+
 ### `LINK_SETTINGS_TO_DATA`
 
 The server's configuration will be stored in the named Docker volume, under the
@@ -95,6 +101,8 @@ from.
 - {doc}`zulip:production/reverse-proxies`
 
 :::
+
+(manual-configuration)=
 
 ### `MANUAL_CONFIGURATION`
 
@@ -151,6 +159,8 @@ defaults to just `EmailAuthBackend`.
 
 :::
 
+(zulip-custom-settings)=
+
 ### `ZULIP_CUSTOM_SETTINGS`
 
 A string of additional Python code, which is appended to the generated
@@ -179,6 +189,8 @@ services:
 - [The default template `settings.py` file](zulip-repo-raw:zproject/prod_settings_template.py)
 
 :::
+
+(zulip-run-post-setup-scripts)=
 
 ### `ZULIP_RUN_POST_SETUP_SCRIPTS`
 
