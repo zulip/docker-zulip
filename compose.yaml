@@ -69,6 +69,10 @@ services:
     build:
       context: .
     ports:
+      # See the TLS/reverse proxy docs before changing the HTTP/HTTPS ports:
+      # https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-ssl.html
+      # See the incoming email docs before changing the SMTP port:
+      # https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-incoming-email.html
       - name: smtp
         target: 25
         published: 25
