@@ -28,14 +28,18 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
      tar czf /backup/backup.tar.gz -C /data .
    ```
 
-1. Pull the new image version, e.g. for `11.4` run:
+1. Pull the new image version, e.g. for `12.0` run:
 
    ```shell
-   docker pull zulip/docker-zulip:11.4-0
+   docker pull ghcr.io/zulip/zulip-server:12.0-0
    ```
 
    We recommend always upgrading to the latest minor release within a major
-   release series.
+   release series. We do not publish floating tags such as `latest`, `12`, or
+   `12.0`; pin to a specific `<zulip-version>-<docker-revision>` tag, and bump
+   it deliberately. The
+   [GitHub releases page](https://github.com/zulip/docker-zulip/releases)
+   lists available tags.
 
 1. Update this repository to the corresponding `docker-zulip` version.
    Your `compose.override.yaml` is not tracked in git and will not be
@@ -71,14 +75,14 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
 
 ## Upgrading from a Git repository
 
-1. Edit `compose.override.yml`, and specify the Git commit you'd like to build
-   the zulip container from, via the `ZULIP_GIT_REF` build argument. For
-   example:
+1. Edit `compose.override.yaml`, and specify the Git commit you'd like to
+   build the zulip container from, via the `ZULIP_GIT_REF` build argument.
+   For example:
 
    ```yaml
    services:
      zulip:
-       image: zulip/docker-zulip:main
+       image: ghcr.io/zulip/zulip-server:main
        build:
          args:
            # Change these if you want to build zulip from a different repo/branch
@@ -88,7 +92,7 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
 
    You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git repository,
    and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `main` or
-   `11.4` or `445932cc8613c77ced023125248c8b966b3b7528`).
+   `12.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
 
 2. Build the image:
 

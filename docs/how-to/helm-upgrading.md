@@ -15,14 +15,14 @@ automatically run the necessary database migrations.
 
    ```yaml
    image:
-     tag: "11.5-2"
+     tag: "12.0-0"
    ```
 
    Or pass it on the command line:
 
    ```bash
    helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip \
-       -f values-local.yaml --set image.tag=11.5-2
+       -f values-local.yaml --set image.tag=12.0-0
    ```
 
 1. Wait for the pod to restart and become ready:
