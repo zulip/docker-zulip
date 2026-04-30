@@ -44,3 +44,4 @@ helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip \
 
 - {doc}`helm-persistence`
 - {doc}`helm-commands`
+- {doc}`/reference/versioning`
