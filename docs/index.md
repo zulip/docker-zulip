@@ -34,11 +34,12 @@ with the [standard Zulip installer][normal-install].
 ## Docker runtime support
 
 We provide a Docker image, along with both [`docker compose`][docker-compose]
-configuration and [Helm charts][]. If you are new to Docker, we suggest starting
-with `docker compose`; see our [Docker Compose manual](manual/docker-compose.md)
-for background, and our [Docker Compose getting started
-how-to](how-to/compose-getting-started.md). For Kubernetes deployments, see our
-[Helm getting started how-to](how-to/helm-getting-started.md).
+configuration and [Helm charts][]. If you are new to Docker, we suggest
+starting with `docker compose`; see our {doc}`Docker Compose manual
+</manual/docker-compose>` for background, and our {doc}`Docker Compose
+getting started how-to </how-to/compose-getting-started>`. For Kubernetes
+deployments, see our {doc}`Helm getting started how-to
+</how-to/helm-getting-started>`.
 
 We do not support `docker-rootless` or `uDocker`; Zulip needs root access to set
 properties like the maximum number of open file descriptions via `ulimit` (which
