@@ -63,3 +63,4 @@ its own container: `redis`, `postgres`, `rabbitmq`, `memcached`.
 - {doc}`/how-to/compose-getting-started`
 - {doc}`/how-to/compose-secrets`
 - {doc}`/how-to/compose-settings`
+- {doc}`/reference/data-volume`
