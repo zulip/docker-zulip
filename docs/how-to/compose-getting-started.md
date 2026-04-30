@@ -78,3 +78,4 @@
 - {doc}`compose-settings`
 - {doc}`compose-ssl`
 - {doc}`compose-secrets`
+- {doc}`/reference/app-commands`

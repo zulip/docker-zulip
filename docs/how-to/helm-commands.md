@@ -59,3 +59,4 @@ Then visit `http://localhost:8080` in your browser.
 
 - [`kubectl exec` reference](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_exec/)
 - {doc}`zulip:production/management-commands`
+- {doc}`/reference/app-commands`
