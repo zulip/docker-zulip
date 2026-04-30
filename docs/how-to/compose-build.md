@@ -3,8 +3,9 @@
 ## Running custom scripts on startup
 
 The Docker image will execute all executable scripts found in
-`/data/post-setup.d/`. You can bind mount this directory from the host to
-perform additional steps when the image boots:
+`/data/post-setup.d/` (controlled by {ref}`zulip-run-post-setup-scripts`).
+You can bind mount this directory from the host to perform additional steps
+when the image boots:
 
 ```yaml
 services:
