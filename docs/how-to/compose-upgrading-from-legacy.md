@@ -122,9 +122,10 @@ new image.
    The compose configuration file is now `compose.yaml` (not
    `docker-compose.yml`).
 
-1. **Move your secrets into a `.env` file.** See {doc}`compose-secrets`
-   for the full mapping; copy each `ZULIP__*` value out of your old
-   `docker-compose.yml.legacy-backup` and into `.env`.
+1. **Move your secrets into a `.env` file.** See
+   {ref}`secrets-env-file` for the full mapping; copy each `ZULIP__*`
+   value out of your old `docker-compose.yml.legacy-backup` and into
+   `.env`.
 
 1. **Build your override file from the example, then translate
    settings:**

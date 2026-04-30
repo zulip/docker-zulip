@@ -11,6 +11,8 @@ files on disk.
 
 [ssrf]: https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
 
+(secrets-env-file)=
+
 ## Store secrets in a `.env` file
 
 The simplest deployment technique is to provide secrets in the environment, most

@@ -133,8 +133,8 @@ know which `X-Forwarded-*` headers to trust.
    from the Zulip container. You can also determine the subnet that the reverse
    proxies will be on, and specify that (using CIDR notation).
 
-1. Set the `LOADBALANCER_IPS` environment variable for the container to the IP
-   address (or CIDR IP address range) of your reverse proxy:
+1. Set the {ref}`loadbalancer-ips` environment variable for the container to
+   the IP address (or CIDR IP address range) of your reverse proxy:
 
    ```yaml
    services:
@@ -144,7 +144,7 @@ know which `X-Forwarded-*` headers to trust.
    ```
 
    Alternately, you can configure Docker Zulip to automatically trust its NAT
-   gateway IP address, using `TRUST_GATEWAY_IP`:
+   gateway IP address, using {ref}`trust-gateway-ip`:
 
    ```yaml
    services:
