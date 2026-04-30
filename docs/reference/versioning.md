@@ -40,7 +40,7 @@ packaging on Docker Hub. The legacy packaging is now end-of-life, so
 the prefix has been dropped: 12.x and later releases of the GHCR image
 use bare-numeric git tags. Both sets of older tags remain in place for
 historical reference. See
-{doc}`/how-to/compose-upgrading` for how to migrate from
+{doc}`/how-to/compose-upgrading-from-legacy` for how to migrate from
 the Docker Hub packaging.
 
 ## Helm chart versions

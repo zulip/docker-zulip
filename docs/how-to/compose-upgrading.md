@@ -9,6 +9,14 @@ necessary database migrations.
 If you ever find you need to downgrade your Zulip server, you'll need to use
 `manage.py migrate` to downgrade the database schema manually.
 
+:::{tip}
+If you're moving from the legacy `zulip/docker-zulip` packaging on
+Docker Hub (Zulip Server 11.x and earlier), see
+{doc}`compose-upgrading-from-legacy` first — it covers the one-time
+configuration changes you'll need to make before you can use this
+flow.
+:::
+
 ## Upgrading to a release
 
 1. (Optional) Upgrading does not delete your data, but it's generally good
@@ -106,83 +114,3 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
    ```shell
    docker compose up
    ```
-
-## Upgrading from `zulip/docker-zulip` (11.x and earlier)
-
-Zulip's Docker deployment received a number of breaking changes and improvements
-when it moved from `zulip/docker-zulip` on Docker Hub to
-`ghcr.io/zulip/zulip-server`.
-
-Specifically:
-
-- Local configurations are expected to be placed in `compose.override.yaml`
-
-- The default configuration moved to being HTTP-only, to reflect that many
-  Docker deployments are behind existing proxies. `DISABLE_HTTPS` and
-  `SSL_CERTIFICATE_GENERATION` have been removed, and replaced with
-  `CERTIFICATES`; see {doc}`compose-ssl`.
-
-- Secrets are no longer environment variables in two places in `compose.yaml`,
-  but rather have been moved to use Docker secrets. See {doc}`compose-secrets`.
-
-- `DB_HOST` and `DB_HOST_PORT` have been replaced by
-  `SETTING_REMOTE_POSTGRES_HOST` and `SETTING_REMOTE_POSTGRES_PORT`,
-  respectively, to align more straightforwardly with standard Zulip settings.
-
-- `DB_USER` and `DB_NAME` have been replaced with
-  `CONFIG_postgresql__database_user` and `CONFIG_postgresql__database_name`,
-  respectively.
-
-- `REMOTE_POSTGRES_SSLMODE` has been removed, as the usual spelling of
-  `SETTING_REMOTE_POSTGRES_SSLMODE` is more straightforward.
-
-- `SPECIAL_SETTING_DETECTION_MODE` has been removed, since its behavior was
-  confusing and at odds with its name.
-
-- `NGINX_PROXY_BUFFERING` has been removed, since setting it could only break
-  things.
-
-- `NGINX_WORKERS` has been replaced with the generic
-  `CONFIG_application_server__nginx_worker_processes`.
-
-- `PROXY_ALLOW_ADDRESSES` and `PROXY_ALLOW_RANGES` have been replaced with the
-  generic `CONFIG_http_proxy__allow_addresses` and
-  `CONFIG_http_proxy__allow_ranges`.
-
-- `QUEUE_WORKERS_MULTIPROCESS` has been replaced with the generic
-  `CONFIG_application_server__queue_workers_multiprocess`.
-
-- Contents of the named `zulip` Docker volume have been reorganized;
-  certificates are stored in `certs/` subdirectories (`self-signed`, `certbot`,
-  and `manual`) and `LINK_SETTINGS_TO_DATA` contents are stored in `etc-zulip/`
-  and not `settings/etc-zulip/`. Files should be automatically moved to these
-  new locations on first startup.
-
-### Recommended upgrade steps
-
-1. Copy your secrets into a file named `.env`; see {doc}`compose-secrets`.
-
-1. Build a new `compose.override.yaml` file, based on the local edits you had to `docker-compose.yaml`:
-
-   ```yaml
-   secrets:
-     zulip__postgres_password:
-       environment: "ZULIP__POSTGRES_PASSWORD"
-     zulip__memcached_password:
-       environment: "ZULIP__MEMCACHED_PASSWORD"
-     zulip__rabbitmq_password:
-       environment: "ZULIP__RABBITMQ_PASSWORD"
-     zulip__redis_password:
-       environment: "ZULIP__REDIS_PASSWORD"
-     zulip__secret_key:
-       environment: "ZULIP__SECRET_KEY"
-     zulip__email_password:
-       environment: "ZULIP__EMAIL_PASSWORD"
-   services:
-     zulip:
-       environment:
-         ## Include all settings starting with SETTING_ in your docker-compose.yaml
-   ```
-
-1. If you had _not_ set `DISABLE_HTTPS`, or had set `SSL_CERTIFICATE_GENERATION`,
-   you will need to set `CERTIFICATES`; see {doc}`compose-ssl`.

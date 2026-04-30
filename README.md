@@ -26,7 +26,7 @@ moderately increases the effort required to install, maintain, and
 upgrade a Zulip installation, compared with the [standard Zulip
 installer][normal-install].
 
-[upgrade]: https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-upgrading.html#upgrading-from-zulip-docker-zulip-11-x-and-earlier
+[upgrade]: https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-upgrading-from-legacy.html
 [docker-hub-docs]: https://github.com/zulip/docker-zulip/blob/11.x/README.md
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 [zulip-architecture]: https://zulip.readthedocs.io/en/latest/overview/architecture-overview.html

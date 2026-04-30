@@ -27,7 +27,7 @@ deploying services using Docker. Deploying with Docker moderately increases the
 effort required to install, maintain, and upgrade a Zulip installation, compared
 with the [standard Zulip installer][normal-install].
 
-[upgrade]: how-to/compose-upgrading.md#upgrading-from-zulipdocker-zulip-11x-and-earlier
+[upgrade]: how-to/compose-upgrading-from-legacy.md
 [docker-hub-docs]: https://github.com/zulip/docker-zulip/blob/11.x/README.md
 [normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 
