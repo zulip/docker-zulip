@@ -34,6 +34,8 @@ backed up separately.
 A `cron`-style string describing the cadence on which automated database backups
 will be taken. Defaults to daily at 3:30am UTC (i.e. `30 3 * * *`).
 
+(certificates)=
+
 ### `CERTIFICATES`
 
 One of the following values:
