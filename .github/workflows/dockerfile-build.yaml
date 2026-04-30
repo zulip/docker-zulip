@@ -6,7 +6,12 @@ on:
     branches:
       - main
     tags:
-      - "ghcr-[0-9]*.[0-9]*-[0-9]*"
+      # Image-release tags are bare-numeric: <zulip-version>-<docker-revision>.
+      # This pattern also matches existing legacy tags (e.g. 9.4-0,
+      # 11.6-0); tag pushes only fire on creation, so existing legacy
+      # tags do not re-trigger the workflow as long as they are not
+      # force-pushed.
+      - "[0-9]*.[0-9]*-[0-9]*"
 
 permissions: {}
 
@@ -46,7 +51,7 @@ jobs:
           images: ${{ env.PACKAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
+            type=match,pattern=(\d+\.\d+-\d+),group=1
           labels: |
             org.opencontainers.image.description=Zulip Server
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
@@ -125,7 +130,7 @@ jobs:
           images: ${{ env.PACKAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=match,pattern=ghcr-(\d+\.\d+-\d+),group=1
+            type=match,pattern=(\d+\.\d+-\d+),group=1
           annotations: |
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/zulip/docker-zulip/${{ github.sha }}/README.md
             org.opencontainers.image.description=Zulip Server
