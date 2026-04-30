@@ -1,13 +1,19 @@
 # Compose: Upgrading
 
-You can upgrade your Zulip installation to any newer version of Zulip with the
-following instructions. At a high level, the strategy is to download a new
-image, stop the `zulip` container, and then boot it back up with the new
-image. When the upgraded `zulip` container boots the first time, it will run the
-necessary database migrations.
+Upgrades work by checking out a newer release of this repository,
+which updates `compose.yaml` to reference the new image tag, then
+pulling that image and restarting the container. When the upgraded
+`zulip` container boots the first time, it runs the necessary database
+migrations.
 
-If you ever find you need to downgrade your Zulip server, you'll need to use
-`manage.py migrate` to downgrade the database schema manually.
+The git ref of this repository is the version-of-record for your
+deployment: pinning a specific tag like `12.0-0` ensures that the
+`compose.yaml`, the example override file, and the image tag are all
+mutually consistent. See {doc}`/reference/versioning` for a full
+explanation of the tag scheme.
+
+If you ever find you need to downgrade your Zulip server, you'll need
+to use `manage.py migrate` to downgrade the database schema manually.
 
 :::{tip}
 If you're moving from the legacy `zulip/docker-zulip` packaging on
@@ -19,11 +25,11 @@ flow.
 
 ## Upgrading to a release
 
-1. (Optional) Upgrading does not delete your data, but it's generally good
-   practice to [back up your Zulip data][backups] before upgrading to make
-   switching back to the old version simple.
+1. (Optional) Upgrading does not delete your data, but it's generally
+   good practice to [back up your Zulip data][backups] before
+   upgrading to make switching back to the old version simple.
 
-   You can back up your database onto the Docker Volume using:
+   You can back up your database onto the Docker volume using:
 
    ```shell
    docker compose exec zulip /sbin/entrypoint.sh app:backup
@@ -36,56 +42,50 @@ flow.
      tar czf /backup/backup.tar.gz -C /data .
    ```
 
-1. Pull the new image version, e.g. for `12.0` run:
+1. Check out the release you want to upgrade to, on a local branch
+   that you can re-point at each subsequent release. Tag names match
+   the image tag exactly:
 
    ```shell
-   docker pull ghcr.io/zulip/zulip-server:12.0-0
+   git fetch --tags
+   git checkout -B release 12.0-0
    ```
 
-   We recommend always upgrading to the latest minor release within a major
-   release series. The
+   The
    [GitHub releases page](https://github.com/zulip/docker-zulip/releases)
-   lists available tags. See {doc}`/reference/versioning` for an explanation
-   of the tag format and why no floating tags (such as `latest` or `12`) are
-   published.
+   lists available tags. We recommend always upgrading to the latest
+   minor release within a major release series. We do not publish
+   floating tags; see {doc}`/reference/versioning`.
 
-1. Update this repository to the corresponding `docker-zulip` version.
-   Your `compose.override.yaml` is not tracked in git and will not be
-   touched by the pull. To pick up any new commented-out options that
-   the new release added to the example file, diff them:
+   :::{note}
+   `compose.override.yaml` is gitignored, so the checkout will not
+   touch your local edits. To pick up any new commented-out options
+   that the new release added to the example file, diff them:
 
    ```shell
    diff compose.override.yaml.example compose.override.yaml
    ```
 
    Copy any new lines you want into your `compose.override.yaml`.
-
-   :::{note}
-   If you cloned the repository before `compose.override.yaml` became a
-   gitignored file, run this once to keep your local edits and let
-   future pulls work cleanly:
-
-   ```shell
-   cp compose.override.yaml compose.override.yaml.bak
-   git rm --cached compose.override.yaml
-   git checkout compose.override.yaml.example
-   mv compose.override.yaml.bak compose.override.yaml
-   ```
-
    :::
 
-1. You can execute the upgrade by running:
+1. Pull the new image and restart the container:
 
    ```shell
-   # Restart the zulip container
-   docker compose up
+   docker compose pull
+   docker compose up -d
    ```
+
+[backups]: https://zulip.readthedocs.io/en/latest/production/export-and-import.html#backups
 
 ## Upgrading from a Git repository
 
-1. Edit `compose.override.yaml`, and specify the Git commit you'd like to
-   build the zulip container from, via the `ZULIP_GIT_REF` build argument.
-   For example:
+You can build the image yourself from a specific Zulip git ref —
+useful for testing a development branch or running a local fork.
+
+1. Edit `compose.override.yaml`, and specify the Git commit you'd like
+   to build the zulip container from, via the `ZULIP_GIT_REF` build
+   argument. For example:
 
    ```yaml
    services:
@@ -98,19 +98,47 @@ flow.
            ZULIP_GIT_REF: main
    ```
 
-   You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git repository,
-   and `ZULIP_GIT_REF` to be any ref name in that repository (e.g. `main` or
-   `12.0` or `445932cc8613c77ced023125248c8b966b3b7528`).
+   You can set `ZULIP_GIT_URL` to any clone of the zulip/zulip git
+   repository, and `ZULIP_GIT_REF` to be any ref name in that
+   repository (e.g. `main` or `12.0` or
+   `445932cc8613c77ced023125248c8b966b3b7528`).
 
-2. Build the image:
+1. Build the image:
 
    ```shell
    docker compose build zulip
    ```
 
-3. Update the running Docker Compose instance with that image; this will run
-   database migrations, etc:
+1. Update the running Docker Compose instance with that image; this
+   will run database migrations, etc:
 
    ```shell
-   docker compose up
+   docker compose up -d
    ```
+
+## Troubleshooting
+
+### `git checkout` refuses with "local changes would be overwritten"
+
+If you cloned this repository before `compose.override.yaml` became
+gitignored, your `compose.override.yaml` is still a tracked file with
+local edits, and `git checkout` refuses to overwrite them. Set the
+file aside, reset the tracked version so the checkout can proceed,
+do the checkout, then move your edits back:
+
+```shell
+cp compose.override.yaml compose.override.yaml.local-backup
+git checkout HEAD -- compose.override.yaml
+git checkout -B release 12.0-0
+mv compose.override.yaml.local-backup compose.override.yaml
+```
+
+After the new branch is checked out, `compose.override.yaml` is no
+longer tracked (the release tag has the file gitignored), so the
+final `mv` puts your edits in the right place — untracked on disk,
+picked up by `docker compose` like any other override file.
+
+## See also
+
+- {doc}`compose-upgrading-from-legacy`
+- {doc}`/reference/versioning`
