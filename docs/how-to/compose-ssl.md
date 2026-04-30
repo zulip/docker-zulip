@@ -4,7 +4,8 @@ Zulip requires that all content be served encrypted using SSL/TLS, over
 HTTPS. By default, the Zulip Docker container serves unencrypted content on port
 80, and expects to be placed behind a proxy; however, there are a number of
 other deployment options to help get up and running without configuring such a
-proxy.
+proxy. See {doc}`/reference/ports` for a summary of which ports the container
+serves which traffic on.
 
 ## Using a self-signed certificates
 

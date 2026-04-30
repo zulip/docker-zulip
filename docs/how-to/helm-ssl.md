@@ -140,3 +140,4 @@ switches from `http` (port 80) to `https` (port 443) automatically.
 - [cert-manager documentation](https://cert-manager.io/docs/)
 - {doc}`helm-settings`
 - {doc}`helm-getting-started`
+- {doc}`/reference/ports`
