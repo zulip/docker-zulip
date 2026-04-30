@@ -84,3 +84,4 @@ sidecars:
 - {doc}`helm-upgrading`
 - {doc}`helm-commands`
 - {doc}`/reference/app-commands`
+- {doc}`/reference/data-volume`
