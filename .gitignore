@@ -10,6 +10,7 @@
 /.env
 
 # Local configuration
+/compose.override.yaml
 /helm/zulip/values-local.yaml
 
 # Cached sub-charts

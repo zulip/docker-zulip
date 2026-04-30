@@ -37,9 +37,30 @@ If you ever find you need to downgrade your Zulip server, you'll need to use
    We recommend always upgrading to the latest minor release within a major
    release series.
 
-1. Update this repository to the corresponding `docker-zulip` version. Your
-   changes to `compose.override.yaml` should always take preference over those
-   in the repository.
+1. Update this repository to the corresponding `docker-zulip` version.
+   Your `compose.override.yaml` is not tracked in git and will not be
+   touched by the pull. To pick up any new commented-out options that
+   the new release added to the example file, diff them:
+
+   ```shell
+   diff compose.override.yaml.example compose.override.yaml
+   ```
+
+   Copy any new lines you want into your `compose.override.yaml`.
+
+   :::{note}
+   If you cloned the repository before `compose.override.yaml` became a
+   gitignored file, run this once to keep your local edits and let
+   future pulls work cleanly:
+
+   ```shell
+   cp compose.override.yaml compose.override.yaml.bak
+   git rm --cached compose.override.yaml
+   git checkout compose.override.yaml.example
+   mv compose.override.yaml.bak compose.override.yaml
+   ```
+
+   :::
 
 1. You can execute the upgrade by running:
 
