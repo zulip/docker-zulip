@@ -14,6 +14,7 @@ compose-authentication
 compose-incoming-email
 compose-outgoing-proxy
 compose-upgrading
+compose-upgrading-from-legacy
 compose-commands
 compose-existing-services
 compose-build
