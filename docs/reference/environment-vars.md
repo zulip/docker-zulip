@@ -82,6 +82,8 @@ The server's configuration will be stored in the named Docker volume, under the
 
 :::
 
+(loadbalancer-ips)=
+
 ### `LOADBALANCER_IPS`
 
 The comma-separated list of IP addresses to trust the `X-Forwarded-For` headers
@@ -123,6 +125,8 @@ the heavier-weight multiprocess mode. Set to `True` or `False` to override the
 automatic calculation.
 
 [memory-limit]: https://docs.docker.com/reference/compose-file/deploy/#memory
+
+(trust-gateway-ip)=
 
 ### `TRUST_GATEWAY_IP`
 

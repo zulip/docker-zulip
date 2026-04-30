@@ -123,7 +123,7 @@ Consult your cloud provider's documentation for the appropriate annotations.
 
 While not recommended for Kubernetes deployments (since TLS is normally handled
 by the Ingress or load balancer), the chart also supports TLS termination inside
-the Zulip container itself by setting `CERTIFICATES`:
+the Zulip container itself by setting {ref}`certificates`:
 
 ```yaml
 zulip:
