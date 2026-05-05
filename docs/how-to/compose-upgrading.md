@@ -26,22 +26,17 @@ flow.
 ## Upgrading to a release
 
 1. (Optional) Upgrading does not delete your data, but it's generally
-   good practice to
-   {doc}`back up your Zulip data <zulip:production/export-and-import>`
-   before upgrading to make switching back to the old version simple.
-
-   You can back up your database onto the Docker volume using:
+   good practice to back up before upgrading. Refresh the database
+   dump and snapshot the `/data` volume:
 
    ```bash
    docker compose exec zulip /sbin/entrypoint.sh app:backup
-   ```
-
-   You can back up the contents of the Docker named volume itself:
-
-   ```bash
    docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
      tar czf /backup/backup.tar.gz -C /data .
    ```
+
+   See {doc}`/reference/data-volume` for the underlying backup model
+   and the Helm equivalent.
 
 1. Check out the release you want to upgrade to, on a local branch
    that you can re-point at each subsequent release. Tag names match

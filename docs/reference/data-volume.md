@@ -19,21 +19,55 @@ same.
 | `/data/zulip-secrets.conf` | `zulip-secrets.conf` when {ref}`link-settings-to-data` is _not_ set; symlinked into `/etc/zulip/`           | First boot                   |
 | `/data/post-setup.d/`      | Operator-supplied scripts run after each boot's setup phase, see {ref}`zulip-run-post-setup-scripts`        | Operator                     |
 
-## Backup considerations
+## Backup model
 
-The `app:backup` command (and the cron job driven by
-{ref}`auto-backup-enabled` / {ref}`auto-backup-interval`) writes
-PostgreSQL dumps to `/data/backups/`, but a full backup of the
-deployment includes everything else under `/data` as well —
-particularly `/data/uploads/` (when the local upload backend is in
-use), `/data/etc-zulip/` (under `LINK_SETTINGS_TO_DATA`) or
-`/data/zulip-secrets.conf` (otherwise), and the certificates.
+The `/data` volume is the unit of backup: a snapshot of it captures
+everything Zulip needs to restore a deployment. That works because
+`/data/backups/` already holds a recent `pg_dump` written there by
+{doc}`app-commands`'s `app:backup` command. By default `app:backup`
+runs daily via the {ref}`auto-backup-enabled` cron job, so a `/data`
+snapshot taken at any time includes a database state from at most one
+{ref}`auto-backup-interval` ago, alongside the uploads, certificates,
+and configuration also living under `/data`.
 
-To back up the entire volume rather than just the database, see the
-volume-snapshot command in {doc}`/how-to/compose-upgrading` or
-{doc}`/how-to/helm-persistence`. To avoid backing up uploads at all,
-configure Zulip to use {doc}`S3-compatible storage
-<zulip:production/upload-backends>` instead.
+The live PostgreSQL data directory lives in a separate volume
+(`postgresql-14` in the Compose deployment) and is _not_ safe to
+snapshot directly while the database is running; the `app:backup`
+artifact is the consistent, restorable form.
+
+To get the freshest possible database state in the snapshot, refresh
+`app:backup` immediately before snapshotting.
+
+(compose-volume-snapshot)=
+
+### Compose: snapshot via `tar`
+
+```bash
+docker compose exec zulip /sbin/entrypoint.sh app:backup
+docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
+  tar czf /backup/backup.tar.gz -C /data .
+```
+
+(helm-volume-snapshot)=
+
+### Helm: `VolumeSnapshot`
+
+Kubernetes'
+[`VolumeSnapshot`](https://kubernetes.io/docs/concepts/storage/volume-snapshots/)
+CRD is the standard way to capture the chart's PVC. Most operators
+wrap `VolumeSnapshot` creation in a higher-level backup orchestrator
+that handles retention, off-cluster storage, and scheduling;
+[Velero](https://velero.io/) is the standard open-source option, and
+commercial alternatives also exist. See
+{doc}`/how-to/helm-persistence` for the chart-side details.
+
+### Avoiding upload backups
+
+Configuring Zulip to use
+{doc}`S3-compatible storage <zulip:production/upload-backends>` keeps
+user uploads out of the PVC entirely, shrinking the snapshot footprint
+and letting snapshot retention focus on configuration and database
+state.
 
 ## Sizing
 

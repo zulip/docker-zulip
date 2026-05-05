@@ -35,28 +35,42 @@ references the named claim directly.
 
 ## Backing up
 
-Zulip's database backup command creates a backup in `/data/backups/`:
+The PVC mounted at `/data` is the unit of backup. A
+[`VolumeSnapshot`](https://kubernetes.io/docs/concepts/storage/volume-snapshots/)
+captures everything Zulip needs to restore a deployment, because
+`/data/backups/` already holds a recent `pg_dump` written there by
+`app:backup` on a daily schedule (see {ref}`auto-backup-enabled`).
+
+Most operators drive snapshot creation through a higher-level
+orchestrator that handles retention, off-cluster storage, and
+scheduling. [Velero](https://velero.io/) is the standard open-source
+option, and commercial alternatives also exist. The `VolumeSnapshot`
+CRD is also usable directly when no orchestrator is in play.
+
+For coherence with the freshest possible database dump, refresh
+`app:backup` immediately before snapshotting:
 
 ```bash
-kubectl exec zulip-0 -c zulip -- \
-    /sbin/entrypoint.sh app:backup
+kubectl exec zulip-0 -c zulip -- /sbin/entrypoint.sh app:backup
 ```
 
-To copy the backup to your local machine:
+If you need just the database dump out-of-band:
 
 ```bash
 kubectl cp zulip-0:/data/backups/ ./backups/ -c zulip
 ```
 
-Note that these backups contain _only_ the database. If you use the default
-local upload backend, user-uploaded files (stored in `/data/uploads/`) must be
-backed up separately. Alternatively, Zulip supports
-[S3-compatible storage](inv:zulip:*#production/upload-backends) as a native
-upload backend, which avoids the need to back up local uploads entirely.
+To avoid backing up uploads at all, configure Zulip to use
+[S3-compatible storage](inv:zulip:*#production/upload-backends) as a
+native upload backend, which keeps the PVC small.
+
+See {doc}`/reference/data-volume` for the cross-deployment backup
+model.
 
 ## Off-site database backups
 
-For continuous off-site database backups, Zulip supports
+For continuous off-site database backups, independent of the
+volume-snapshot path, Zulip supports
 [WAL-based archiving via wal-g](inv:zulip:*#production/export-and-import),
 which streams write-ahead logs to S3 for point-in-time recovery.
 
