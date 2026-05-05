@@ -25,10 +25,15 @@ pre-existing external services instead.
    The `sslmode` setting is optional and maps to the PostgreSQL `sslmode`
    connection parameter.
 
-1. Ensure the external PostgreSQL server has the required extensions installed.
-   Zulip needs the `pgroonga` and `tsearch_extras` extensions. The
-   `zulip/zulip-postgresql` Docker image includes these, but a standard
-   PostgreSQL server may not.
+1. Default Zulip uses PostgreSQL's built-in full-text search and needs
+   no extensions, but search quality depends on the dictionary files
+   the server has available for stemming. The `zulip/zulip-postgresql`
+   image bundles a useful set; managed-database providers (e.g.,
+   Amazon RDS) often don't ship those dictionaries and produce
+   lower-quality results. To enable
+   {doc}`PGroonga <zulip:subsystems/full-text-search>` for
+   multi-language full-text search, the external server needs the
+   `pgroonga` extension available.
 
 1. Create the `zulip` database and user on your external server before
    installing the chart.

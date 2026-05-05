@@ -16,6 +16,16 @@ rest of the Zulip services.
 1. Update your external service (e.g. PostgreSQL server) to be accessible via
    the `zulip` network. How to do this will vary based on your deployment.
 
+1. Default Zulip uses PostgreSQL's built-in full-text search and needs
+   no extensions, but search quality depends on the dictionary files
+   the server has available for stemming. The `zulip/zulip-postgresql`
+   image bundles a useful set; managed-database providers (e.g.,
+   Amazon RDS) often don't ship those dictionaries and produce
+   lower-quality results. To enable
+   {doc}`PGroonga <zulip:subsystems/full-text-search>` for
+   multi-language full-text search, the external server needs the
+   `pgroonga` extension available.
+
 1. Create the user and database in the external service, if necessary.
 
 1. Update `compose.override.yaml` to update the list of service dependencies,
