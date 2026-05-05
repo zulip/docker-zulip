@@ -49,17 +49,17 @@ timestamped dump to `$DATA_DIR/backups/`:
 docker compose exec zulip /sbin/entrypoint.sh app:backup
 ```
 
-```{important}
-This command backs up only the PostgreSQL database. Uploaded files
-(in `/data/uploads/` when the local upload backend is in use),
-configuration in `/data/etc-zulip/`, and `zulip-secrets.conf` are
-**not** included. For a complete backup that captures all of those,
-see Zulip's {doc}`zulip:production/export-and-import`.
-```
+This command's output is the database half of a complete backup: a
+snapshot of the `/data` volume captures both the dump it just wrote
+and the rest of the deployment's persistent state (uploads,
+configuration, certificates, secrets). See
+{doc}`/reference/data-volume` for the full backup model and the
+volume-snapshot recipes.
 
-When `AUTO_BACKUP_ENABLED` is left at its default, this same command
-runs on the schedule set by `AUTO_BACKUP_INTERVAL`; see
-{ref}`auto-backup-enabled` and {ref}`auto-backup-interval`.
+`app:backup` runs on a daily schedule by default via
+{ref}`auto-backup-enabled` and {ref}`auto-backup-interval`, so the
+`/data` volume always contains a recent dump for a snapshot to pick
+up.
 
 ## `app:restore`
 
@@ -75,12 +75,12 @@ recreates existing tables (`pg_restore --clean --if-exists`); a
 10-second countdown precedes the destructive phase so it can be
 aborted with Ctrl-C.
 
-```{important}
-As with `app:backup`, this command restores only the database. It
-does not restore uploads, configuration, or secrets, and it cannot
-be used to migrate from a Zulip export archive. For those, see
+To restore the rest of a deployment alongside the database, restore
+the `/data` volume from a snapshot first; the dump file `app:restore`
+consumes is one of the files inside that volume. See
+{doc}`/reference/data-volume`. To migrate from a Zulip export archive
+(a different tool with different semantics), see
 {doc}`zulip:production/export-and-import`.
-```
 
 ## `app:help`
 
