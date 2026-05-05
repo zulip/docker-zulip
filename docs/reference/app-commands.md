@@ -20,7 +20,7 @@ start the long-running server. Use it before the first
 `docker compose up` to confirm the configuration parses, that the
 database is reachable, and that schema migrations succeed:
 
-```shell
+```bash
 docker compose run --rm zulip app:init
 ```
 
@@ -32,7 +32,7 @@ See {doc}`/how-to/compose-getting-started`.
 Wraps a `manage.py` invocation. The most common use is on an
 ephemeral container when the `zulip` service isn't running:
 
-```shell
+```bash
 docker compose run --rm zulip app:managepy <subcommand> [args...]
 ```
 
@@ -45,7 +45,7 @@ a fresh container per invocation.
 Runs `pg_dump` against the configured PostgreSQL host and writes a
 timestamped dump to `$DATA_DIR/backups/`:
 
-```shell
+```bash
 docker compose exec zulip /sbin/entrypoint.sh app:backup
 ```
 
@@ -65,7 +65,7 @@ runs on the schedule set by `AUTO_BACKUP_INTERVAL`; see
 
 Restores a database from a `pg_dump` archive produced by `app:backup`:
 
-```shell
+```bash
 docker compose exec zulip /sbin/entrypoint.sh app:restore <filename>
 ```
 

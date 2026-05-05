@@ -31,13 +31,13 @@ flow.
 
    You can back up your database onto the Docker volume using:
 
-   ```shell
+   ```bash
    docker compose exec zulip /sbin/entrypoint.sh app:backup
    ```
 
    You can back up the contents of the Docker named volume itself:
 
-   ```shell
+   ```bash
    docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
      tar czf /backup/backup.tar.gz -C /data .
    ```
@@ -46,7 +46,7 @@ flow.
    that you can re-point at each subsequent release. Tag names match
    the image tag exactly:
 
-   ```shell
+   ```bash
    git fetch --tags
    git checkout -B release 12.0-0
    ```
@@ -62,7 +62,7 @@ flow.
    touch your local edits. To pick up any new commented-out options
    that the new release added to the example file, diff them:
 
-   ```shell
+   ```bash
    diff compose.override.yaml.example compose.override.yaml
    ```
 
@@ -71,7 +71,7 @@ flow.
 
 1. Pull the new image and restart the container:
 
-   ```shell
+   ```bash
    docker compose pull
    docker compose up -d
    ```
@@ -105,14 +105,14 @@ useful for testing a development branch or running a local fork.
 
 1. Build the image:
 
-   ```shell
+   ```bash
    docker compose build zulip
    ```
 
 1. Update the running Docker Compose instance with that image; this
    will run database migrations, etc:
 
-   ```shell
+   ```bash
    docker compose up -d
    ```
 
@@ -126,7 +126,7 @@ local edits, and `git checkout` refuses to overwrite them. Set the
 file aside, reset the tracked version so the checkout can proceed,
 do the checkout, then move your edits back:
 
-```shell
+```bash
 cp compose.override.yaml compose.override.yaml.local-backup
 git checkout HEAD -- compose.override.yaml
 git checkout -B release 12.0-0
