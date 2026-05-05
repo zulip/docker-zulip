@@ -86,3 +86,18 @@ html_theme_options = {
 }
 html_logo = "_static/images/zulip-logo.svg"
 html_static_path = ["_static"]
+
+
+# MyST's substitution extension expands `{{ key }}` in regular content
+# but not inside fenced code blocks. To make version placeholders work
+# in command examples too, expand them in a source-read hook before
+# MyST sees the file.
+def _substitute_versions(app, docname, source):
+    text = source[0]
+    for key, value in myst_substitutions.items():
+        text = text.replace("{{ " + key + " }}", str(value))
+    source[0] = text
+
+
+def setup(app):
+    app.connect("source-read", _substitute_versions)

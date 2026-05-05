@@ -15,14 +15,14 @@ automatically run the necessary database migrations.
 
    ```yaml
    image:
-     tag: "12.0-0"
+     tag: "{{ DOCKER_VERSION }}"
    ```
 
    Or pass it on the command line:
 
    ```bash
    helm upgrade zulip oci://ghcr.io/zulip/helm-charts/zulip \
-       -f values-local.yaml --set image.tag=12.0-0
+       -f values-local.yaml --set image.tag={{ DOCKER_VERSION }}
    ```
 
 1. Wait for the pod to restart and become ready:
