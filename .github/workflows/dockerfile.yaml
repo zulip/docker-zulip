@@ -208,6 +208,14 @@ jobs:
       - docker-compose-collect
     env:
       GITHUB_CI_IMAGE: zulip/zulip-server:pr-${{ github.event.pull_request.number }}
+      # Applied to every `docker compose` invocation that doesn't
+      # pass its own -f flags. The "Run tests" step builds an
+      # explicit chain because some per-scenario test scripts extend
+      # it with additional -f arguments, and command-line -f
+      # replaces COMPOSE_FILE rather than extending it.
+      # matrix.dir already ends with a slash from `ls -d ci/*/`.
+      COMPOSE_FILE: compose.yaml:ci/base.yaml:${{ matrix.dir }}compose.yaml
+      COMPOSE_ENV_FILES: ci/base.env
     strategy:
       fail-fast: false
       matrix:
@@ -231,26 +239,10 @@ jobs:
         run: docker load --input /tmp/image.tar
 
       - name: Verify Docker Compose config
-        run: |
-          docker compose \
-            -f compose.yaml \
-            -f ci/base.yaml \
-            --env-file ci/base.env \
-            -f "$DIR/compose.yaml" \
-            config
-        env:
-          DIR: ${{ matrix.dir }}
+        run: docker compose config
 
       - name: Start Docker Compose services
-        run: |
-          docker compose \
-            -f compose.yaml \
-            -f ci/base.yaml \
-            --env-file ci/base.env \
-            -f "$DIR/compose.yaml" \
-            up -d --no-build
-        env:
-          DIR: ${{ matrix.dir }}
+        run: docker compose up -d --no-build
 
       - name: Wait for services to be healthy
         timeout-minutes: 5
