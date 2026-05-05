@@ -22,12 +22,12 @@ container from the host.
 ## Volumes
 
 This project's `docker-compose.yml` configuration file uses [Docker managed
-volumes][volumes] to store [persistent Zulip data][persistent-data]. If you use
-the Docker Compose deployment, you should make sure that Zulip's volumes are
-backed up, to ensure that Zulip's data is backed up.
+volumes][volumes] to store
+{doc}`persistent Zulip data <zulip:production/export-and-import>`. If you
+use the Docker Compose deployment, you should make sure that Zulip's volumes
+are backed up, to ensure that Zulip's data is backed up.
 
 [volumes]: https://docs.docker.com/engine/storage/volumes/
-[persistent-data]: https://zulip.readthedocs.io/en/latest/production/export-and-import.html#backups
 
 ## Configuration
 

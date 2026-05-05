@@ -6,7 +6,7 @@ automatically run the necessary database migrations.
 
 ## Upgrading the Zulip version
 
-1. Check the [Zulip upgrade notes](https://zulip.readthedocs.io/en/latest/overview/changelog.html)
+1. Check the {doc}`Zulip upgrade notes <zulip:overview/changelog>`
    for any breaking changes in the target version.
 
 1. (Optional) Back up your data before upgrading; see {doc}`helm-persistence`.

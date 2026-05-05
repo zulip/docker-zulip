@@ -25,11 +25,10 @@ Documentation for the previous image can be found [here][docker-hub-docs].
 We recommend using the Docker image if your organization has a preference for
 deploying services using Docker. Deploying with Docker moderately increases the
 effort required to install, maintain, and upgrade a Zulip installation, compared
-with the [standard Zulip installer][normal-install].
+with the {doc}`standard Zulip installer <zulip:production/install>`.
 
 [upgrade]: how-to/compose-upgrading-from-legacy.md
 [docker-hub-docs]: https://github.com/zulip/docker-zulip/blob/11.x/README.md
-[normal-install]: https://zulip.readthedocs.io/en/latest/production/install.html
 
 ## Docker runtime support
 
