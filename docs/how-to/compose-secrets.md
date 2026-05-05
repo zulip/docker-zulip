@@ -82,7 +82,7 @@ secrets:
 Then, in `/path/to/secrets/`, place each of those files. Take care to _not_
 include trailing newlines in them; for example:
 
-```shell
+```bash
 echo -n "example_postgres_password" > /path/to/secrets/postgres
 ```
 

@@ -96,7 +96,7 @@ also include settings.
    `EXTERNAL_HOST` or `ZULIP_ADMINISTRATOR` settings. However, it will provide
    the scaffolding in the volume which can be easily edited.
 
-   ```shell
+   ```bash
    docker compose run zulip app:init
    ```
 
@@ -106,7 +106,7 @@ also include settings.
    to run an editor in the container. The Zulip Docker container mounts the
    volume at `/data`, so this would look like:
 
-   ```shell
+   ```bash
    docker compose run --rm zulip sh -c \
      "apt-get update && apt-get install -y nano && nano /data/etc-zulip/settings.py"
    ```

@@ -9,7 +9,7 @@ rest of the Zulip services.
 
 1. Create the `zulip` network:
 
-   ```shell
+   ```bash
    docker network create zulip
    ```
 
@@ -59,12 +59,12 @@ rest of the Zulip services.
 
 1. Test that the container can connect to the database:
 
-   ```shell
+   ```bash
    docker compose run --rm app:managepy checks
    ```
 
 1. Start the containers:
 
-   ```shell
+   ```bash
    docker compose up
    ```

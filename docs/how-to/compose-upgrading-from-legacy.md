@@ -15,7 +15,7 @@ If you've already migrated, you don't need this page.
    changes (see below); a backup is the simplest way to make rolling
    back tractable. See [backing up Zulip data][backups].
 
-   ```shell
+   ```bash
    docker compose exec zulip /sbin/entrypoint.sh app:backup
    docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
      tar czf /backup/backup.tar.gz -C /data .
@@ -25,7 +25,7 @@ If you've already migrated, you don't need this page.
    section will overwrite your edited `docker-compose.yml`. Save a
    reference copy first so you can translate settings from it:
 
-   ```shell
+   ```bash
    cp docker-compose.yml ../docker-compose.yml.legacy-backup
    ```
 
@@ -101,20 +101,20 @@ new image.
    already have your reference copy saved from the previous section.
    Either reset:
 
-   ```shell
+   ```bash
    git checkout -- docker-compose.yml
    ```
 
    or stash:
 
-   ```shell
+   ```bash
    git stash push -m "legacy compose customizations" docker-compose.yml
    ```
 
 1. **Fetch and check out the first 12.x release tag**, on a local
    branch so subsequent upgrades follow the same pattern:
 
-   ```shell
+   ```bash
    git fetch --tags
    git checkout -B release 12.0-0
    ```
@@ -130,7 +130,7 @@ new image.
 1. **Build your override file from the example, then translate
    settings:**
 
-   ```shell
+   ```bash
    cp compose.override.yaml.example compose.override.yaml
    ```
 
@@ -164,7 +164,7 @@ new image.
 
 ## Bring the new image up
 
-```shell
+```bash
 docker compose pull
 docker compose up -d
 ```
