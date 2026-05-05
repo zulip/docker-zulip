@@ -64,7 +64,7 @@ commercial alternatives also exist. See
 ### Avoiding upload backups
 
 Configuring Zulip to use
-{doc}`S3-compatible storage <zulip:production/upload-backends>` keeps
+{ref}`S3-compatible storage <zulip:s3-backend>` keeps
 user uploads out of the PVC entirely, shrinking the snapshot footprint
 and letting snapshot retention focus on configuration and database
 state.
