@@ -13,8 +13,7 @@ If you've already migrated, you don't need this page.
 
 1. **Back up first.** This is a major upgrade and the volume layout
    changes (see below); a backup is the simplest way to make rolling
-   back tractable. See
-   {doc}`backing up Zulip data <zulip:production/export-and-import>`.
+   back tractable. See {ref}`backing up Zulip data <zulip:backups>`.
 
    ```bash
    docker compose exec zulip /sbin/entrypoint.sh app:backup
