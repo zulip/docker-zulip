@@ -137,6 +137,36 @@ ZULIP__EMAIL_PASSWORD=...
 ZULIP__GIPHY_API_KEY=PS42beKkLnOUBOqb1BgTyna87ooKgthE
 ```
 
+(rotate-postgres-password)=
+
+## Rotating the PostgreSQL password
+
+The `zulip__postgres_password` secret is used by the `database`
+container only at first boot, when it creates the `zulip` PostgreSQL
+user with that password. Changing `ZULIP__POSTGRES_PASSWORD` (or
+swapping its source file) afterwards does not propagate to the
+already-initialized database; the `zulip` container will then fail
+to authenticate.
+
+To rotate the password on a running deployment, update both sides:
+
+1. Run an `ALTER ROLE` query against the database with the new
+   password:
+
+   ```bash
+   docker compose exec database \
+     psql -U zulip -c "ALTER ROLE zulip WITH PASSWORD 'new_password';"
+   ```
+
+1. Update `ZULIP__POSTGRES_PASSWORD` in your `.env` file (or the
+   file-based secrets backend you've configured) to match.
+
+1. Restart the `zulip` container so it picks up the new secret:
+
+   ```bash
+   docker compose up -d zulip
+   ```
+
 ## See also
 
 - [How to use secrets in Compose](https://docs.docker.com/compose/how-tos/use-secrets/)
