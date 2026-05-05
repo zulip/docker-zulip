@@ -25,11 +25,10 @@ You can build a the Docker image from scratch by running:
 docker compose build zulip
 ```
 
-To customize the branch, tag, or repository URL (for example, if you have [forked
-Zulip to make local modifications][local-changes]), adjust your
+To customize the branch, tag, or repository URL (for example, if you have
+forked Zulip to make
+{doc}`local modifications <zulip:production/modify>`), adjust your
 `compose.override.yaml`:
-
-[local-changes]: https://zulip.readthedocs.io/en/stable/production/modify.html
 
 ```yaml
 services:

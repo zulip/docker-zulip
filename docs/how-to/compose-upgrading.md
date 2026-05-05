@@ -26,8 +26,9 @@ flow.
 ## Upgrading to a release
 
 1. (Optional) Upgrading does not delete your data, but it's generally
-   good practice to [back up your Zulip data][backups] before
-   upgrading to make switching back to the old version simple.
+   good practice to
+   {doc}`back up your Zulip data <zulip:production/export-and-import>`
+   before upgrading to make switching back to the old version simple.
 
    You can back up your database onto the Docker volume using:
 
@@ -75,8 +76,6 @@ flow.
    docker compose pull
    docker compose up -d
    ```
-
-[backups]: https://zulip.readthedocs.io/en/latest/production/export-and-import.html#backups
 
 ## Upgrading from a Git repository
 
