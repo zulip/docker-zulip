@@ -13,9 +13,10 @@ secrets:
   ##     https://docs.docker.com/reference/compose-file/secrets/
   ##     https://docs.docker.com/compose/how-tos/use-secrets/
   zulip__postgres_password:
-    ## Note that you need to do a manual `ALTER ROLE` query if you
-    ## change this on a system after booting the postgres container
-    ## the first time on a host.  Instructions are available in README.md.
+    ## Changing this on a running deployment requires a manual
+    ## `ALTER ROLE` query against the database; see the
+    ## "Rotating the PostgreSQL password" section of the
+    ## compose-secrets documentation linked above.
     environment: "ZULIP__POSTGRES_PASSWORD"
   zulip__memcached_password:
     environment: "ZULIP__MEMCACHED_PASSWORD"
