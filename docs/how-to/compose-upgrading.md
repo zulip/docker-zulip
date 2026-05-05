@@ -7,7 +7,7 @@ pulling that image and restarting the container. When the upgraded
 migrations.
 
 The git ref of this repository is the version-of-record for your
-deployment: pinning a specific tag like `12.0-0` ensures that the
+deployment: pinning a specific tag like `{{ DOCKER_VERSION }}` ensures that the
 `compose.yaml`, the example override file, and the image tag are all
 mutually consistent. See {doc}`/reference/versioning` for a full
 explanation of the tag scheme.
@@ -48,7 +48,7 @@ flow.
 
    ```bash
    git fetch --tags
-   git checkout -B release 12.0-0
+   git checkout -B release {{ DOCKER_VERSION }}
    ```
 
    The
@@ -129,7 +129,7 @@ do the checkout, then move your edits back:
 ```bash
 cp compose.override.yaml compose.override.yaml.local-backup
 git checkout HEAD -- compose.override.yaml
-git checkout -B release 12.0-0
+git checkout -B release {{ DOCKER_VERSION }}
 mv compose.override.yaml.local-backup compose.override.yaml
 ```
 
