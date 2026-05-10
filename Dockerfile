@@ -75,12 +75,13 @@ RUN \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY entrypoint.sh /sbin/entrypoint.sh
+COPY zulip-certbot-setup /usr/local/sbin/zulip-certbot-setup
 
 VOLUME ["$DATA_DIR"]
 EXPOSE 25 80 443
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=300s \
-    CMD curl -isfL --insecure http://localhost/health || exit 1
+    CMD ["curl", "-isfL", "--insecure", "http://localhost/health"]
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["app:run"]
