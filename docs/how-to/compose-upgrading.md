@@ -35,8 +35,7 @@ flow.
      tar czf /backup/backup.tar.gz -C /data .
    ```
 
-   See {doc}`/reference/data-volume` for the underlying backup model
-   and the Helm equivalent.
+   See {doc}`compose-backups` for the full backup-and-restore flow.
 
 1. Check out the release you want to upgrade to, on a local branch
    that you can re-point at each subsequent release. Tag names match

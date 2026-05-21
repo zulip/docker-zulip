@@ -61,6 +61,8 @@ volume-snapshot recipes.
 `/data` volume always contains a recent dump for a snapshot to pick
 up.
 
+(app-restore)=
+
 ## `app:restore`
 
 Restores a database from a `pg_dump` archive produced by `app:backup`:

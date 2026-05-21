@@ -36,30 +36,9 @@ snapshot directly while the database is running; the `app:backup`
 artifact is the consistent, restorable form.
 
 To get the freshest possible database state in the snapshot, refresh
-`app:backup` immediately before snapshotting.
-
-(compose-volume-snapshot)=
-
-### Compose: snapshot via `tar`
-
-```bash
-docker compose exec zulip /sbin/entrypoint.sh app:backup
-docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
-  tar czf /backup/backup.tar.gz -C /data .
-```
-
-(helm-volume-snapshot)=
-
-### Helm: `VolumeSnapshot`
-
-Kubernetes'
-[`VolumeSnapshot`](https://kubernetes.io/docs/concepts/storage/volume-snapshots/)
-CRD is the standard way to capture the chart's PVC. Most operators
-wrap `VolumeSnapshot` creation in a higher-level backup orchestrator
-that handles retention, off-cluster storage, and scheduling;
-[Velero](https://velero.io/) is the standard open-source option, and
-commercial alternatives also exist. See
-{doc}`/how-to/helm-persistence` for the chart-side details.
+`app:backup` immediately before snapshotting. See
+{doc}`/how-to/compose-backups` or {doc}`/how-to/helm-persistence` for
+the per-deployment recipes.
 
 ### Avoiding upload backups
 

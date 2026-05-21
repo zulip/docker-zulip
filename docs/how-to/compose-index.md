@@ -18,4 +18,5 @@ compose-upgrading-from-legacy
 compose-commands
 compose-existing-services
 compose-build
+compose-backups
 ```
