@@ -33,6 +33,8 @@ zulip:
 When `existingClaim` is set, the chart does not create a PVC; the StatefulSet
 references the named claim directly.
 
+(helm-volume-snapshot)=
+
 ## Backing up
 
 The PVC mounted at `/data` is the unit of backup. A
