@@ -3,6 +3,12 @@
 set -eux
 set -o pipefail
 
+# In-place restore against an already-configured, running deployment.
+# Use case: undo an "oops" -- a bad upgrade, a mistaken migration, or
+# anything else where the volume and surrounding services are healthy
+# and the only thing wrong is the database state.  See
+# ci/backup-restore-volume/ for the disaster-recovery flow.
+
 # One realm, one backup
 "${manage[@]:?}" create_realm 'Testing Realm' admin@example.com 'Test Admin' --password very-secret
 "${docker[@]:?}" exec zulip /sbin/entrypoint.sh app:backup
