@@ -691,7 +691,17 @@ appRestore() {
     waitingForDatabase "$DB_HOST" "$DB_PORT"
     local PGPASSWORD
     PGPASSWORD="$(crudini --get /etc/zulip/zulip-secrets.conf secrets postgres_password)"
+    # Stop the Zulip application server processes around the restore
+    # so they don't serve requests against a database whose objects are
+    # mid-drop-and-recreate, and flush memcached afterwards so cached
+    # objects don't carry IDs from the discarded database.
+    if supervisorctl status >/dev/null 2>&1; then
+        su zulip -c "/home/zulip/deployments/current/scripts/stop-server"
+        trap 'su zulip -c "/home/zulip/deployments/current/scripts/setup/flush-memcached"; su zulip -c "/home/zulip/deployments/current/scripts/start-server"' EXIT
+    fi
+
     PGPASSWORD="$PGPASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists "$DATA_DIR/backups/$BACKUP_FILE"
+
     echo "Restore process succeeded. Exiting."
     exit 0
 }
