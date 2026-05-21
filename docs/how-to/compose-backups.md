@@ -65,6 +65,9 @@ docker compose exec zulip /sbin/entrypoint.sh app:restore <filename>
 where `<filename>` is one of the `backup-*.sql` files in the restored
 `/data/backups/` directory. See {ref}`app:restore <app-restore>`.
 
+The container will report unhealthy briefly while `app:restore` is
+in progress, and returns to healthy when the restore completes.
+
 ## Off-site database backups
 
 For continuous off-site database backups independent of the

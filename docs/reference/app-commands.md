@@ -75,7 +75,8 @@ docker compose exec zulip /sbin/entrypoint.sh app:restore <filename>
 omitted, the command prompts interactively. Restore drops and
 recreates existing tables (`pg_restore --clean --if-exists`); a
 10-second countdown precedes the destructive phase so it can be
-aborted with Ctrl-C.
+aborted with Ctrl-C. The Zulip application server is stopped around
+the restore and memcached is flushed afterwards.
 
 To restore the rest of a deployment alongside the database, restore
 the `/data` volume from a snapshot first; the dump file `app:restore`
