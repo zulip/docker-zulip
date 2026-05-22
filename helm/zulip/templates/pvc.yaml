@@ -12,7 +12,9 @@ metadata:
 {{- end }}
 spec:
   accessModes:
-    - {{ .Values.zulip.persistence.accessMode | quote }}
+    {{- range .Values.zulip.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
   resources:
     requests:
       storage: {{ .Values.zulip.persistence.size | quote }}

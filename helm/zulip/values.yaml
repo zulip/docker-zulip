@@ -142,7 +142,8 @@ zulip:
   ## Volume Claim) is generated with these specifications.
   persistence:
     enabled: true
-    accessMode: ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     size: 10Gi
     ## Set storageClass to use.
     storageClass:

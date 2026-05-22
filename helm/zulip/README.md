@@ -114,7 +114,7 @@ for details.
 | statefulSetLabels                                                  | object | `{}`                           |             |
 | tolerations                                                        | list   | `[]`                           |             |
 | zulip.environment.SETTING_RUNNING_IN_HELM                          | bool   | `true`                         |             |
-| zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`              |             |
+| zulip.persistence.accessModes[0]                                   | string | `"ReadWriteOnce"`              |             |
 | zulip.persistence.enabled                                          | bool   | `true`                         |             |
 | zulip.persistence.size                                             | string | `"10Gi"`                       |             |
 | zulip.persistence.storageClass                                     | string | `nil`                          |             |

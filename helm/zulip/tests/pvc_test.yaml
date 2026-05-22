@@ -11,6 +11,10 @@ tests:
       - matchRegex:
           path: metadata.name
           pattern: -data$
+      - equal:
+          path: spec.accessModes
+          value:
+            - ReadWriteOnce
 
   - it: is not rendered when existingClaim is set
     values:
