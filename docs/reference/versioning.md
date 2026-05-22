@@ -20,7 +20,9 @@ deliberate scheduling rather than landing on the next `docker compose
 pull`. Treat the image tag in your `compose.yaml` (or `image.tag` in
 your Helm values) as the version-of-record for your deployment. The
 [GitHub releases page](https://github.com/zulip/docker-zulip/releases)
-lists the available tags.
+lists the available tags, and
+[`CHANGELOG.md`](https://github.com/zulip/docker-zulip/blob/main/CHANGELOG.md)
+is the canonical record of what changed in each release.
 
 ## Git tags in this repository
 
@@ -62,6 +64,10 @@ When upgrading, the chart `version` you select determines the
 override the image tag explicitly with `image.tag` in your values file
 to mix and match — for example, to take a chart-only fix on top of an
 older image, or vice versa.
+
+See
+[`helm/zulip/CHANGELOG.md`](https://github.com/zulip/docker-zulip/blob/main/helm/zulip/CHANGELOG.md)
+for chart release notes.
 
 ## See also
 
