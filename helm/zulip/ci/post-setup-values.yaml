@@ -23,5 +23,5 @@ redis:
     password: test-redis
 postgresql:
   auth:
-    postgresqlPassword: test-pg-admin
+    postgresPassword: test-pg-admin
     password: test-pg-zulip

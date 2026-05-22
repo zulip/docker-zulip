@@ -34,7 +34,7 @@
        password: "replace-with-secure-password"
    postgresql:
      auth:
-       postgresqlPassword: "replace-with-secure-password"
+       postgresPassword: "replace-with-secure-password"
        password: "replace-with-secure-password"
    ```
 
