@@ -291,13 +291,6 @@
       "additionalProperties": false,
       "description": "Zulip application configuration.",
       "required": ["environment"],
-      "allOf": [
-        {
-          "if": {"required": ["password"], "properties": {"password": {"minLength": 1}}},
-          "then": {},
-          "else": {"properties": {"environment": {"required": ["SECRETS_secret_key"]}}}
-        }
-      ],
       "properties": {
         "environment": {
           "type": "object",
@@ -313,11 +306,7 @@
           "additionalProperties": {
             "$ref": "#/definitions/scalarOrValueFrom"
           },
-          "required": ["SETTING_EXTERNAL_HOST", "SETTING_ZULIP_ADMINISTRATOR"]
-        },
-        "password": {
-          "type": "string",
-          "description": "Deprecated: use SECRETS_secret_key in zulip.environment instead. Backwards-compatible Zulip secret key."
+          "required": ["SETTING_EXTERNAL_HOST", "SETTING_ZULIP_ADMINISTRATOR", "SECRETS_secret_key"]
         },
         "persistence": {
           "type": "object",
