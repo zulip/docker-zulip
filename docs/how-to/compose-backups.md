@@ -42,31 +42,31 @@ docker compose cp zulip:/data/backups/ ./backups/
 
 ## Restore from a backup
 
-Stop the Zulip container, restore the volume contents from the
-tarball, then bring it back up:
+With the stack stopped (or before bringing it up for the first time
+on this host), untar the backup volume into a fresh `zulip` named
+volume and restore the database from the dump inside it:
 
 ```bash
-docker compose stop zulip
-docker compose run --rm -v zulip:/data -v $(pwd):/backup zulip \
+docker compose down -v               # wipe any existing state on this host
+docker compose run --rm --no-deps -v zulip:/data -v $(pwd):/backup zulip \
   tar xzf /backup/backup.tar.gz -C /data
-docker compose up -d zulip
+docker compose run --rm zulip app:restore <filename>
+docker compose up -d --wait
 ```
 
-The volume restore brings back uploads, configuration, certificates,
-and the database dump in `/data/backups/`. The PostgreSQL data in
-the `database` service's `postgresql-14` volume is _not_ touched by
-this; to bring the database itself to a matching state, restore from
-the dump inside the volume:
+`<filename>` is one of the `backup-*.sql` files in the restored
+`/data/backups/` directory. See {ref}`app:restore <app-restore>`.
+
+To restore in-place against a running stack (e.g. to undo a bad
+migration), skip the volume restore and use `exec` against the
+running container instead:
 
 ```bash
 docker compose exec zulip /sbin/entrypoint.sh app:restore <filename>
 ```
 
-where `<filename>` is one of the `backup-*.sql` files in the restored
-`/data/backups/` directory. See {ref}`app:restore <app-restore>`.
-
-The container will report unhealthy briefly while `app:restore` is
-in progress, and returns to healthy when the restore completes.
+The container will report unhealthy briefly while the in-place
+restore is in progress, and returns to healthy when it completes.
 
 ## Off-site database backups
 

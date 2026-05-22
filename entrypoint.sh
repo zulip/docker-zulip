@@ -733,6 +733,9 @@ case "$1" in
         ;;
     app:restore)
         shift 1
+        if [ ! -f /etc/zulip/settings.py ]; then
+            initialConfiguration
+        fi
         appRestore "$@"
         ;;
     app:help)
