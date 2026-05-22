@@ -18,3 +18,11 @@ tests:
       - matchRegex:
           path: data["my-setup.sh"]
           pattern: post-setup-marker
+
+  - it: commonLabels propagate to the ConfigMap metadata
+    values:
+      - ../ci/metadata-values.yaml
+    asserts:
+      - equal:
+          path: metadata.labels.custom/common-label
+          value: common-value

@@ -22,3 +22,11 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
+
+  - it: commonLabels propagate to the PVC metadata
+    values:
+      - ../ci/metadata-values.yaml
+    asserts:
+      - equal:
+          path: metadata.labels.custom/common-label
+          value: common-value

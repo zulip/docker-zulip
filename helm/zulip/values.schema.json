@@ -143,9 +143,9 @@
         }
       }
     },
-    "statefulSetLabels": {
+    "commonLabels": {
       "type": "object",
-      "description": "Custom labels to add to the Zulip StatefulSet."
+      "description": "Labels merged into every resource the chart creates."
     },
     "statefulSetAnnotations": {
       "type": "object",

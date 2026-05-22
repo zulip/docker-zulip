@@ -33,6 +33,7 @@ for details.
 | Key                                                                | Type   | Default                        | Description |
 | ------------------------------------------------------------------ | ------ | ------------------------------ | ----------- |
 | affinity                                                           | object | `{}`                           |             |
+| commonLabels                                                       | object | `{}`                           |             |
 | externalMemcached.host                                             | string | `""`                           |             |
 | externalMemcached.port                                             | int    | `11211`                        |             |
 | externalMemcached.user                                             | string | `""`                           |             |
@@ -111,7 +112,6 @@ for details.
 | startupProbe.successThreshold                                      | int    | `1`                            |             |
 | startupProbe.timeoutSeconds                                        | int    | `5`                            |             |
 | statefulSetAnnotations                                             | object | `{}`                           |             |
-| statefulSetLabels                                                  | object | `{}`                           |             |
 | tolerations                                                        | list   | `[]`                           |             |
 | zulip.environment.SETTING_RUNNING_IN_HELM                          | bool   | `true`                         |             |
 | zulip.persistence.accessModes[0]                                   | string | `"ReadWriteOnce"`              |             |
