@@ -8,6 +8,7 @@ maxdepth: 3
 compose-getting-started
 compose-settings
 compose-ssl
+compose-ports
 compose-secrets
 compose-manual-configuration
 compose-authentication

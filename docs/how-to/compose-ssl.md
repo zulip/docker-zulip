@@ -164,6 +164,10 @@ know which `X-Forwarded-*` headers to trust.
    {doc}`Zulip's guide to reverse proxies <zulip:production/reverse-proxies>`
    for details.
 
+1. If the reverse proxy runs on the same host and uses port 80 or 443
+   itself, you will need to publish Zulip on different host ports;
+   see {doc}`compose-ports`.
+
 ## See also
 
 - [Merging Compose files](https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/)

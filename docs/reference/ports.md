@@ -54,5 +54,6 @@ the StatefulSet pod.
 
 - {doc}`environment-vars`
 - {doc}`/how-to/compose-ssl`
+- {doc}`/how-to/compose-ports`
 - {doc}`/how-to/compose-incoming-email`
 - {doc}`/how-to/helm-ssl`
