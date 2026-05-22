@@ -328,10 +328,13 @@
               "type": "boolean",
               "description": "Enable persistent storage."
             },
-            "accessMode": {
-              "type": "string",
-              "description": "PVC access mode.",
-              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+            "accessModes": {
+              "type": "array",
+              "description": "PVC access modes.",
+              "items": {
+                "type": "string",
+                "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+              }
             },
             "size": {
               "type": "string",

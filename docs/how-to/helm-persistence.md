@@ -13,7 +13,8 @@ customize this in your values file:
 zulip:
   persistence:
     enabled: true
-    accessMode: ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     size: 20Gi
     storageClass: "fast-ssd"
 ```
