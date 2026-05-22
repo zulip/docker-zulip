@@ -164,3 +164,37 @@ jobs:
           docker buildx imagetools inspect ${PACKAGE_NAME}:${STEPS_META_OUTPUTS_VERSION}
         env:
           STEPS_META_OUTPUTS_VERSION: ${{ steps.meta.outputs.version }}
+
+  release:
+    if: github.ref_type == 'tag' && github.repository_owner == 'zulip'
+    runs-on: ubuntu-latest
+    needs:
+      - merge
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Extract changelog section
+        env:
+          TAG: ${{ github.ref_name }}
+        run: .github/scripts/extract-changelog.py
+
+      - name: Create or update GitHub release
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Zulip Server $TAG"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$title" --notes-file release-notes.md
+          else
+            gh release create "$TAG" \
+              --title "$title" \
+              --notes-file release-notes.md \
+              --verify-tag
+          fi
