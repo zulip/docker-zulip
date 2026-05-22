@@ -63,7 +63,7 @@ redis:
 postgresql:
   auth:
     ## postgres admin user password
-    # postgresqlPassword: set-secure-password
+    # postgresPassword: set-secure-password
     ## postgres zulip user password
     # password: set-secure-password
 

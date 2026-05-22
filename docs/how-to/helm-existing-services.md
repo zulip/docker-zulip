@@ -137,7 +137,7 @@ PostgreSQL but an external Redis:
 postgresql:
   enabled: true
   auth:
-    postgresqlPassword: secure-password
+    postgresPassword: secure-password
     password: secure-password
 
 redis:
