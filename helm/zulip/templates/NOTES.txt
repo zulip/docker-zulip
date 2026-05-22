@@ -41,3 +41,9 @@ supports valueFrom for referencing Kubernetes Secrets:
   echo "Visit http://127.0.0.1:{{ .Values.service.port }} to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "zulip.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 {{- end }}
+
+3. If your browser shows a "configure your reverse proxy" page, set
+   zulip.environment.LOADBALANCER_IPS to your Ingress controller's pod IP
+   or CIDR. See:
+
+  https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-proxy-trust.html

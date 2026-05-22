@@ -138,6 +138,7 @@ switches from `http` (port 80) to `https` (port 443) automatically.
 
 - [Kubernetes Ingress documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [cert-manager documentation](https://cert-manager.io/docs/)
+- {doc}`helm-proxy-trust`
 - {doc}`helm-settings`
 - {doc}`helm-getting-started`
 - {doc}`/reference/ports`

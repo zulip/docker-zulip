@@ -128,9 +128,11 @@ affinity: {}
 zulip:
   ## Zulip Docker settings and configuration
   ## Ref: https://zulip.readthedocs.io/projects/docker/en/latest/reference/environment-vars.html
-  environment:
-    ## Trust the gateway, for health checks and proxy headers
-    TRUST_GATEWAY_IP: true
+  ##
+  ## To trust an Ingress controller's X-Forwarded-* headers, set
+  ## LOADBALANCER_IPS to the controller's pod IP or CIDR. See
+  ## https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-proxy-trust.html
+  environment: {}
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
   persistence:
