@@ -13,7 +13,8 @@ postSetup:
       echo "post-setup ran" > /data/post-setup-marker
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq

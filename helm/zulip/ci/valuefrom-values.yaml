@@ -11,7 +11,8 @@ zulip:
           key: secret-key
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq

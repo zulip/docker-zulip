@@ -251,7 +251,13 @@ memcached:
     # TODO: This image is no longer updated, and will need to be updated to one which is.
     repository: bitnamilegacy/memcached
     tag: latest
-  memcachedUsername: "zulip@localhost"
+  auth:
+    enabled: true
+    username: "zulip@localhost"
+  ## Bitnami's memcached chart refuses to start with auth enabled when
+  ## the container filesystem is read-only (SASL needs scratch space).
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
 
 ## Redis settings, see [Requirements](#Requirements).
 ## Set redis.enabled to false and configure externalRedis to use a pre-existing server.

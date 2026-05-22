@@ -143,15 +143,15 @@ include all env variables for Zulip pods
 - name: SETTING_MEMCACHED_LOCATION
   value: "{{ template "common.names.fullname" .Subcharts.memcached }}:11211"
 - name: SETTING_MEMCACHED_USERNAME
-  value: "{{ .Values.memcached.memcachedUsername }}"
+  value: "{{ .Values.memcached.auth.username }}"
 - name: SECRETS_memcached_password
-  {{- if (dig "auth" "existingPasswordSecret" "" .Values.memcached) }}
+  {{- if .Values.memcached.auth.existingPasswordSecret }}
   valueFrom:
     secretKeyRef:
       name: {{ .Values.memcached.auth.existingPasswordSecret }}
       key: {{ .Values.memcached.auth.existingSecretPasswordKey | default "memcached-password" }}
   {{- else }}
-  value: {{ .Values.memcached.memcachedPassword | quote }}
+  value: {{ .Values.memcached.auth.password | quote }}
   {{- end }}
 {{- else }}
 - name: SETTING_MEMCACHED_LOCATION

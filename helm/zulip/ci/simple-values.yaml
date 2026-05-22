@@ -11,7 +11,8 @@ zulip:
     SETTING_EXTERNAL_HOST: zulip.example.net
 
 memcached:
-  memcachedPassword: set-secure-memcached-password
+  auth:
+    password: set-secure-memcached-password
 
 rabbitmq:
   auth:
