@@ -63,7 +63,7 @@ kubectl cp zulip-0:/data/backups/ ./backups/ -c zulip
 ```
 
 To avoid backing up uploads at all, configure Zulip to use
-{ref}`S3-compatible storage <zulip:s3-backend>` as a
+[S3-compatible storage](https://zulip.readthedocs.io/en/latest/production/upload-backends.html#s3-backend) as a
 native upload backend, which keeps the PVC small.
 
 See {doc}`/reference/data-volume` for the cross-deployment backup
@@ -73,7 +73,7 @@ model.
 
 For continuous off-site database backups, independent of the
 volume-snapshot path, Zulip supports
-{ref}`WAL-based archiving via wal-g <zulip:wal-g>`,
+[WAL-based archiving via wal-g](https://zulip.readthedocs.io/en/latest/production/export-and-import.html#wal-g),
 which streams write-ahead logs to S3 for point-in-time recovery.
 
 ## Adding a sidecar container
