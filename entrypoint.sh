@@ -105,7 +105,6 @@ if [ "$failure" = "1" ]; then
 fi
 
 # BEGIN appRun functions
-# === initialConfiguration ===
 prepareDirectories() {
     mkdir -p "$DATA_DIR" "$DATA_DIR/backups" "$DATA_DIR/uploads" "$DATA_DIR/certs/manual"
     if [ "${CERTIFICATES}" = "certbot" ]; then
@@ -513,8 +512,7 @@ runPostSetupScripts() {
     set -e
     echo "Post setup scripts execution succeeded."
 }
-initialConfiguration() {
-    echo "=== Begin Initial Configuration Phase ==="
+bootstrapEnvironment() {
     prepareDirectories
     local root_path="/etc/zulip"
     if [ "$LINK_SETTINGS_TO_DATA" = "True" ]; then
@@ -584,12 +582,15 @@ initialConfiguration() {
         exit 1
     fi
     autoBackupConfiguration
+}
+initialConfiguration() {
+    echo "=== Begin Initial Configuration Phase ==="
+    bootstrapEnvironment
     waitingForDatabase
     zulipMigration
     runPostSetupScripts
     echo "=== End Initial Configuration Phase ==="
 }
-# === bootstrappingEnvironment ===
 # END appRun functions
 # BEGIN app functions
 appRun() {
