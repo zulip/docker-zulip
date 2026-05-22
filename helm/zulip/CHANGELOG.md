@@ -4,6 +4,44 @@ This changelog tracks releases of the Zulip Helm chart published to
 `ghcr.io/zulip/helm-charts/zulip`. The Docker image has its own
 changelog at [../../CHANGELOG.md](../../CHANGELOG.md).
 
+## [2.0.0] - 2026-05-22
+
+Breaking changes. See the [migration guide](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-upgrading.html).
+
+- Update to Zulip Server 12.0-1.
+- Decouple chart `version` from Zulip's `appVersion`. Earlier
+  releases pegged the chart's minor to Zulip's major (`1.12.x` for
+  Zulip 12.x); 2.0 ends that. `appVersion` continues to track Zulip
+  releases independently.
+- Rename `postgresql.auth.postgresqlPassword` to `postgresPassword`
+  to match what Bitnami's PostgreSQL 18.x chart consumes; the old
+  key was silently ignored.
+- Move `memcached.memcachedUsername` / `memcachedPassword` to
+  `memcached.auth.username` / `memcached.auth.password` and default
+  `memcached.auth.enabled: true`. The subchart now actually runs
+  with SASL enabled instead of accepting credentials it never
+  validated.
+- Rename `zulip.persistence.accessMode` (string) to `accessModes`
+  (list), aligning with the Kubernetes API and the rest of the
+  Helm ecosystem.
+- Remove the deprecated `zulip.password` value; use
+  `zulip.environment.SECRETS_secret_key` (with optional `valueFrom`
+  for Kubernetes Secrets) instead.
+- Replace `statefulSetLabels` with `commonLabels`, which propagates
+  to every resource the chart creates (not just the StatefulSet).
+- Remove the `TRUST_GATEWAY_IP: true` default; rely on
+  `zulip.environment.LOADBALANCER_IPS` for proxy trust. Probes use
+  loopback to bypass the trust check; see
+  `docs/how-to/helm-proxy-trust.md`.
+- Advertise the Helm install to Zulip via `SETTING_RUNNING_IN_HELM`
+  so upstream Zulip's error pages can recommend the Helm-specific
+  knob (`zulip.environment.LOADBALANCER_IPS`) instead of a bare
+  Docker env var.
+- Add helm-unittest assertions that operator-set credentials reach
+  the subchart Secrets, so future subchart bumps that rename or
+  restructure credential keys fail CI loudly rather than silently
+  shipping unauthenticated services.
+
 ## [1.12.0] - 2026-04-27
 
 - Update to Zulip Server 12.0-0
