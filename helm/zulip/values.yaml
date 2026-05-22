@@ -132,7 +132,12 @@ zulip:
   ## To trust an Ingress controller's X-Forwarded-* headers, set
   ## LOADBALANCER_IPS to the controller's pod IP or CIDR. See
   ## https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-proxy-trust.html
-  environment: {}
+  environment:
+    ## Tells Zulip it is running under this Helm chart, so error pages
+    ## about LOADBALANCER_IPS can name the Helm-specific knob
+    ## (zulip.environment.LOADBALANCER_IPS) instead of the bare Docker
+    ## env var. Has no effect on older Zulip versions that don't read it.
+    SETTING_RUNNING_IN_HELM: True
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
   persistence:
