@@ -251,7 +251,7 @@ waitAndRunSetupCertbot() {
 
     # Overwrite the nginx hook to use supervisorctl
     cat <<EOF >/etc/letsencrypt/renewal-hooks/deploy/050-nginx.sh
-#!/bin/env bash
+#!/usr/bin/env bash
 supervisorctl signal HUP nginx
 EOF
 
