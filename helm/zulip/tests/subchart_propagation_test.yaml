@@ -1,0 +1,73 @@
+suite: Subchart credential propagation
+##
+## These tests assert that credentials set in the operator-facing
+## values reach the rendered Secret of the corresponding Bitnami
+## subchart.  They are the canary for the class of bug where we pass
+## a values key the subchart silently ignores (renamed, restructured,
+## or never existed) -- which static schema validation cannot catch
+## because the subchart schemas accept arbitrary additional keys.
+templates:
+  - charts/memcached/templates/secrets.yaml
+  - charts/postgresql/templates/secrets.yaml
+  - charts/rabbitmq/templates/secrets.yaml
+  - charts/redis/templates/secret.yaml
+tests:
+  - it: memcached Secret carries the password set under memcached.auth.password
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/memcached/templates/secrets.yaml
+    asserts:
+      - equal:
+          path: data["memcached-password"]
+          value: set-secure-memcached-password
+          decodeBase64: true
+
+  - it: postgresql Secret carries the admin password set under postgresql.auth.postgresPassword
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/postgresql/templates/secrets.yaml
+    asserts:
+      - equal:
+          path: data["postgres-password"]
+          value: set-secure-pg-postgres-password
+          decodeBase64: true
+
+  - it: postgresql Secret carries the user password set under postgresql.auth.password
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/postgresql/templates/secrets.yaml
+    asserts:
+      - equal:
+          path: data.password
+          value: set-secure-pg-zulip-password
+          decodeBase64: true
+
+  - it: rabbitmq Secret carries the password set under rabbitmq.auth.password
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/rabbitmq/templates/secrets.yaml
+    asserts:
+      - equal:
+          path: data["rabbitmq-password"]
+          value: set-secure-rabbitmq-password
+          decodeBase64: true
+
+  - it: rabbitmq Secret carries the Erlang cookie set under rabbitmq.auth.erlangCookie
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/rabbitmq/templates/secrets.yaml
+    asserts:
+      - equal:
+          path: data["rabbitmq-erlang-cookie"]
+          value: set-secure-cookie-password
+          decodeBase64: true
+
+  - it: redis Secret carries the password set under redis.auth.password
+    values:
+      - ../ci/simple-values.yaml
+    template: charts/redis/templates/secret.yaml
+    asserts:
+      - equal:
+          path: data["redis-password"]
+          value: set-secure-redis-password
+          decodeBase64: true
