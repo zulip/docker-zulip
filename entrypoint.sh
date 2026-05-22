@@ -735,7 +735,10 @@ case "$1" in
     app:restore)
         shift 1
         if [ ! -f /etc/zulip/settings.py ]; then
-            initialConfiguration
+            # No need to migrate the empty database -- `pg_restore
+            # --clean --if-exists` will drop and recreate every
+            # object that migrate would have built.
+            bootstrapEnvironment
         fi
         appRestore "$@"
         ;;
