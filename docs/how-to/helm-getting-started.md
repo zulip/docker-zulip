@@ -24,7 +24,8 @@
 
    ```yaml
    memcached:
-     memcachedPassword: "replace-with-secure-password"
+     auth:
+       password: "replace-with-secure-password"
    rabbitmq:
      auth:
        password: "replace-with-secure-password"

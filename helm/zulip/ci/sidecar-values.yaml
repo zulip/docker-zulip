@@ -12,7 +12,8 @@ sidecars:
     command: ["sleep", "infinity"]
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq

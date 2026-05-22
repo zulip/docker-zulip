@@ -65,10 +65,12 @@ for details.
 | livenessProbe.periodSeconds                                        | int    | `10`                           |             |
 | livenessProbe.successThreshold                                     | int    | `1`                            |             |
 | livenessProbe.timeoutSeconds                                       | int    | `5`                            |             |
+| memcached.auth.enabled                                             | bool   | `true`                         |             |
+| memcached.auth.username                                            | string | `"zulip@localhost"`            |             |
+| memcached.containerSecurityContext.readOnlyRootFilesystem          | bool   | `false`                        |             |
 | memcached.enabled                                                  | bool   | `true`                         |             |
 | memcached.image.repository                                         | string | `"bitnamilegacy/memcached"`    |             |
 | memcached.image.tag                                                | string | `"latest"`                     |             |
-| memcached.memcachedUsername                                        | string | `"zulip@localhost"`            |             |
 | nameOverride                                                       | string | `""`                           |             |
 | nodeSelector                                                       | object | `{}`                           |             |
 | podAnnotations                                                     | object | `{}`                           |             |

@@ -10,7 +10,8 @@ zulip:
     existingClaim: my-existing-pvc
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq

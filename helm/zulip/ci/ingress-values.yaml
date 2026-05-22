@@ -21,7 +21,8 @@ ingress:
         - zulip.example.com
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq

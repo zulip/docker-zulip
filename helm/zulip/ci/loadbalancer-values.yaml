@@ -14,7 +14,8 @@ service:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 
 memcached:
-  memcachedPassword: test-memcached
+  auth:
+    password: test-memcached
 rabbitmq:
   auth:
     password: test-rabbitmq
