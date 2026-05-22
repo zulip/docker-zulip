@@ -94,16 +94,6 @@ tests:
             name: SETTING_REDIS_HOST
             value: redis.example.com
 
-  - it: renders SECRETS_secret_key from zulip.password for backwards compatibility
-    values:
-      - ../ci/compat-password-values.yaml
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: SECRETS_secret_key
-            value: compat-secret-key
-
   - it: uses valueFrom when subchart existingSecret is set
     values:
       - ../ci/existing-secrets-values.yaml

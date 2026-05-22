@@ -194,10 +194,6 @@ include all env variables for Zulip pods
   {{- end }}
 {{- end }}
 
-{{- if .Values.zulip.password }}
-- name: SECRETS_secret_key
-  value: {{ .Values.zulip.password | quote }}
-{{- end }}
 {{- range $key, $value := .Values.zulip.environment }}
 - name: {{ $key }}
   {{- if kindIs "map" $value }}
