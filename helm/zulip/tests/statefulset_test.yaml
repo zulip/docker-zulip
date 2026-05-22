@@ -2,6 +2,17 @@ suite: StatefulSet
 templates:
   - statefulset.yaml
 tests:
+  - it: probes /health over loopback so the trust check is bypassed
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command
+          content: http://127.0.0.1/health
+      - contains:
+          path: spec.template.spec.containers[0].startupProbe.exec.command
+          content: http://127.0.0.1/health
+
   - it: propagates custom labels and annotations
     values:
       - ../ci/metadata-values.yaml

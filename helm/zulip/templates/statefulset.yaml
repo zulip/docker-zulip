@@ -67,12 +67,18 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-              httpHeaders:
-              - name: Host
-                value: {{ .Values.zulip.environment.SETTING_EXTERNAL_HOST | quote }}
+            exec:
+              # Probe via loopback so the source IP is 127.0.0.1, which
+              # the /health endpoint trusts unconditionally; this avoids
+              # depending on LOADBALANCER_IPS matching the kubelet probe
+              # source (which varies by CNI).
+              command:
+                - curl
+                - --silent
+                - --fail
+                - --max-time
+                - {{ .Values.livenessProbe.timeoutSeconds | quote }}
+                - http://127.0.0.1/health
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
@@ -81,12 +87,14 @@ spec:
           {{- end }}
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
-            httpGet:
-              path: /health
-              port: http
-              httpHeaders:
-              - name: Host
-                value: {{ .Values.zulip.environment.SETTING_EXTERNAL_HOST | quote }}
+            exec:
+              command:
+                - curl
+                - --silent
+                - --fail
+                - --max-time
+                - {{ .Values.startupProbe.timeoutSeconds | quote }}
+                - http://127.0.0.1/health
             initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.startupProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
