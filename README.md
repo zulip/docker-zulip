@@ -60,3 +60,9 @@ access to set properties like the maximum number of open file descriptions via
 See [Docker deployment documentation][docker-zulip-docs].
 
 [docker-zulip-docs]: https://zulip.readthedocs.io/projects/docker/
+
+## Release notes
+
+Image release notes are in [`CHANGELOG.md`](./CHANGELOG.md); the Helm
+chart has its own changelog at
+[`helm/zulip/CHANGELOG.md`](./helm/zulip/CHANGELOG.md).
