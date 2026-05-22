@@ -38,3 +38,10 @@ first_backup=$("${docker[@]}" exec zulip ls /data/backups/ | sort | head -n1)
 if "${manage[@]}" list_realms | grep "Other Realm"; then
     exit 1
 fi
+
+# `run --rm app:restore` against the running stack should refuse,
+# since the live workers are holding persistent DB connections.
+if "${docker[@]}" run --rm zulip app:restore "$first_backup"; then
+    echo "FAIL: run --rm app:restore did not refuse against live stack"
+    exit 1
+fi

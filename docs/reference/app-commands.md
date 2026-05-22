@@ -85,6 +85,14 @@ consumes is one of the files inside that volume. See
 (a different tool with different semantics), see
 {doc}`zulip:production/export-and-import`.
 
+When run from a one-shot container (e.g. `docker compose run --rm
+zulip app:restore <file>`), `app:restore` refuses to proceed if any
+other process is connected to the target database, since those
+connections are most likely live Zulip workers in a sibling
+container that would be left with stale state. Stop the running
+stack (`docker compose down`) before invoking the one-shot form, or
+set `FORCE_RESTORE=True` to override the check.
+
 ## `app:help`
 
 Prints the list of available commands and exits. Also runs as a
