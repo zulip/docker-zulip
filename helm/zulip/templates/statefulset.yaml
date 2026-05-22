@@ -4,9 +4,6 @@ metadata:
   name: {{ include "zulip.fullname" . }}
   labels:
     {{- include "zulip.labels" . | nindent 4 }}
-  {{- if .Values.statefulSetLabels }}
-    {{- toYaml .Values.statefulSetLabels | nindent 4 }}
-  {{- end }}
   {{- if .Values.statefulSetAnnotations }}
   annotations:
     {{- toYaml .Values.statefulSetAnnotations | nindent 4 }}
@@ -23,9 +20,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "zulip.selectorLabels" . | nindent 8 }}
-        {{- if .Values.podLabels }}
-        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- include "zulip.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}

@@ -41,3 +41,11 @@ tests:
       - equal:
           path: spec.ports[0].targetPort
           value: https
+
+  - it: commonLabels propagate to the Service metadata
+    values:
+      - ../ci/metadata-values.yaml
+    asserts:
+      - equal:
+          path: metadata.labels.custom/common-label
+          value: common-value

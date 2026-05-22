@@ -31,3 +31,14 @@ tests:
       - equal:
           path: spec.rules[0].host
           value: zulip.example.com
+
+  - it: commonLabels propagate to the Ingress metadata
+    values:
+      - ../ci/ingress-values.yaml
+    set:
+      commonLabels:
+        custom/common-label: common-value
+    asserts:
+      - equal:
+          path: metadata.labels.custom/common-label
+          value: common-value

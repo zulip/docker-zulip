@@ -6,8 +6,8 @@ zulip:
     SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
     SETTING_EXTERNAL_HOST: zulip.example.com
 
-statefulSetLabels:
-  custom/sts-label: sts-value
+commonLabels:
+  custom/common-label: common-value
 statefulSetAnnotations:
   custom/sts-annotation: sts-annotation-value
 podLabels:

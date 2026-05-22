@@ -37,8 +37,9 @@ serviceAccount:
   ## If not set and create is true, a name is generated using the fullname template
   name: ""
 
-## Custom labels to add to the Zulip StatefulSet.
-statefulSetLabels: {}
+## Labels merged into every resource the chart creates (StatefulSet,
+## Pod, Service, Ingress, PVC, ConfigMap, ServiceAccount).
+commonLabels: {}
 ## Custom annotations to add to the Zulip StatefulSet.
 statefulSetAnnotations: {}
 

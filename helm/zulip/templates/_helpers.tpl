@@ -31,9 +31,17 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Common labels.  Any operator-supplied `commonLabels` whose key clashes
+with the chart's own identifying labels (app.kubernetes.io/name,
+/instance, /managed-by, /version, helm.sh/chart) is dropped, so the
+chart's value always wins -- otherwise an overridden `name` or
+`managed-by` would silently break the StatefulSet's selector matching
+and Helm's resource tracking.
 */}}
 {{- define "zulip.labels" -}}
+{{- with omit (.Values.commonLabels | default dict) "helm.sh/chart" "app.kubernetes.io/name" "app.kubernetes.io/instance" "app.kubernetes.io/managed-by" "app.kubernetes.io/version" }}
+{{ toYaml . }}
+{{- end }}
 helm.sh/chart: {{ include "zulip.chart" . }}
 {{ include "zulip.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
