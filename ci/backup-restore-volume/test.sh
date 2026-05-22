@@ -25,17 +25,14 @@ set -o pipefail
 
 # Restore the volume contents into a fresh `zulip` volume; the
 # `run --rm` creates the named volume implicitly.
-"${docker[@]}" run --rm -v zulip:/data -v "$(pwd)":/backup zulip \
+"${docker[@]}" run --rm --no-deps -v zulip:/data -v "$(pwd)":/backup zulip \
     tar xzf /backup/zulip-volume.tar.gz -C /data
 
-# Bring services back up.  initialConfiguration regenerates
-# /etc/zulip/settings.py from the env vars and migrates the fresh
-# database to the latest schema.
-"${docker[@]}" up -d --wait
-
 # Restore the database from the dump in the restored `/data/backups/`.
-backup_file=$("${docker[@]}" exec zulip ls /data/backups/ | sort | head -n1)
-"${docker[@]}" exec zulip /sbin/entrypoint.sh app:restore "$backup_file"
+backup_file=$("${docker[@]}" run --rm --no-deps zulip ls /data/backups/ | sort | head -n1)
+"${docker[@]}" run --rm zulip app:restore "$backup_file"
+
+"${docker[@]}" up -d --wait
 
 # Verify the data made the round trip: "Testing Realm" is back,
 # "Other Realm" (which existed only after the backup) is gone.
