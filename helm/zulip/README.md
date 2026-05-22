@@ -20,6 +20,14 @@ See the
 for detailed installation instructions, including required settings
 and creating your first organization.
 
+## Trust and reverse-proxy configuration
+
+If browsers see a "configure your reverse proxy" error page, or pods
+fail their liveness probe, set `zulip.environment.LOADBALANCER_IPS`
+to your Ingress controller's pod IP or CIDR. See the
+[proxy-trust guide](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-proxy-trust.html)
+for details.
+
 ## Values
 
 | Key                                                                | Type   | Default                        | Description |
@@ -103,7 +111,7 @@ and creating your first organization.
 | statefulSetAnnotations                                             | object | `{}`                           |             |
 | statefulSetLabels                                                  | object | `{}`                           |             |
 | tolerations                                                        | list   | `[]`                           |             |
-| zulip.environment.TRUST_GATEWAY_IP                                 | bool   | `true`                         |             |
+| zulip.environment                                                  | object | `{}`                           |             |
 | zulip.persistence.accessMode                                       | string | `"ReadWriteOnce"`              |             |
 | zulip.persistence.enabled                                          | bool   | `true`                         |             |
 | zulip.persistence.size                                             | string | `"10Gi"`                       |             |
