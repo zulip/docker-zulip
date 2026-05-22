@@ -699,6 +699,33 @@ appRestore() {
     if supervisorctl status >/dev/null 2>&1; then
         su zulip -c "/home/zulip/deployments/current/scripts/stop-server"
         trap 'su zulip -c "/home/zulip/deployments/current/scripts/setup/flush-memcached"; su zulip -c "/home/zulip/deployments/current/scripts/start-server"' EXIT
+    else
+        # No local supervisord, so this is an ephemeral container --
+        # typically `docker compose run --rm zulip app:restore`.  If
+        # a sibling container is running Zulip services against the
+        # same database, those workers would be holding persistent
+        # connections; refuse rather than yank the schema out from
+        # under them.  `FORCE_RESTORE=True` overrides.
+        local DB_CONNECTIONS
+        DB_CONNECTIONS=$(PGPASSWORD="$PGPASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -tAc \
+            "SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid()")
+        if [ "$DB_CONNECTIONS" -gt 0 ] && [ "${FORCE_RESTORE:-False}" != "True" ]; then
+            cat >&2 <<EOF
+ERROR: $DB_CONNECTIONS active connection(s) to database "$DB_NAME" detected.
+A live Zulip stack appears to be connected to this database.  Restoring
+would drop the schema out from under those workers, leaving them with
+stale in-process state.
+
+  For an in-place restore against the running stack:
+      docker compose exec zulip /sbin/entrypoint.sh app:restore <file>
+
+  For a one-shot restore, stop the running stack first:
+      docker compose down
+
+  To override this check, set FORCE_RESTORE=True.
+EOF
+            exit 1
+        fi
     fi
 
     PGPASSWORD="$PGPASSWORD" pg_restore -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists "$DATA_DIR/backups/$BACKUP_FILE"
