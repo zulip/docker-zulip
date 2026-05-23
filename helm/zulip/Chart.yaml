@@ -17,7 +17,7 @@ version: 1.12.0
 ## the application. Versions are not expected to follow Semantic
 ## Versioning. They should reflect the version the application is
 ## using.  It is recommended to use it with quotes.
-appVersion: "12.0-0"
+appVersion: "12.0-1"
 dependencies:
   - name: memcached
     repository: oci://registry-1.docker.io/bitnamicharts
