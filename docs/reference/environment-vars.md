@@ -82,6 +82,7 @@ One of the following values:
 :::{seealso}
 
 - {doc}`/how-to/compose-ssl`
+- {doc}`/how-to/helm-ssl`
 
 :::
 
@@ -109,6 +110,7 @@ from.
 :::{seealso}
 
 - [](#proxies)
+- {doc}`/how-to/helm-proxy-trust`
 - {doc}`zulip:production/reverse-proxies`
 
 :::
@@ -155,6 +157,7 @@ This is often a simple shortcut to trust all NAT'd traffic into the container.
 :::{seealso}
 
 - [](#proxies)
+- {doc}`/how-to/helm-proxy-trust`
 
 :::
 
@@ -214,3 +217,4 @@ this to `False` to skip this behavior.
 - {doc}`/how-to/compose-settings`
 - {doc}`/how-to/compose-manual-configuration`
 - {doc}`/how-to/compose-secrets`
+- {doc}`/how-to/helm-settings`

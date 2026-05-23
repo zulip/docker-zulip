@@ -78,3 +78,8 @@ rest of the Zulip services.
    ```bash
    docker compose up
    ```
+
+## See also
+
+- {doc}`compose-settings`
+- {doc}`/reference/environment-vars`

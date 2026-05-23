@@ -22,5 +22,6 @@ service:
 
 - {doc}`zulip:production/deployment`
 - {doc}`zulip:production/system-configuration`
+- {doc}`/reference/environment-vars`
 
 [smokescreen]: https://github.com/stripe/smokescreen
