@@ -1,6 +1,6 @@
 # Zulip
 
-![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 12.0-0](https://img.shields.io/badge/AppVersion-12.0--0-informational?style=flat-square)
+![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 12.0-1](https://img.shields.io/badge/AppVersion-12.0--1-informational?style=flat-square)
 
 [Zulip](https://zulip.com/) is an open source threaded team chat that helps teams stay productive and focused.
 
@@ -52,7 +52,7 @@ for details.
 | global.security.allowInsecureImages                                | bool   | `true`                         |             |
 | image.pullPolicy                                                   | string | `"IfNotPresent"`               |             |
 | image.repository                                                   | string | `"ghcr.io/zulip/zulip-server"` |             |
-| image.tag                                                          | string | `"12.0-0"`                     |             |
+| image.tag                                                          | string | `"12.0-1"`                     |             |
 | imagePullSecrets                                                   | list   | `[]`                           |             |
 | ingress.annotations                                                | object | `{}`                           |             |
 | ingress.className                                                  | string | `nil`                          |             |
