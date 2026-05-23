@@ -7,3 +7,4 @@ Set `ZULIP_AUTH_BACKENDS` to a comma-separated list of the backend names (e.g.,
 ## See also
 
 - {doc}`zulip:production/authentication-methods`
+- {doc}`/reference/environment-vars`

@@ -155,5 +155,6 @@ You will also need to include a `secrets` section to configure
 - [Reference syntax for merging Compose files](https://docs.docker.com/reference/compose-file/merge/)
 - [Using the `env_file` attribute in Compose files](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/#use-the-env_file-attribute)
 - [Reference syntax for `env_file` in Compose files](https://docs.docker.com/reference/compose-file/services/#env_file)
+- {doc}`/reference/environment-vars`
 - {doc}`compose-secrets`
 - {doc}`compose-manual-configuration`
