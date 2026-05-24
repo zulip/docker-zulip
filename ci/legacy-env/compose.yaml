@@ -1,0 +1,6 @@
+---
+# No overrides: the bare base config must come up healthy. The test
+# below then spawns ephemeral containers with legacy env vars set, and
+# verifies the entrypoint rejects each with a helpful message.
+services:
+  zulip: {}

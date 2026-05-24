@@ -84,6 +84,49 @@ our_vars=(
 standard_vars=(
     HOSTNAME PWD HOME LANG SHLVL PATH _
 )
+
+# Detect environment variables that were renamed or removed when 12.x
+# replaced the legacy zulip/docker-zulip image. We fail loudly rather
+# than silently dropping the value, so an outdated compose file is
+# diagnosed instead of producing a hard-to-debug misconfiguration.
+# See docs/how-to/compose-upgrading-from-legacy.md.
+declare -A legacy_renamed=(
+    [DB_HOST]=SETTING_REMOTE_POSTGRES_HOST
+    [DB_HOST_PORT]=SETTING_REMOTE_POSTGRES_PORT
+    [DB_USER]=CONFIG_postgresql__database_user
+    [DB_NAME]=CONFIG_postgresql__database_name
+    [REMOTE_POSTGRES_SSLMODE]=SETTING_REMOTE_POSTGRES_SSLMODE
+    [DISABLE_HTTPS]=CERTIFICATES
+    [SSL_CERTIFICATE_GENERATION]=CERTIFICATES
+    [NGINX_WORKERS]=CONFIG_application_server__nginx_worker_processes
+    [PROXY_ALLOW_ADDRESSES]=CONFIG_http_proxy__allow_addresses
+    [PROXY_ALLOW_RANGES]=CONFIG_http_proxy__allow_ranges
+    [QUEUE_WORKERS_MULTIPROCESS]=CONFIG_application_server__queue_workers_multiprocess
+)
+legacy_removed=(
+    SPECIAL_SETTING_DETECTION_MODE
+    NGINX_PROXY_BUFFERING
+)
+legacy_failure=0
+for old in "${!legacy_renamed[@]}"; do
+    if [ -n "${!old:-}" ]; then
+        echo "ERROR: '$old' was replaced by '${legacy_renamed[$old]}' in 12.x." >&2
+        legacy_failure=1
+    fi
+done
+for old in "${legacy_removed[@]}"; do
+    if [ -n "${!old:-}" ]; then
+        echo "ERROR: '$old' was removed in 12.x and has no replacement." >&2
+        legacy_failure=1
+    fi
+done
+if [ "$legacy_failure" = "1" ]; then
+    echo >&2
+    echo "These names come from the legacy zulip/docker-zulip image and are no longer honored." >&2
+    echo "See https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-upgrading-from-legacy.html" >&2
+    exit 1
+fi
+
 failure=0
 for env_var in $(env -0 | cut -z -f1 -d= | tr '\0' '\n' | grep -vE '^(CONFIG|SECRET|SETTING|KUBERNETES)_'); do
     if [[ "$env_var" =~ ^[a-z0-9_]+__[a-z0-9_]+$ ]]; then
