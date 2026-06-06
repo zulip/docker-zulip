@@ -52,5 +52,6 @@ opt back in, but {ref}`loadbalancer-ips` is the recommended approach.
 - {ref}`loadbalancer-ips`
 - {ref}`trust-gateway-ip`
 - {doc}`zulip:production/reverse-proxies`
+- {doc}`helm-ingress`
 - {doc}`helm-ssl`
 - {doc}`helm-settings`
