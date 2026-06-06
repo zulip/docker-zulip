@@ -70,6 +70,12 @@ RUN \
     /root/zulip/scripts/setup/install --hostname="docker-zulip.local" --email="docker-zulip" \
       --puppet-classes="zulip::profile::docker" --postgresql-version=14 && \
     rm -f /etc/zulip/zulip-secrets.conf /etc/zulip/settings.py && \
+    # Zulip checks for /.dockerenv (as RUNNING_IN_DOCKER) to tailor
+    # error messages to this image's SETTING_* environment variables.
+    # The Docker engine creates that marker at runtime, but Kubernetes
+    # container runtimes (containerd, CRI-O) do not; bake it into the
+    # image so detection does not depend on the container runtime.
+    touch /.dockerenv && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
