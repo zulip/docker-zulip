@@ -33,6 +33,8 @@ pre-existing external services instead.
 1. Create the `zulip` database and user on your external server before
    installing the chart.
 
+(helm-external-rabbitmq)=
+
 ## Using an external RabbitMQ server
 
 ```yaml

@@ -55,6 +55,17 @@
    kubectl get pods -w
    ```
 
+   ```{note}
+   The bundled RabbitMQ runs as a Kubernetes-native clustered deployment:
+   each node queries the Kubernetes API (through its ServiceAccount RBAC)
+   for its peers and resolves its own `*.svc.cluster.local` headless DNS
+   name. On hardened clusters this can stop it from starting — for example
+   a default-deny NetworkPolicy blocking the API server, restricted RBAC, a
+   non-default cluster domain, or a memory limit too low for the Erlang VM.
+   If the RabbitMQ pod never becomes ready, point Zulip at an
+   {ref}`external RabbitMQ server <helm-external-rabbitmq>` instead.
+   ```
+
 1. Once the pod is ready, generate a link to create your first organization:
 
    ```bash
