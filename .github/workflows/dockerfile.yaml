@@ -122,6 +122,12 @@ jobs:
     needs:
       - build
       - helm-lint
+    strategy:
+      fail-fast: false
+      matrix:
+        values:
+          - simple-values.yaml
+          - persistence-values.yaml
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -155,7 +161,7 @@ jobs:
       - name: Install chart
         run: |
           helm install zulip helm/zulip/ \
-            -f helm/zulip/ci/simple-values.yaml \
+            -f "helm/zulip/ci/${{ matrix.values }}" \
             --set image.tag=pr-${{ github.event.pull_request.number }} \
             --wait --timeout 10m
 

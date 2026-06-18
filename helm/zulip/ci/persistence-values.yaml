@@ -1,0 +1,42 @@
+---
+# Test: Bundled subcharts deployed with persistence enabled, so the
+# functional suite exercises the PVC-provisioning and volume-permission
+# startup path that the default emptyDir configuration never covers.
+#
+# Mirrors simple-values.yaml (same SETTING_EXTERNAL_HOST, so ci/test.sh
+# works unchanged) but turns on persistence for the subcharts that
+# default to emptyDir in this chart's values.yaml.  PostgreSQL and the
+# Zulip pod itself are already persistent by default.
+image:
+  pullPolicy: Never
+  repository: zulip/zulip-server
+  # CI will pass tag: of the PR
+
+zulip:
+  environment:
+    SECRETS_secret_key: set-secure-zulip-secret-key
+    SETTING_ZULIP_ADMINISTRATOR: "admin@example.net"
+    SETTING_EXTERNAL_HOST: zulip.example.net
+
+memcached:
+  auth:
+    password: set-secure-memcached-password
+
+rabbitmq:
+  auth:
+    password: set-secure-rabbitmq-password
+    erlangCookie: set-secure-cookie-password
+  persistence:
+    enabled: true
+
+redis:
+  auth:
+    password: set-secure-redis-password
+  master:
+    persistence:
+      enabled: true
+
+postgresql:
+  auth:
+    postgresPassword: set-secure-pg-postgres-password
+    password: set-secure-pg-zulip-password
