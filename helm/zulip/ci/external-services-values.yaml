@@ -28,6 +28,7 @@ externalRabbitmq:
   port: 5672
   user: zulip
   password: external-rabbitmq-password
+  vhost: zulip-vhost
 
 externalMemcached:
   host: memcached.example.com

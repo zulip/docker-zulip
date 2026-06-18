@@ -439,6 +439,10 @@
           "type": "string",
           "description": "RabbitMQ username."
         },
+        "vhost": {
+          "type": "string",
+          "description": "RabbitMQ virtual host. Defaults to \"/\" if unset."
+        },
         "password": {
           "$ref": "#/definitions/scalarOrValueFrom",
           "description": "RabbitMQ password. Supports scalar values and valueFrom maps."
