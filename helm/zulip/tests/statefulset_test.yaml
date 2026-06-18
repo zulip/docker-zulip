@@ -75,6 +75,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].env
           content:
+            name: SETTING_RABBITMQ_VHOST
+            value: zulip-vhost
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
             name: SETTING_MEMCACHED_LOCATION
             value: "memcached.example.com:11211"
       - contains:

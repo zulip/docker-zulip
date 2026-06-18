@@ -278,6 +278,8 @@ externalRabbitmq:
   user: "zulip"
   ## password supports both scalar values and valueFrom maps.
   # password: ""
+  ## The RabbitMQ "virtual host" to use; defaults to "/" if unset.
+  # vhost: "/"
 
 ## External Memcached configuration.
 ## Used when memcached.enabled is set to false.

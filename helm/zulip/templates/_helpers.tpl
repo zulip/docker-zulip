@@ -136,6 +136,10 @@ include all env variables for Zulip pods
 - name: SETTING_RABBITMQ_USERNAME
   value: {{ .Values.externalRabbitmq.user | quote }}
 {{- end }}
+{{- if .Values.externalRabbitmq.vhost }}
+- name: SETTING_RABBITMQ_VHOST
+  value: {{ .Values.externalRabbitmq.vhost | quote }}
+{{- end }}
 {{- end }}
 
 {{/* --- Memcached --- */}}

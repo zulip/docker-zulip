@@ -44,7 +44,11 @@ externalRabbitmq:
   port: 5672
   user: zulip
   password: your-rabbitmq-password
+  # vhost: "/"
 ```
+
+Set `vhost` if Zulip should use a non-default RabbitMQ
+[virtual host](https://www.rabbitmq.com/docs/vhosts); it defaults to `/`.
 
 ## Using an external Memcached server
 
