@@ -72,7 +72,7 @@ restore is in progress, and returns to healthy when it completes.
 
 For continuous off-site database backups independent of the
 volume-snapshot path, Zulip supports
-[WAL-based archiving via wal-g](https://zulip.readthedocs.io/en/latest/production/export-and-import.html#wal-g), which streams
+{ref}`WAL-based archiving via wal-g <zulip:wal-g>`, which streams
 write-ahead logs to S3 for point-in-time recovery.
 
 ## See also

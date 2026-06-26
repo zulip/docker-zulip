@@ -4,6 +4,30 @@ This changelog tracks releases of the Zulip Server Docker image
 published to `ghcr.io/zulip/zulip-server`. The Helm chart has its
 own changelog at [helm/zulip/CHANGELOG.md](helm/zulip/CHANGELOG.md).
 
+## [12.1-0] - 2026-06-26
+
+- Update to Zulip Server 12.1.
+- Bake the `/.dockerenv` marker into the image, so Zulip's
+  `RUNNING_IN_DOCKER` detection works under container runtimes that
+  don't create it themselves (containerd, CRI-O). This makes
+  configuration error messages point at the `SETTING_*` environment
+  variables rather than at `/etc/zulip/settings.py`, which is
+  especially relevant for Kubernetes deployments.
+- Reject environment variables from the legacy `zulip/docker-zulip`
+  image at startup. Names that were renamed or removed in the move to
+  `ghcr.io/zulip/zulip-server` (e.g. `DB_HOST`, `DISABLE_HTTPS`,
+  `NGINX_WORKERS`) were previously silently ignored; the entrypoint
+  now exits with a diagnostic naming the new spelling (or flagging it
+  as removed) and a pointer to the legacy-upgrade docs.
+- New documentation:
+  - How-to guide for placing your own Ingress controller, Gateway
+    API implementation, or service mesh in front of Zulip, and which
+    proxy-adjacent settings remain application configuration.
+  - Note on when the bundled RabbitMQ subchart may fail to start on
+    hardened Kubernetes clusters, pointing to external RabbitMQ as
+    the robust alternative.
+  - Added missing cross-links.
+
 ## [12.0-1] - 2026-05-22
 
 - Ship `compose.override.yaml` as a tracked sample

@@ -7,11 +7,11 @@ server](https://zulip.com) in production. Built images are
 available from [ghcr.io](https://ghcr.io/zulip/zulip-server):
 
 ```console
-$ docker pull ghcr.io/zulip/zulip-server:12.0-1
+$ docker pull ghcr.io/zulip/zulip-server:12.1-0
 ```
 
-Current Zulip version: `12.0`
-Current Docker image version: `12.0-1`
+Current Zulip version: `12.1`
+Current Docker image version: `12.1-0`
 
 > [!NOTE]
 > A previous packaging of Zulip for Docker still exists on Docker Hub, as
