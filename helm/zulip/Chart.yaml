@@ -12,7 +12,7 @@ maintainers:
 ## version (appVersion); breaking changes to the chart's values API
 ## bump the chart's major. Versions are expected to follow Semantic
 ## Versioning (https://semver.org/).
-version: 2.0.0
+version: 2.1.0
 
 ## This is the version number of the application being deployed. This
 ## version number should be incremented each time you make changes to
