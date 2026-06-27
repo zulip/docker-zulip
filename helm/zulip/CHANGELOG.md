@@ -4,6 +4,14 @@ This changelog tracks releases of the Zulip Helm chart published to
 `ghcr.io/zulip/helm-charts/zulip`. The Docker image has its own
 changelog at [../../CHANGELOG.md](../../CHANGELOG.md).
 
+## [2.1.0] - 2026-06-27
+
+- Update to Zulip Server 12.1-0.
+- Add `externalRabbitmq.vhost` to set the RabbitMQ virtual host when
+  pointing Zulip at an external RabbitMQ server. Emits
+  `SETTING_RABBITMQ_VHOST` only when set, leaving the default `/`
+  behavior unchanged.
+
 ## [2.0.0] - 2026-05-22
 
 Breaking changes. See the [migration guide](https://zulip.readthedocs.io/projects/docker/en/latest/how-to/helm-upgrading.html).
