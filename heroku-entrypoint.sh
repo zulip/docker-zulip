@@ -7,7 +7,6 @@ parse_url() {
     local after_scheme="${url#*://}"
     local userinfo="${after_scheme%%@*}"
 
-    PARSED_USERNAME="${userinfo%%:*}"
     PARSED_PASSWORD="${userinfo#*:}"
 
     local after_at="${url#*@}"
@@ -15,7 +14,6 @@ parse_url() {
 
     PARSED_HOST="${host_and_port%%:*}"
     PARSED_PORT="${host_and_port##*:}"
-    PARSED_PATH="${after_at#*/}"
 }
 
 # Postgres

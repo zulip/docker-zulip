@@ -34,6 +34,7 @@ installer][normal-install].
 ## Deploy to Heroku
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Pratimakumari8/docker-zulip/tree/heroku-support)
+
 ## Prerequisites
 
 To use this image, you need the following:
