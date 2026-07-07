@@ -1,0 +1,17 @@
+name: Test Docker Build
+
+on:
+  push:
+    branches:
+      - heroku-support
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t my-zulip-heroku-test .
