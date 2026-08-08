@@ -4,6 +4,12 @@ This changelog tracks releases of the Zulip Server Docker image
 published to `ghcr.io/zulip/zulip-server`. The Helm chart has its
 own changelog at [helm/zulip/CHANGELOG.md](helm/zulip/CHANGELOG.md).
 
+## [12.2-0] - 2026-08-10
+
+- Update to Zulip Server 12.2.
+- New documentation:
+  - Added notes on configuration in networks without DNS.
+
 ## [12.1-0] - 2026-06-26
 
 - Update to Zulip Server 12.1.
