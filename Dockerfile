@@ -80,7 +80,8 @@ RUN \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY entrypoint.sh /sbin/entrypoint.sh
+COPY entrypoint.sh /sbin/zulip-entrypoint.sh
+COPY heroku-entrypoint.sh /sbin/entrypoint.sh 
 COPY zulip-certbot-setup /usr/local/sbin/zulip-certbot-setup
 
 VOLUME ["$DATA_DIR"]
