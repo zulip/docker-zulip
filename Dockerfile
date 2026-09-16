@@ -57,6 +57,7 @@ COPY --from=build /tmp/zulip-server-docker.tar.gz /root/
 COPY custom_zulip_files/ /root/custom_zulip
 
 WORKDIR /root
+# hadolint ignore=DL3005
 RUN \
     # Make sure Nginx is started by Supervisor.
     dpkg-divert --add --rename /etc/init.d/nginx && \
@@ -76,6 +77,14 @@ RUN \
     # container runtimes (containerd, CRI-O) do not; bake it into the
     # image so detection does not depend on the container runtime.
     touch /.dockerenv && \
+    # The install script above adds the PostgreSQL apt repository and
+    # installs nginx/postgresql/etc. after this stage's base image was
+    # already dist-upgraded, so those packages can lag behind upstream
+    # security patches. Re-run dist-upgrade now that every repo the
+    # install needed is configured, to pick up fixes for those packages
+    # before we strip apt's package lists below.
+    apt-get -q update && \
+    apt-get -q dist-upgrade -y && \
     apt-get -qq autoremove --purge -y && \
     apt-get -qq clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
