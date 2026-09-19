@@ -163,9 +163,12 @@ This is often a simple shortcut to trust all NAT'd traffic into the container.
 
 ### `ZULIP_AUTH_BACKENDS`
 
-A comma-separated list of authentication backends to enable. Note that this
-takes the place of `SETTING_AUTHENTICATION_BACKENDS`. This
-defaults to just `EmailAuthBackend`.
+A comma-separated list of authentication backend class names to enable,
+without the `zproject.backends.` package prefix. The Docker image adds this
+prefix automatically. For example, use `GenericOpenIdConnectBackend` for OIDC,
+not `zproject.backends.GenericOpenIdConnectBackend`. Note that this takes the
+place of `SETTING_AUTHENTICATION_BACKENDS`. This defaults to just
+`EmailAuthBackend`.
 
 :::{seealso}
 
