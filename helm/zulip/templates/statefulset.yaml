@@ -58,6 +58,9 @@ spec:
               mountPath: /data
             - name: {{ include "zulip.fullname" . }}-post-setup-scripts
               mountPath: /data/post-setup.d
+            {{- with .Values.zulip.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           env:
             {{ include "zulip.env" . | nindent 12 }}
           resources:
@@ -107,6 +110,9 @@ spec:
           configMap:
             name: {{ include "zulip.fullname" . }}-post-setup-scripts
             defaultMode: 0750
+      {{- with .Values.zulip.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
