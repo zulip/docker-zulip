@@ -85,10 +85,9 @@ services:
       ##
       # SETTING_EMAIL_GATEWAY_PATTERN: "%s@emaildomain.example.com"
 
-      ## A comma-separated list of authentication backends to enable.  Note that
-      ## this ZULIP_AUTH_BACKENDS takes the place of
-      ## SETTING_AUTHENTICATION_BACKENDS.  This defaults to just
-      ## EmailAuthBackend.
+      ## Comma-separated backend class names, without the zproject.backends. prefix.
+      ## The Docker image adds the prefix automatically.
+      ## Replaces SETTING_AUTHENTICATION_BACKENDS.
       ##
       ## --> https://zulip.readthedocs.io/projects/docker/en/latest/how-to/compose-authentication.html
       ##
