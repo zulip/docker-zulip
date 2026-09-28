@@ -342,6 +342,20 @@
               "description": "Annotations to add to the PVC."
             }
           }
+        },
+        "extraVolumes": {
+          "type": "array",
+          "description": "Extra volumes to add to the main Zulip pod.",
+          "items": {
+            "type": "object"
+          }
+        },
+        "extraVolumeMounts": {
+          "type": "array",
+          "description": "Extra volumeMounts to add to the main Zulip container. Each entry should have a matching entry in extraVolumes.",
+          "items": {
+            "type": "object"
+          }
         }
       }
     },
