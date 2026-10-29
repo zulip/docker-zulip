@@ -101,8 +101,12 @@ spec:
 
       volumes:
         - name: {{ include "zulip.fullname" . }}-persistent-storage
+          {{- if or .Values.zulip.persistence.enabled .Values.zulip.persistence.existingClaim }}
           persistentVolumeClaim:
             claimName: {{ if .Values.zulip.persistence.existingClaim }}{{ .Values.zulip.persistence.existingClaim }}{{- else }}{{ template "zulip.fullname" . }}-data{{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         - name: {{ include "zulip.fullname" . }}-post-setup-scripts
           configMap:
             name: {{ include "zulip.fullname" . }}-post-setup-scripts

@@ -23,6 +23,13 @@ tests:
       - hasDocuments:
           count: 0
 
+  - it: is not rendered when persistence is disabled
+    values:
+      - ../ci/no-persistence-values.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
   - it: commonLabels propagate to the PVC metadata
     values:
       - ../ci/metadata-values.yaml

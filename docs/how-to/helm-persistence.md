@@ -34,6 +34,21 @@ zulip:
 When `existingClaim` is set, the chart does not create a PVC; the StatefulSet
 references the named claim directly.
 
+## Running without persistent storage
+
+If `zulip.persistence.enabled` is `false` and no `existingClaim` is set, the
+chart creates no PVC and mounts an `emptyDir` at `/data` instead. Everything
+in `/data` is lost whenever the pod restarts, so this is only suitable when
+nothing there needs to survive: supply all secrets externally (`SECRETS_*`
+environment variables or Docker secrets), store uploads in S3, terminate TLS
+in front of Zulip, and handle backups outside the pod.
+
+```yaml
+zulip:
+  persistence:
+    enabled: false
+```
+
 (helm-volume-snapshot)=
 
 ## Backing up
