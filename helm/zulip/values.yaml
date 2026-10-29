@@ -141,6 +141,9 @@ zulip:
     SETTING_RUNNING_IN_HELM: True
   ## If `persistence.existingClaim` is not set, a PVC (Persistent
   ## Volume Claim) is generated with these specifications.
+  ## If `persistence.enabled` is false and no `existingClaim` is set,
+  ## /data is an emptyDir, and its contents are lost whenever the pod
+  ## restarts.
   persistence:
     enabled: true
     accessModes:
