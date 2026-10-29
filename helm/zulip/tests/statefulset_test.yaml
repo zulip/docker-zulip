@@ -77,6 +77,27 @@ tests:
               - sleep
               - infinity
 
+  - it: includes init containers, including native sidecars
+    values:
+      - ../ci/init-containers-values.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers
+          value:
+            - name: wait-for-db
+              image: busybox:latest
+              command: ["sleep", "1"]
+            - name: rabbitmq
+              image: rabbitmq:4-alpine
+              restartPolicy: Always
+
+  - it: omits initContainers by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers
+
   - it: references existing PVC when configured
     values:
       - ../ci/existing-pvc-values.yaml
