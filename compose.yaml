@@ -64,7 +64,7 @@ services:
       - "redis:/data:rw"
     attach: false
   zulip:
-    image: "ghcr.io/zulip/zulip-server:12.3-0"
+    image: "ghcr.io/zulip/zulip-server:12.4-0"
     restart: unless-stopped
     build:
       context: .
