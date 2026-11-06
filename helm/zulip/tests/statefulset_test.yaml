@@ -193,3 +193,21 @@ tests:
               secretKeyRef:
                 name: external-redis-secret
                 key: password
+
+  - it: mounts the data PVC by default
+    values:
+      - ../ci/simple-values.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[0].persistentVolumeClaim.claimName
+          value: RELEASE-NAME-zulip-data
+
+  - it: mounts an emptyDir when persistence is disabled
+    values:
+      - ../ci/no-persistence-values.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[0].emptyDir
+          value: {}
+      - notExists:
+          path: spec.template.spec.volumes[0].persistentVolumeClaim
