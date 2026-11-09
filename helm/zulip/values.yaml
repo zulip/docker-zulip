@@ -150,6 +150,14 @@ zulip:
     storageClass:
     ## Use an already existing PVC
     # existingClaim: ""
+  ## Extra volumes to add to the main Zulip pod — useful for mounting
+  ## certificates, secrets, or other files the container needs at a
+  ## specific path that this chart has no dedicated mechanism for (e.g.
+  ## the SAML SP certificate/key Zulip expects at /etc/zulip/saml).
+  extraVolumes: []
+  ## Corresponding mounts for the volumes above. Each entry here should
+  ## have a matching entry in extraVolumes.
+  extraVolumeMounts: []
 
 ## Liveness probe values.
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
