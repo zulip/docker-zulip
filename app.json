@@ -1,0 +1,23 @@
+{
+  "name": "Zulip",
+  "description": "Team chat that helps you focus and be more productive",
+  "repository": "https://github.com/zulip/docker-zulip",
+  "keywords": ["chat", "team communication", "zulip"],
+  "stack": "container",
+  "addons": [
+    "heroku-postgresql:essential-0",
+    "heroku-redis:mini",
+    "cloudamqp:lemur",
+    "memcachier:dev"
+  ],
+  "env": {
+    "SETTING_EXTERNAL_HOST": {
+      "description": "The domain name your Zulip server will be accessible at (Heroku fills this in automatically)",
+      "required": true
+    },
+    "SETTING_ZULIP_ADMINISTRATOR": {
+      "description": "Email address of the person administering this Zulip server",
+      "required": true
+    }
+  }
+}
