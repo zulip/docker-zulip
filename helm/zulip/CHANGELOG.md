@@ -4,6 +4,10 @@ This changelog tracks releases of the Zulip Helm chart published to
 `ghcr.io/zulip/helm-charts/zulip`. The Docker image has its own
 changelog at [../../CHANGELOG.md](../../CHANGELOG.md).
 
+## [2.7.0] - 2026-11-13
+
+- Update to Zulip Server 13.2-0.
+
 ## [2.6.0] - 2026-11-12
 
 - Update to Zulip Server 13.1-0.
