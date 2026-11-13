@@ -365,6 +365,11 @@
         }
       }
     },
+    "initContainers": {
+      "type": "array",
+      "description": "Init containers to add to the Zulip pod. Entries with restartPolicy Always run as native sidecars.",
+      "items": { "type": "object" }
+    },
     "sidecars": {
       "type": "array",
       "description": "Sidecar containers to add to the Zulip pod.",

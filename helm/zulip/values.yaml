@@ -181,6 +181,19 @@ postSetup:
     #   #!/bin/bash
     #   echo "This script is executed in the Zulip container after installation/migrations."
 
+## Init containers to add to the Zulip pod. An entry with
+## `restartPolicy: Always` is a native sidecar: it starts before Zulip
+## and stops after it.
+## Ref: https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+# initContainers:
+#   - name: rabbitmq
+#     image: rabbitmq:4-alpine
+#     restartPolicy: Always
+#     startupProbe:
+#       exec:
+#         command: ["rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+initContainers: []
+
 ## You can add any sidecar to Zulip, like a minio client to use for
 ## uploading backups to a bucket, and mounting the volume for Zulip.
 # sidecars:
