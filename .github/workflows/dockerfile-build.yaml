@@ -49,6 +49,8 @@ jobs:
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.PACKAGE_NAME }}
+          flavor: |
+            latest=false
           tags: |
             type=ref,event=branch
             type=match,pattern=(\d+\.\d+-\d+),group=1
@@ -128,6 +130,8 @@ jobs:
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.PACKAGE_NAME }}
+          flavor: |
+            latest=false
           tags: |
             type=ref,event=branch
             type=match,pattern=(\d+\.\d+-\d+),group=1
@@ -196,5 +200,6 @@ jobs:
             gh release create "$TAG" \
               --title "$title" \
               --notes-file release-notes.md \
+              --latest=false \
               --verify-tag
           fi
