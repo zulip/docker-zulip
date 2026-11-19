@@ -60,6 +60,7 @@ for details.
 | ingress.hosts[0].host                                              | string | `"zulip.example.com"`          |             |
 | ingress.hosts[0].paths[0].path                                     | string | `"/"`                          |             |
 | ingress.tls                                                        | list   | `[]`                           |             |
+| initContainers                                                     | list   | `[]`                           |             |
 | livenessProbe.enabled                                              | bool   | `true`                         |             |
 | livenessProbe.failureThreshold                                     | int    | `3`                            |             |
 | livenessProbe.initialDelaySeconds                                  | int    | `10`                           |             |
